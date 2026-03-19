@@ -11,10 +11,20 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="TelegramBotLib">
+            <directory>misc/BAGArt/telegram-bot-lib/tests</directory>
+        </testsuite>
+        <testsuite name="TelegramBotBasicLib">
+            <directory>misc/BAGArt/telegram-bot-basic-lib/tests</directory>
+        </testsuite>
+        <testsuite name="TelegramBotManagementLib">
+            <directory>misc/BAGArt/telegram-bot-management-lib/tests</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app</directory>
+            <directory>misc</directory>
         </include>
     </source>
     <php>

@@ -147,13 +147,6 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - Add useful array shape type definitions when appropriate.
 
-=== tests rules ===
-
-# Test Enforcement
-
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
-
 === inertia-laravel/core rules ===
 
 # Inertia
@@ -266,3 +259,40 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 - IMPORTANT: Activate `developing-with-fortify` skill when working with Fortify authentication features.
 
 </laravel-boost-guidelines>
+
+
+=== project conventions ===
+
+# Project Conventions
+
+- When reading MD files, always append their content to the end of the conversation context.
+- Development is primarily in `misc/`, avoid touching `app/` when possible.
+- Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.
+- ALWAYS use LF line endings, never CRLF. Write all files with `\n` only.
+
+## Telegram Bot Platform Structure
+
+- `misc/BAGArt/telegram-bot-lib` — pure Telegram Bot API library (no Laravel)
+- `misc/BAGArt/telegram-bot-basic-lib` — basic webhook handlers, middleware, commands (works with pure PHP and Laravel)
+- `misc/BAGArt/telegram-bot-management-lib` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgBotModule`), DB migrations
+
+## Webhook Endpoints
+
+- `POST /tg/{token}` — WebhookController (token from URL, no middleware)
+- `POST /tg/example/{token}` — TgWebhookExample (token from URL)
+- `POST /tg/webhook/{bot_uuid}` — TgWebhookExample (token from DB, IP + secret token middleware)
+
+## Routes
+
+- All tg routes are in `routes/web.php` under `Route::prefix('tg')` group.
+- Library service providers do NOT load routes — they are loaded from the main app.
+
+## DTO Generation
+
+- Run `php artisan tg:dev:dto:actualize --full --debug` to regenerate Telegram API DTOs.
+- DTOs are generated to `misc/BAGArt/telegram-bot-basic-lib/src/TgApi/`.
+
+## Composer
+
+- Libraries are connected via `path` repositories — run `composer update` from WSL shell (not Git Bash).
+- Symlinks in `vendor/bagart/` point to `misc/BAGArt/` — changes in libs are immediately visible.

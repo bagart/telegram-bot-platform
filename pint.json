@@ -1,3 +1,10 @@
 {
-    "preset": "laravel"
+    "preset": "psr12",
+    "exclude": [
+        "app",
+        "bootstrap",
+        "config",
+        "database",
+        "routes"
+    ]
 }
