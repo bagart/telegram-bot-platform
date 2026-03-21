@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Telegram Async Runtime Schema</title>
+  <style>
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: #0b0f14;
+      color: #e6edf3;
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .box {
+      border: 1px solid #223042;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 10px 0;
+      background: #0f1620;
+    }
+
+    .title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #7dd3fc;
+    }
+
+    .arrow {
+      text-align: center;
+      opacity: 0.7;
+      margin: 6px 0;
+    }
+
+    .level {
+      margin-left: 18px;
+      border-left: 2px solid #223042;
+      padding-left: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #1f2a37;
+      color: #93c5fd;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🧠 Telegram Async Runtime (Fiber + Akka-like supervision)</h2>
+
+<div class="box">
+  <div class="title">1. Daemon Layer</div>
+  DaemonRunner <span class="tag">main loop</span>
+  <div class="arrow">↓ tick / schedule</div>
+  TgPollerDaemon
+</div>
+
+<div class="box">
+  <div class="title">2. Polling Layer</div>
+  TgPoller
+  <div class="level">
+    TgUpdateFetcher → Telegram API (GetUpdates)
+  </div>
+  <div class="arrow">↓ UpdateTypeDTO[]</div>
+</div>
+
+<div class="box">
+  <div class="title">3. Init / Routing Layer</div>
+  UpdateDTOInitProcessor
+  <div class="level">
+    ProcessorRegistry.resolve()
+    <br/>
+    support() filtering
+    <br/>
+    strict ordering detection
+  </div>
+  <div class="arrow">↓ processors[]</div>
+</div>
+
+<div class="box">
+  <div class="title">4. Execution Layer</div>
+  TgTypeDTOProcessorContract[]
+  <div class="arrow">↓ process(dto)</div>
+
+  <div class="level">
+    SUCCESS → done
+  </div>
+
+  <div class="level">
+    EXCEPTION → ProcessorExceptionContext
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">5. Supervision (Akka-style)</div>
+  ProcessorExceptionContext
+  <div class="arrow">↓ onException()</div>
+  ProcessingDirective
+  <div class="arrow">↓ decision</div>
+
+  <div class="level">
+    RETRY
+    <br/>
+    NOTIFY_USER
+    <br/>
+    REQUEUE
+    <br/>
+    DROP
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">6. Runtime Executor</div>
+  ProcessingDirectiveExecutor
+  <div class="arrow">↓ executes directive</div>
+
+  <div class="level">
+    retry → FiberScheduler / sleep / re-run processor
+    <br/>
+    notify → Telegram / logger
+    <br/>
+    requeue → Inbox
+    <br/>
+    drop → ignore
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">7. Async Kernel</div>
+  AsyncKernel
+  <div class="level">
+    FiberScheduler
+    <br/>
+    Guzzle promises tick
+    <br/>
+    tickable daemons
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">8. Turbo Mode</div>
+  <div class="level">
+    Poll batch A → processing starts
+    <br/>
+    Poll batch B starts BEFORE A finishes
+    <br/>
+    → overlapping execution (true concurrency via fibers)
+  </div>
+</div>
+
+<div class="box">
+  <div class="title">9. Strict Ordering (per chat)</div>
+  <div class="level">
+    (chat_id + processor) queue
+    <br/>
+    guarantees sequential execution per chat
+  </div>
+</div>
+
+<hr/>
+
+<div class="box">
+  <div class="title">🔥 Final Model</div>
+  Actor system + Fiber scheduler + supervision tree + mailbox + async ingestion
+</div>
+
+</body>
+</html>

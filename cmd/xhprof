@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+# XHProf profiler — profile a script + auto-generate HTML/SVG reports.
+#
+# Usage:
+#   cmd/xhprof run <script> [args...]
+#   cmd/xhprof report <file.xhprof>
+#
+# Examples:
+#   cmd/xhprof run misc/.../benchmark.php --transport=guzzle
+#   cmd/xhprof report storage/app/tmp/xhprof/PROFILE.xhprof
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+STORAGE="$DIR/storage/app/tmp/xhprof"
+mkdir -p "$STORAGE"
+export XHPROF_FLAGS="${XHPROF_FLAGS:-CPU,MEMORY}"
+export XHPROF_OUTPUT="$STORAGE"
+export XHPROF_PROJECT_DIR="$DIR"
+
+generate_reports() {
+    for f in "$STORAGE"/*.xhprof; do
+        [ -f "$f" ] || continue
+        [ -f "$f.html" ] && [ -f "$f.svg" ] && continue
+        php "$DIR/cmd/includes/xhprof-report-lib.php" --storage="$STORAGE" "$f" && echo "  html: $f.html"
+        php "$DIR/cmd/includes/xhprof-to-svg.php" "$f" && echo "  svg:  $f.svg"
+    done
+}
+
+case "${1:-help}" in
+    run)
+        shift
+        XDEBUG_MODE=off php -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" "$@"
+        echo "--- Generating reports ---"
+        generate_reports
+        ;;
+    report)
+        shift
+        php "$DIR/cmd/includes/xhprof-report-lib.php" --storage="$STORAGE" "$@" && echo "  html: ${1%.xhprof}.html"
+        f="${1%.xhprof}"
+        php "$DIR/cmd/includes/xhprof-to-svg.php" "$1" && echo "  svg:  $f.svg"
+        ;;
+    *)
+        echo "Usage: cmd/xhprof {run|report} [args...]"
+        echo
+        echo "  run <script> [args...]       profile a PHP script + generate reports"
+        echo "  report <file.xhprof>         generate HTML + SVG from existing profile"
+        exit 1
+        ;;
+esac

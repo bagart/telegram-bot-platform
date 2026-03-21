@@ -9,35 +9,28 @@
         "telegram-bot",
         "telegram-bot-platform"
     ],
-    "license": "MIT",
-    "repositories": [
+    "authors": [
         {
-            "type": "path",
-            "url": "misc/BAGArt/telegram-bot-lib"
-        },
-        {
-            "type": "path",
-            "url": "misc/BAGArt/telegram-bot-basic-lib"
-        },
-        {
-            "type": "path",
-            "url": "misc/BAGArt/telegram-bot-management-lib"
+            "name": "BAGArt (Artur Baltaev)",
+            "email": "baltaev.artur+ask@gmail.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "php": "^8.5",
-        "bagart/telegram-bot-lib": "@dev",
-        "bagart/telegram-bot-basic-lib": "@dev",
-        "bagart/telegram-bot-management-lib": "@dev",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.34",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "psr/simple-cache": "*",
-        "darkaonline/l5-swagger": "^8.6"
+        "darkaonline/l5-swagger": "^8.6",
+        "ext-curl": "*",
+        "ext-redis": "*",
+        "ext-zlib": "*"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.24",
         "laravel/boost": "^2.0",
         "laravel/pail": "^1.2.5",
@@ -45,6 +38,7 @@
         "laravel/sail": "^1.53",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.9",
+        "nunomaduro/larastan": "*",
         "pestphp/pest": "^4.4",
         "pestphp/pest-plugin-laravel": "^4.1"
     },
@@ -52,13 +46,23 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "BAGArt\\AsyncKernel\\": "misc/BAGArt/php-async-kernel-lib/src/",
+            "BAGArt\\ASKClient\\": "misc/BAGArt/php-async-kernel-client/src/",
+            "BAGArt\\ASKClientRedis\\": "misc/BAGArt/php-async-kernel-client-redis/src/",
+            "BAGArt\\TelegramBot\\": "misc/BAGArt/telegram-bot-lib/src/",
+            "BAGArt\\TelegramBotBasic\\": "misc/BAGArt/telegram-bot-basic-lib/src/",
+            "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-bot-management-lib/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
-        }
+            "Tests\\": "tests/",
+            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
+            "BAGArt\\AsyncKernel\\Tests\\": "misc/BAGArt/php-async-kernel-lib/tests/",
+            "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/"
+        },
+        "files": []
     },
     "scripts": {
         "setup": [
@@ -94,7 +98,10 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@lint:check",
-            "@php artisan test"
+            "@php artisan test",
+            "cd misc/BAGArt/telegram-bot-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-management-lib && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

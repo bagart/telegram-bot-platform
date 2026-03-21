@@ -99,6 +99,17 @@ services:
     networks:
       - laravel-development
 
+  xhprof-inbox:
+    build:
+      context: ./docker/xhprof-inbox
+      dockerfile: Dockerfile
+    ports:
+      - "${XHPROF_INBOX_PORT:-8082}:80"
+    volumes:
+      - ./storage/app/tmp/xhprof:/var/www/xhprof-inbox/storage:ro
+    networks:
+      - laravel-development
+
 networks:
   laravel-development:
 

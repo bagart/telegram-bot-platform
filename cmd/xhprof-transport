@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+trap 'trap - INT TERM; echo "Aborting..."; kill 0 2>/dev/null; exit 130' INT TERM
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+STORAGE="$DIR/storage/app/tmp/xhprof/benchmark-transport"
+#rm -rf "$STORAGE"
+mkdir -p "$STORAGE"
+
+XHPROF_FLAGS="${XHPROF_FLAGS:-CPU,MEMORY}"
+TRANSPORT_TIMEOUT="${TRANSPORT_TIMEOUT:-600}"
+BENCHMARK_DIR="$DIR/misc/BAGArt/php-async-kernel-client/commands"
+BENCHMARK="$BENCHMARK_DIR/benchmark.php"
+RESULT_INCLUDE="$BENCHMARK_DIR/includes/benchmark/result.php"
+TRANSPORTS=(curl-multi guzzle ask-socket)
+
+RUNS=1
+for arg in "$@"; do
+    case "$arg" in
+        --runs=*) RUNS="${arg#*=}" ;;
+    esac
+done
+
+echo "{\"runs\":$RUNS}" > "$STORAGE/meta.json"
+
+for t in "${TRANSPORTS[@]}"; do
+    TDIR="$STORAGE/$t"
+    mkdir -p "$TDIR"
+    echo "=== Profiling transport: $t (timeout ${TRANSPORT_TIMEOUT}s) ==="
+    TSTART=$(date +%s)
+    XDEBUG_MODE=off \
+    XHPROF_FLAGS="$XHPROF_FLAGS" \
+    XHPROF_OUTPUT="$TDIR" \
+    XHPROF_PROJECT_DIR="$DIR" \
+    timeout --foreground "$TRANSPORT_TIMEOUT" \
+        php -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" "$BENCHMARK" --transport="$t" "$@" > "$TDIR/result.json"
+    EXIT_CODE=$?
+    TEND=$(date +%s)
+    TDELTA=$((TEND - TSTART))
+
+    if [ $EXIT_CODE -eq 124 ]; then
+        echo "  TIMEOUT after ${TDELTA}s — transport '$t' did not complete within ${TRANSPORT_TIMEOUT}s"
+        echo '{"error":"Timed out","concurrent_time":0,"ok":0,"fail":0,"total":0,"rps":0,"fairness":0,"cv":0,"peak_memory":0,"peak_memory_delta":0,"baseline_memory":0,"per_url":[],"retried":false}' > "$TDIR/result.json"
+    elif [ $EXIT_CODE -ne 0 ]; then
+        echo "  FAILED with exit code $EXIT_CODE after ${TDELTA}s"
+    else
+        echo "  OK (${TDELTA}s)"
+        sleep 5
+    fi
+
+done
+
+echo "=== Benchmark Results ==="
+XDEBUG_MODE=off \
+php "$RESULT_INCLUDE" "$STORAGE"

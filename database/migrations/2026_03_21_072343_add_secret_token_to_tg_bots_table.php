@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('tg_bots', function (Blueprint $table) {
-            $table->string('secret_token', 256)->nullable()->after('token');
-        });
+        if (!Schema::hasColumn('tg_bots', 'secret_token')) {
+            Schema::table('tg_bots', function (Blueprint $table) {
+                $table->string('secret_token', 256)->nullable()->after('token');
+            });
+        }
     }
 
     public function down(): void

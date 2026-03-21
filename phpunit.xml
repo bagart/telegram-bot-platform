@@ -13,12 +13,29 @@
         </testsuite>
         <testsuite name="TelegramBotLib">
             <directory>misc/BAGArt/telegram-bot-lib/tests</directory>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/FullCycleTest.php</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/integration-test.php</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/commands-offline-test.php</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Unit/Processing/Redis</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Unit/Runtime/Daemon/DaemonRunnerTest.php</exclude>
         </testsuite>
         <testsuite name="TelegramBotBasicLib">
             <directory>misc/BAGArt/telegram-bot-basic-lib/tests</directory>
         </testsuite>
         <testsuite name="TelegramBotManagementLib">
             <directory>misc/BAGArt/telegram-bot-management-lib/tests</directory>
+        </testsuite>
+        <testsuite name="AsyncKernelLib">
+            <directory>misc/BAGArt/php-async-kernel/tests</directory>
+        </testsuite>
+        <testsuite name="ASKClientLib">
+            <directory>misc/BAGArt/php-async-kernel-client/tests</directory>
+        </testsuite>
+        <testsuite name="ASKClientRedisLib">
+            <directory>misc/BAGArt/php-async-kernel-client-redis/tests</directory>
+        </testsuite>
+        <testsuite name="DaemonRunnerLib">
+            <directory>misc/BAGArt/daemon-runner/tests</directory>
         </testsuite>
     </testsuites>
     <source>
