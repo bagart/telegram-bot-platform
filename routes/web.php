@@ -1,8 +1,7 @@
 <?php
 
-use BAGArt\TelegramBotBasic\Http\Controller\TgWebhookExample;
+use BAGArt\TelegramBot\Http\Laravel;
 use BAGArt\TelegramBotBasic\Http\Controllers\WebhookController;
-use BAGArt\TelegramBotBasic\Http\Middleware\ValidateTelegramWebhook;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -16,9 +15,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/settings.php';
 
-Route::prefix('tg')->group(function () {
-    Route::post('{token}', [WebhookController::class, 'handle']);
-    Route::post('example/{token}', [TgWebhookExample::class, 'handle']);
-    Route::post('webhook/{bot_uuid}', [TgWebhookExample::class, 'handle'])
-        ->middleware(ValidateTelegramWebhook::class);
+Route::prefix('tg')->middleware([
+    Laravel\Middlewares\TgIpValidatorMiddleware::class,
+    Laravel\Middlewares\TgSecretValidatorMiddleware::class,
+])->group(function () {
+    Route::post('/', [Laravel\TgWebhookController::class, 'post']);
 });

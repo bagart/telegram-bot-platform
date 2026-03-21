@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd37d69b6ce3b15a635c9a79907861ca",
+    "content-hash": "dd6c0e6891948a928df70af2a1d03287",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -60,116 +60,6 @@
                 "source": "https://github.com/Bacon/BaconQrCode/tree/v3.0.4"
             },
             "time": "2026-03-16T01:01:30+00:00"
-        },
-        {
-            "name": "bagart/telegram-bot-basic-lib",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "misc/BAGArt/telegram-bot-basic-lib",
-                "reference": "2e5c9f0f61da8580b70cb287184a70a151575b31"
-            },
-            "require": {
-                "bagart/telegram-bot-lib": "*",
-                "php": "^8.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "BAGArt\\TelegramBotBasic\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "BAGArt",
-                    "email": "baltaev.artur+lib@gmail.com"
-                }
-            ],
-            "description": "Telegram Bot basic commands library",
-            "keywords": [
-                "bot",
-                "commands",
-                "telegram"
-            ],
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "bagart/telegram-bot-lib",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "misc/BAGArt/telegram-bot-lib",
-                "reference": "1596fd6d79026093ab6b1ee3b3d61d6780430a8d"
-            },
-            "require": {
-                "php": "^8.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "BAGArt\\TelegramBot\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "BAGArt",
-                    "email": "baltaev.artur+lib@gmail.com"
-                }
-            ],
-            "description": "Telegram Bot core library",
-            "keywords": [
-                "api",
-                "bot",
-                "telegram"
-            ],
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "bagart/telegram-bot-management-lib",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "misc/BAGArt/telegram-bot-management-lib",
-                "reference": "178714c57378f1fd0df583ad880d6ff42490cd17"
-            },
-            "require": {
-                "bagart/telegram-bot-lib": "*",
-                "php": "^8.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "BAGArt\\TelegramBotManagement\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "BAGArt",
-                    "email": "baltaev.artur+lib@gmail.com"
-                }
-            ],
-            "description": "Telegram Bot management library",
-            "keywords": [
-                "bot",
-                "management",
-                "telegram"
-            ],
-            "transport-options": {
-                "relative": true
-            }
         },
         {
             "name": "brick/math",
@@ -10320,11 +10210,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "bagart/telegram-bot-lib": 20,
-        "bagart/telegram-bot-basic-lib": 20,
-        "bagart/telegram-bot-management-lib": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -260,7 +260,6 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 
 </laravel-boost-guidelines>
 
-
 === project conventions ===
 
 # Project Conventions
