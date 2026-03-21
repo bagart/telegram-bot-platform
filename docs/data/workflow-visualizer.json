@@ -1,0 +1,185 @@
+{
+  "packages": [
+    { "id":"user", "name":"User / Browser", "desc":"End user via web browser", "cat":"external", "emoji":"👤", "x":50, "y":30, "w":140, "tags":["Inertia SPA","Guest Pages"] },
+    { "id":"telegram-api", "name":"Telegram API", "desc":"Telegram Bot API servers", "cat":"external", "emoji":"🤖", "x":750, "y":30, "w":140, "tags":["HTTPS","JSON"] },
+    { "id":"frontend", "name":"Frontend SPA", "desc":"Inertia React · TypeScript · Tailwind v4", "cat":"frontend", "emoji":"⚛️", "x":300, "y":150, "w":180, "tags":["React 19","Inertia v2","shadcn/ui"] },
+    { "id":"laravel-app", "name":"Laravel App", "desc":"Routes · Controllers · Fortify Auth", "cat":"backend", "emoji":"🧩", "x":300, "y":300, "w":180, "tags":["Laravel 13","Fortify"] },
+    { "id":"basic-lib", "name":"Basic Lib", "desc":"Artisan commands · Webhook handlers", "cat":"library", "emoji":"📦", "x":50, "y":450, "w":160, "tags":["telegram-bot-basic-lib"] },
+    { "id":"mgmt-lib", "name":"Management Lib", "desc":"DB models · Multi-bot management", "cat":"library", "emoji":"🗄️", "x":300, "y":450, "w":180, "tags":["telegram-bot-management-lib"] },
+    { "id":"core-lib", "name":"Core Lib", "desc":"DTOs · HTTP transport · Pipeline", "cat":"library", "emoji":"⚙️", "x":550, "y":450, "w":160, "tags":["telegram-bot-lib","Pure PHP"] },
+    { "id":"database", "name":"Database", "desc":"PostgreSQL 17 · Migrations", "cat":"infra", "emoji":"🗃️", "x":150, "y":600, "w":140, "tags":["tg_bots","users","queues"] },
+    { "id":"redis", "name":"Redis", "desc":"Cache · Session · Queue", "cat":"infra", "emoji":"⚡", "x":380, "y":600, "w":120, "tags":["PSR-16","Horizon"] },
+    { "id":"infra", "name":"Infrastructure", "desc":"Docker · Nginx · PHP 8.5 FPM", "cat":"infra", "emoji":"🐳", "x":580, "y":600, "w":140, "tags":["docker-compose"] },
+    { "id":"filesystem", "name":"File System", "desc":"Generated DTOs · Config files", "cat":"infra", "emoji":"📁", "x":750, "y":600, "w":140, "tags":["DTO files","Configs"] }
+  ],
+  "categories": ["Auth","Bot Management","Messaging","Dev Tools","User Settings","Infrastructure","Dev Workflow"],
+  "flows": [
+    { "id":"user-register", "name":"User Registration", "cat":"Auth", "desc":"New user creates an account via Fortify + Inertia", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /register", "detail":"User navigates to registration page; Inertia renders register.tsx." },
+      { "from":"frontend", "to":"laravel-app", "label":"POST /register", "detail":"Form submits via Inertia; Fortify routes handle the request." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Fortify::CreateNewUser", "detail":"Fortify validates input, hashes password, creates User model." },
+      { "from":"laravel-app", "to":"database", "label":"INSERT users", "detail":"New user record persisted in PostgreSQL via Eloquent." },
+      { "from":"database", "to":"laravel-app", "label":"User created", "detail":"Eloquent returns the fresh User model instance." },
+      { "from":"laravel-app", "to":"frontend", "label":"Redirect /dashboard", "detail":"Fortify issues session, Inertia redirects to dashboard." },
+      { "from":"frontend", "to":"user", "label":"Dashboard page", "detail":"User sees the dashboard — registration complete." }
+    ]},
+    { "id":"user-login", "name":"User Login", "cat":"Auth", "desc":"Authenticate via email/password with Fortify", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /login", "detail":"User visits login page rendered by Inertia's login.tsx." },
+      { "from":"frontend", "to":"laravel-app", "label":"POST /login", "detail":"Credentials sent via Inertia POST to Fortify's login route." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Fortify auth", "detail":"Fortify validates credentials, checks rate limiter, creates session." },
+      { "from":"laravel-app", "to":"database", "label":"SELECT users", "detail":"User looked up by email in PostgreSQL." },
+      { "from":"database", "to":"laravel-app", "label":"User record", "detail":"Eloquent returns user data; password hash verified." },
+      { "from":"laravel-app", "to":"frontend", "label":"Redirect /dashboard", "detail":"Authenticated session set; redirect to dashboard." },
+      { "from":"frontend", "to":"user", "label":"Dashboard page", "detail":"User logged in — sees dashboard." }
+    ]},
+    { "id":"two-factor-setup", "name":"Two-Factor Auth Setup", "cat":"Auth", "desc":"Enable TOTP-based 2FA via Fortify", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /settings/security", "detail":"User navigates to security settings page." },
+      { "from":"frontend", "to":"laravel-app", "label":"Enable 2FA", "detail":"Request sent via Inertia to Fortify's two-factor endpoint." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Generate TOTP secret", "detail":"Fortify creates TOTP secret key and generates QR code URL." },
+      { "from":"laravel-app", "to":"database", "label":"UPDATE users (2FA)", "detail":"Encrypted TOTP secret stored on user record." },
+      { "from":"laravel-app", "to":"frontend", "label":"QR code + recovery codes", "detail":"Frontend displays QR code and recovery codes." },
+      { "from":"frontend", "to":"user", "label":"Scan QR", "detail":"User scans QR code with authenticator app." },
+      { "from":"user", "to":"frontend", "label":"Enter 6-digit code", "detail":"User enters code from authenticator app." },
+      { "from":"frontend", "to":"laravel-app", "label":"Confirm code", "detail":"Code sent to Fortify for TOTP validation." },
+      { "from":"laravel-app", "to":"database", "label":"Mark 2FA enabled", "detail":"Fortify marks two_factor_confirmed_at timestamp." }
+    ]},
+    { "id":"password-reset", "name":"Password Reset", "cat":"Auth", "desc":"Forgot password flow via Fortify + email", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /forgot-password", "detail":"User clicks 'Forgot password' on login page." },
+      { "from":"frontend", "to":"laravel-app", "label":"POST /forgot-password", "detail":"Email sent to Fortify." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Send reset link", "detail":"Fortify generates signed URL and dispatches notification." },
+      { "from":"laravel-app", "to":"database", "label":"INSERT password_resets", "detail":"Reset token stored in DB or cache." },
+      { "from":"laravel-app", "to":"user", "label":"Email with reset link", "detail":"Notification sent via mail with signed reset URL." },
+      { "from":"user", "to":"frontend", "label":"GET /reset-password/{token}", "detail":"User clicks link; reset-password.tsx renders." },
+      { "from":"frontend", "to":"laravel-app", "label":"POST /reset-password", "detail":"New password + token submitted to Fortify." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"ResetUserPassword", "detail":"Fortify validates token and calls ResetUserPassword action." },
+      { "from":"laravel-app", "to":"database", "label":"UPDATE users password", "detail":"Password hash updated in database." },
+      { "from":"laravel-app", "to":"frontend", "label":"Redirect /login", "detail":"Password reset successful; redirected to login." }
+    ]},
+    { "id":"bot-init", "name":"Initialize Bot (tgbm:init)", "cat":"Bot Management", "desc":"Register a new Telegram bot token in the database", "steps":[
+      { "from":"user", "to":"basic-lib", "label":"php artisan tgbm:init {token}", "detail":"Developer runs CLI command with bot token from @BotFather." },
+      { "from":"basic-lib", "to":"mgmt-lib", "label":"TelegramBotManager::addBot()", "detail":"Command calls management-lib's bot manager service." },
+      { "from":"mgmt-lib", "to":"database", "label":"INSERT tg_bots", "detail":"New bot record created with UUID, token, secret_token." },
+      { "from":"mgmt-lib", "to":"core-lib", "label":"getMe() verification", "detail":"Management lib uses core-lib to verify token with Telegram." },
+      { "from":"core-lib", "to":"telegram-api", "label":"GET getMe", "detail":"Sends getMe request to Telegram Bot API." },
+      { "from":"telegram-api", "to":"core-lib", "label":"User object", "detail":"Telegram returns bot user info if token is valid." },
+      { "from":"core-lib", "to":"mgmt-lib", "label":"Bot verified", "detail":"Token confirmed valid." },
+      { "from":"mgmt-lib", "to":"database", "label":"UPDATE tg_bots (verified)", "detail":"Bot optionally linked to Telegram user as owner." },
+      { "from":"mgmt-lib", "to":"basic-lib", "label":"Init complete", "detail":"Success message displayed in console." }
+    ]},
+    { "id":"bot-webhook-incoming", "name":"Incoming Webhook", "cat":"Bot Management", "desc":"Receive a Telegram update via webhook", "steps":[
+      { "from":"telegram-api", "to":"laravel-app", "label":"POST /tg/{token}", "detail":"Telegram sends update to registered webhook URL." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"TgIpValidatorMiddleware", "detail":"Checks request originates from valid Telegram IP range." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"TgSecretValidatorMiddleware", "detail":"Validates X-Telegram-Bot-Api-Secret-Token header." },
+      { "from":"laravel-app", "to":"core-lib", "label":"TgWebhookController", "detail":"Controller delegates to core-lib's webhook handler." },
+      { "from":"core-lib", "to":"core-lib", "label":"TgWebhookWithAutoSecretRequest", "detail":"Validates and parses incoming request, extracts bot identity." },
+      { "from":"core-lib", "to":"core-lib", "label":"TypeDTOProcessor pipeline", "detail":"Update runs through pipeline: validation → anti-spam → logging → storage." },
+      { "from":"core-lib", "to":"database", "label":"Store update", "detail":"Storage step persists the incoming message/update." },
+      { "from":"core-lib", "to":"laravel-app", "label":"Response", "detail":"Returns JSON {\"ok\":true} to Telegram." }
+    ]},
+    { "id":"bot-polling", "name":"Long Polling (tgbm:poll)", "cat":"Bot Management", "desc":"Poll Telegram for updates via CLI", "steps":[
+      { "from":"user", "to":"basic-lib", "label":"php artisan tgbm:poll {uuid}", "detail":"Developer runs poller command for a managed bot." },
+      { "from":"basic-lib", "to":"mgmt-lib", "label":"Resolve bot UUID", "detail":"CLI looks up bot UUID to get token from database." },
+      { "from":"mgmt-lib", "to":"database", "label":"SELECT tg_bots", "detail":"Bot record fetched by UUID." },
+      { "from":"mgmt-lib", "to":"core-lib", "label":"TgBotApiDTOClient", "detail":"Creates API client configured with bot's token." },
+      { "from":"core-lib", "to":"telegram-api", "label":"GET getUpdates", "detail":"Sends long-polling request (default 30s timeout)." },
+      { "from":"telegram-api", "to":"core-lib", "label":"Update[] (JSON)", "detail":"Telegram returns array of Update DTOs." },
+      { "from":"core-lib", "to":"core-lib", "label":"Process updates", "detail":"Each update runs through TypeDTOProcessor pipeline." },
+      { "from":"core-lib", "to":"database", "label":"Store update", "detail":"Each processed update is persisted." },
+      { "from":"core-lib", "to":"redis", "label":"Queue dispatch", "detail":"Updates may be dispatched to Laravel queue." }
+    ]},
+    { "id":"bot-monitor", "name":"Monitor Bot", "cat":"Bot Management", "desc":"Watch incoming messages in real-time", "steps":[
+      { "from":"user", "to":"basic-lib", "label":"php artisan tgbm:monitor {uuid}", "detail":"Developer starts the monitor command." },
+      { "from":"basic-lib", "to":"mgmt-lib", "label":"Resolve bot from DB", "detail":"Looks up bot by UUID to get token and config." },
+      { "from":"mgmt-lib", "to":"core-lib", "label":"TgLongPoller::run()", "detail":"Starts polling loop with callback that prints to stdout." },
+      { "from":"core-lib", "to":"telegram-api", "label":"getUpdates()", "detail":"Polls Telegram for new messages." },
+      { "from":"telegram-api", "to":"core-lib", "label":"New updates", "detail":"Returns any pending updates." },
+      { "from":"core-lib", "to":"basic-lib", "label":"Echo callback", "detail":"Each update passed to callback that prints formatted output." },
+      { "from":"basic-lib", "to":"user", "label":"Terminal output", "detail":"Messages displayed in real-time in terminal." }
+    ]},
+    { "id":"bot-outbound-daemon", "name":"Outbound Daemon", "cat":"Bot Management", "desc":"Fiber-based outbound request scheduler", "steps":[
+      { "from":"user", "to":"basic-lib", "label":"php artisan tgbm:outbound-daemon", "detail":"Developer starts the outbound daemon service." },
+      { "from":"basic-lib", "to":"mgmt-lib", "label":"Load all bots", "detail":"Daemon queries all active bots from database." },
+      { "from":"mgmt-lib", "to":"database", "label":"SELECT all tg_bots", "detail":"Fetches all registered bot records." },
+      { "from":"mgmt-lib", "to":"core-lib", "label":"Fiber scheduler", "detail":"Creates Fiber-based async scheduler for concurrent requests." },
+      { "from":"core-lib", "to":"core-lib", "label":"Request ordering", "detail":"Outbound requests ordered and correlated." },
+      { "from":"core-lib", "to":"telegram-api", "label":"sendMessage() etc.", "detail":"Sends outbound messages to Telegram." },
+      { "from":"telegram-api", "to":"core-lib", "label":"Response", "detail":"Telegram returns the sent message DTO." },
+      { "from":"core-lib", "to":"database", "label":"Log outbound", "detail":"Sent messages optionally logged." }
+    ]},
+    { "id":"webhook-manage", "name":"Webhook Management", "cat":"Bot Management", "desc":"Set, get, or delete webhook via CLI", "steps":[
+      { "from":"user", "to":"basic-lib", "label":"php artisan tg:webhook", "detail":"Developer runs webhook management command." },
+      { "from":"basic-lib", "to":"core-lib", "label":"WebhookManager", "detail":"Basic-lib calls core-lib's WebhookManager service." },
+      { "from":"core-lib", "to":"telegram-api", "label":"setWebhook/getWebhookInfo/deleteWebhook", "detail":"Corresponding Telegram API method called." },
+      { "from":"telegram-api", "to":"core-lib", "label":"Result", "detail":"Telegram returns success/failure." },
+      { "from":"core-lib", "to":"basic-lib", "label":"Status", "detail":"Result passed back to command handler." },
+      { "from":"basic-lib", "to":"user", "label":"CLI output", "detail":"Success/error message shown to developer." }
+    ]},
+    { "id":"send-message", "name":"Send Telegram Message", "cat":"Messaging", "desc":"Send a message through the core library's transport layer", "steps":[
+      { "from":"core-lib", "to":"core-lib", "label":"sendMessage() DTO", "detail":"Caller invokes sendMessage() on API client; request built as typed SendMessage DTO." },
+      { "from":"core-lib", "to":"core-lib", "label":"Rate limiter", "detail":"Request passes through configurable rate limiter (per bot)." },
+      { "from":"core-lib", "to":"core-lib", "label":"Circuit breaker", "detail":"Fault-tolerance check — if API has been failing, circuit may be open." },
+      { "from":"core-lib", "to":"core-lib", "label":"HTTP transport", "detail":"DTO sent via Guzzle or cURL multi-handle transport." },
+      { "from":"core-lib", "to":"core-lib", "label":"Retry policy", "detail":"On failure, exponential backoff retry is applied." },
+      { "from":"core-lib", "to":"telegram-api", "label":"POST sendMessage", "detail":"HTTPS request to Telegram Bot API." },
+      { "from":"telegram-api", "to":"core-lib", "label":"Message DTO", "detail":"Telegram returns the sent Message object as typed DTO." }
+    ]},
+    { "id":"dto-generation", "name":"DTO Auto-Generation", "cat":"Dev Tools", "desc":"Generate PHP DTOs from the Telegram Bot API specification", "steps":[
+      { "from":"user", "to":"core-lib", "label":"php artisan tg:dev:dto:actualize", "detail":"Developer runs DTO generation command." },
+      { "from":"core-lib", "to":"telegram-api", "label":"Fetch API spec", "detail":"Core lib fetches Telegram Bot API specification document." },
+      { "from":"telegram-api", "to":"core-lib", "label":"API spec (JSON)", "detail":"Returns full API specification with all methods, types, fields." },
+      { "from":"core-lib", "to":"core-lib", "label":"DTOGenerator::generate()", "detail":"Parses spec and generates PHP DTO classes (~250 types, ~170 methods)." },
+      { "from":"core-lib", "to":"filesystem", "label":"Write DTO files", "detail":"Generated DTO PHP files written to misc/BAGArt/telegram-bot-basic-lib/src/TgApi/." },
+      { "from":"filesystem", "to":"user", "label":"New DTO classes", "detail":"Developer can now use the newly generated, fully-typed DTO classes." }
+    ]},
+    { "id":"profile-update", "name":"Profile Update", "cat":"User Settings", "desc":"Edit user name and profile information", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /settings/profile", "detail":"User opens settings and sees profile edit form." },
+      { "from":"frontend", "to":"laravel-app", "label":"PATCH /settings/profile", "detail":"User saves changes; Inertia sends PATCH to ProfileController." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Validate & update", "detail":"Controller validates input and updates User model." },
+      { "from":"laravel-app", "to":"database", "label":"UPDATE users", "detail":"User's name/profile info persisted in PostgreSQL." },
+      { "from":"laravel-app", "to":"frontend", "label":"Redirect back with flash", "detail":"Inertia redirects with success message." }
+    ]},
+    { "id":"password-change", "name":"Password Change", "cat":"User Settings", "desc":"Update account password (throttled: 6 attempts/min)", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /settings/security", "detail":"User opens security settings." },
+      { "from":"frontend", "to":"laravel-app", "label":"PUT /settings/password", "detail":"Current + new password sent to SecurityController." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"Validate current password", "detail":"Controller verifies current password matches hash." },
+      { "from":"laravel-app", "to":"database", "label":"UPDATE users (password)", "detail":"New password hashed and stored." },
+      { "from":"laravel-app", "to":"frontend", "label":"Success response", "detail":"Flash message confirms password changed." }
+    ]},
+    { "id":"appearance", "name":"Appearance Settings", "cat":"User Settings", "desc":"Toggle theme (light/dark) via cookie", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /settings/appearance", "detail":"User opens appearance settings." },
+      { "from":"frontend", "to":"laravel-app", "label":"Select theme", "detail":"Inertia sends theme preference to server." },
+      { "from":"laravel-app", "to":"laravel-app", "label":"HandleAppearance middleware", "detail":"Middleware sets theme preference as cookie." },
+      { "from":"laravel-app", "to":"frontend", "label":"Theme cookie set", "detail":"Frontend reads cookie and applies theme class." }
+    ]},
+    { "id":"account-deletion", "name":"Account Deletion", "cat":"User Settings", "desc":"Delete user account permanently", "steps":[
+      { "from":"user", "to":"frontend", "label":"GET /settings/profile", "detail":"User opens profile settings page." },
+      { "from":"frontend", "to":"laravel-app", "label":"DELETE /settings/profile", "detail":"Confirmed deletion sent to ProfileController." },
+      { "from":"laravel-app", "to":"database", "label":"DELETE users", "detail":"User record deleted from PostgreSQL." },
+      { "from":"laravel-app", "to":"frontend", "label":"Redirect / (logged out)", "detail":"Session invalidated; redirect to home page." }
+    ]},
+    { "id":"docker-deploy", "name":"Docker Deploy", "cat":"Infrastructure", "desc":"Build and deploy full stack with Docker Compose", "steps":[
+      { "from":"user", "to":"infra", "label":"docker compose up -d", "detail":"Developer runs Docker Compose to start full stack." },
+      { "from":"infra", "to":"infra", "label":"Nginx + PHP-FPM start", "detail":"Nginx serves Laravel app, proxying to PHP-FPM." },
+      { "from":"infra", "to":"database", "label":"PostgreSQL starts", "detail":"PostgreSQL 17 container initializes database cluster." },
+      { "from":"infra", "to":"redis", "label":"Redis starts", "detail":"Redis container boots for cache, sessions, queue." },
+      { "from":"infra", "to":"laravel-app", "label":"php artisan migrate", "detail":"Startup script runs database migrations." },
+      { "from":"laravel-app", "to":"database", "label":"Run all migrations", "detail":"All migrations executed — creates users, tg_bots, jobs tables." },
+      { "from":"laravel-app", "to":"frontend", "label":"npm run build", "detail":"Vite builds frontend assets (production build)." }
+    ]},
+    { "id":"queue-worker", "name":"Queue Worker", "cat":"Infrastructure", "desc":"Process queued Telegram jobs with Horizon", "steps":[
+      { "from":"infra", "to":"laravel-app", "label":"php artisan queue:work", "detail":"Queue worker starts (managed by Laravel Horizon)." },
+      { "from":"laravel-app", "to":"redis", "label":"Reserve job", "detail":"Worker pops job from Redis queue." },
+      { "from":"laravel-app", "to":"mgmt-lib", "label":"LaravelQueueConsumer", "detail":"Job handler from management-lib receives payload." },
+      { "from":"mgmt-lib", "to":"core-lib", "label":"Execute outbound request", "detail":"Job calls core-lib to send API request to Telegram." },
+      { "from":"core-lib", "to":"telegram-api", "label":"API call", "detail":"Core lib sends request to Telegram Bot API." },
+      { "from":"telegram-api", "to":"core-lib", "label":"Response", "detail":"Telegram response received." },
+      { "from":"core-lib", "to":"database", "label":"Log result", "detail":"Job result optionally persisted." }
+    ]},
+    { "id":"composer-update", "name":"Composer Library Update", "cat":"Dev Workflow", "desc":"Update library symlinks via Composer path repositories", "steps":[
+      { "from":"user", "to":"filesystem", "label":"Edit library source", "detail":"Developer modifies source in misc/BAGArt/telegram-bot-lib/src/." },
+      { "from":"filesystem", "to":"core-lib", "label":"Changes saved", "detail":"Changes immediately visible via symlink at vendor/bagart/." },
+      { "from":"user", "to":"laravel-app", "label":"composer update", "detail":"Developer runs composer update from WSL shell." },
+      { "from":"laravel-app", "to":"filesystem", "label":"Regenerate autoload", "detail":"Composer regenerates autoloader with new classes." }
+    ]}
+  ]
+}
