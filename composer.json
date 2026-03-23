@@ -43,7 +43,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/"
         }
     },
     "scripts": {
@@ -80,7 +81,10 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@lint:check",
-            "@php artisan test"
+            "@php artisan test",
+            "cd misc/BAGArt/telegram-bot-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-management-lib && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
