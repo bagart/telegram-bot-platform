@@ -5,6 +5,9 @@
         "bootstrap",
         "config",
         "database",
-        "routes"
+        "routes",
+        "tests/Feature",
+        "misc/BAGArt/telegram-bot-lib/src/DevTool",
+        "misc/BAGArt/telegram-bot-lib/tests/Unit/Integration"
     ]
 }
