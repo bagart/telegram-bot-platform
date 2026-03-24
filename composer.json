@@ -43,7 +43,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/"
         }
     },
     "scripts": {
@@ -80,16 +81,11 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@lint:check",
-            "@php artisan test"
+            "@php artisan test",
+            "cd misc/BAGArt/telegram-bot-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-management-lib && composer test"
         ],
-        "test:tg": [
-            "cd misc/BAGArt/telegram-bot-lib && php integration-test.php",
-            "cd misc/BAGArt/telegram-bot-lib && php commands-offline-test.php",
-            "@php vendor/bin/pest misc/BAGArt/telegram-bot-lib/tests --colors=always"
-        ],
-        "test:tg:integration": "cd misc/BAGArt/telegram-bot-lib && php integration-test.php",
-        "test:tg:offline": "cd misc/BAGArt/telegram-bot-lib && php commands-offline-test.php",
-        "test:tg:pest": "@php vendor/bin/pest misc/BAGArt/telegram-bot-lib/tests --colors=always",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
