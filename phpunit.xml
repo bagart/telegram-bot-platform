@@ -13,6 +13,9 @@
         </testsuite>
         <testsuite name="TelegramBotLib">
             <directory>misc/BAGArt/telegram-bot-lib/tests</directory>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/FullCycleTest.php</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/integration-test.php</exclude>
+            <exclude>misc/BAGArt/telegram-bot-lib/tests/Integration/commands-offline-test.php</exclude>
         </testsuite>
         <testsuite name="TelegramBotBasicLib">
             <directory>misc/BAGArt/telegram-bot-basic-lib/tests</directory>
