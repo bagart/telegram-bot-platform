@@ -8,17 +8,13 @@ use Laravel\Fortify\Features;
 test('security page is displayed', function () {
     $this->skipUnlessFortifyFeature(Features::twoFactorAuthentication());
 
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(
+            fn (Assert $page) => $page
             ->component('settings/security')
             ->where('canManageTwoFactor', true)
             ->where('twoFactorEnabled', false),
@@ -30,11 +26,6 @@ test('security page requires password confirmation when enabled', function () {
 
     $user = User::factory()->create();
 
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
     $response = $this->actingAs($user)
         ->get(route('security.edit'));
 
@@ -44,24 +35,29 @@ test('security page requires password confirmation when enabled', function () {
 test('security page does not require password confirmation when disabled', function () {
     $this->skipUnlessFortifyFeature(Features::twoFactorAuthentication());
 
-    $user = User::factory()->create();
-
+    $originalOptions = config('fortify-options');
     Features::twoFactorAuthentication([
         'confirm' => true,
         'confirmPassword' => false,
     ]);
 
+    $user = User::factory()->create();
+
     $this->actingAs($user)
         ->get(route('security.edit'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(
+            fn (Assert $page) => $page
             ->component('settings/security'),
         );
+
+    config(['fortify-options' => $originalOptions]);
 });
 
 test('security page renders without two factor when feature is disabled', function () {
     $this->skipUnlessFortifyFeature(Features::twoFactorAuthentication());
 
+    $originalFeatures = config('fortify.features');
     config(['fortify.features' => []]);
 
     $user = User::factory()->create();
@@ -69,12 +65,15 @@ test('security page renders without two factor when feature is disabled', functi
     $this->actingAs($user)
         ->get(route('security.edit'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(
+            fn (Assert $page) => $page
             ->component('settings/security')
             ->where('canManageTwoFactor', false)
             ->missing('twoFactorEnabled')
             ->missing('requiresConfirmation'),
         );
+
+    config(['fortify.features' => $originalFeatures]);
 });
 
 test('password can be updated', function () {
