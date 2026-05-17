@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture Flow Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/frame.css">
+</head>
+<body>
+
+<header>
+  <h1><span class="icon">▦</span> Architecture Flow Visualizer</h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="subtitle">Telegram Bot Platform — package interactions &amp; workflows</span>
+    <a href="index.html" class="back-link">← Docs</a>
+  </div>
+</header>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-header">Workflows &amp; Actions</div>
+    <div class="sidebar-search">
+      <input type="text" id="flowSearch" placeholder="Search flows..." oninput="window._filterFlows(this.value)">
+    </div>
+    <div class="flow-list" id="flowList"></div>
+  </aside>
+
+  <div class="graph-area" id="graphArea">
+    <svg class="graph-svg hoverable" id="connectionsSvg"></svg>
+    <div class="nodes-wrapper" id="nodesContainer"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="icon-big">⊹</div>
+      <h3>Select a workflow</h3>
+      <p>Choose an action from the sidebar to visualize the flow between packages and components.</p>
+    </div>
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-header">
+        <h2 id="detailTitle">Flow</h2>
+        <span class="flow-desc" id="detailDesc">Description</span>
+        <button class="detail-close" onclick="window.closeDetail()">✕</button>
+      </div>
+      <div class="detail-steps" id="detailSteps"></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend-bar">
+  <span style="font-size:9px;color:var(--text-muted);font-weight:500;">Legend:</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:var(--cat-frontend)"></span>Frontend</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:var(--cat-backend)"></span>Backend</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:var(--cat-library)"></span>Library</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:var(--cat-infra)"></span>Infrastructure</span>
+  <span class="legend-item"><span class="legend-swatch" style="background:var(--cat-external)"></span>External</span>
+  <span style="margin-left:auto;font-size:9px;color:var(--text-muted);" id="statsDisplay"></span>
+</div>
+
+<script src="js/frame.js"></script>
+<script>
+// ===== DATA =====
+let DATA = null;
+let activeFlowId = null;
+
+function selectFlow(flowId) {
+  activeFlowId = flowId;
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  const sel = document.querySelector(`.flow-item[data-flow-id="${flowId}"]`);
+  if (sel) sel.classList.add('active');
+  const flow = DATA.flows.find(f => f.id === flowId);
+  if (!flow) return;
+  document.getElementById('detailTitle').textContent = flow.name;
+  document.getElementById('detailDesc').textContent = flow.desc;
+  const stepsEl = document.getElementById('detailSteps');
+  stepsEl.innerHTML = '';
+  flow.steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.dataset.stepIndex = i;
+    div.onmouseenter = () => highlightStep(flowId, i);
+    div.onmouseleave = () => clearStepHighlight();
+    div.onclick = () => highlightStep(flowId, i);
+    const arrow = document.createElement('span');
+    arrow.className = 'step-arrow';
+    arrow.textContent = step.from === step.to ? '↻' : '→';
+    const num = document.createElement('span');
+    num.className = 'step-num';
+    num.textContent = i + 1;
+    const content = document.createElement('div');
+    content.className = 'step-content';
+    const route = document.createElement('div');
+    route.className = 'step-route';
+    route.textContent = step.from + (step.from === step.to ? '' : ' → ' + step.to);
+    const label = document.createElement('div');
+    label.className = 'step-label';
+    label.textContent = step.label;
+    const detail = document.createElement('div');
+    detail.className = 'step-detail';
+    detail.textContent = step.detail;
+    content.appendChild(route);
+    content.appendChild(label);
+    content.appendChild(detail);
+    div.appendChild(num);
+    div.appendChild(content);
+    div.appendChild(arrow);
+    stepsEl.appendChild(div);
+  });
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('emptyState').style.display = 'none';
+  renderConnections(DATA, flowId);
+  highlightFlow(DATA, flowId);
+}
+
+function closeDetail() {
+  activeFlowId = null;
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('emptyState').style.display = '';
+  renderConnections(DATA, null);
+  clearFlowHighlight();
+}
+
+function highlightStep(flowId, stepIndex) {
+  clearStepHighlight();
+  const flow = DATA.flows.find(f => f.id === flowId);
+  if (!flow) return;
+  const step = flow.steps[stepIndex];
+  if (!step) return;
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('highlight'));
+  const stepEl = document.querySelector(`.step[data-step-index="${stepIndex}"]`);
+  if (stepEl) stepEl.classList.add('highlight');
+  document.querySelectorAll('.node').forEach(el => { el.classList.remove('active', 'pulse'); el.classList.add('dimmed'); });
+  const fromEl = getNodeEl(step.from);
+  if (fromEl) { fromEl.classList.remove('dimmed'); fromEl.classList.add('active', 'pulse'); }
+  const toEl = getNodeEl(step.to);
+  if (toEl) { toEl.classList.remove('dimmed'); toEl.classList.add('active', 'pulse'); }
+  document.querySelectorAll('.connection').forEach(el => {
+    el.classList.remove('active', 'active-amber', 'active-emerald', 'active-purple', 'active-rose', 'active-cyan', 'animated');
+    el.classList.add('dimmed');
+  });
+  if (step.from !== step.to) {
+    const key = step.from + '->' + step.to;
+    const conn = document.querySelector(`.connection[data-edge="${key}"]`);
+    if (conn) {
+      conn.classList.remove('dimmed');
+      const colors = ['active', 'active-amber', 'active-emerald', 'active-purple', 'active-rose', 'active-cyan'];
+      conn.classList.add(colors[stepIndex % colors.length], 'animated');
+    }
+  }
+}
+
+function clearStepHighlight() {
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('highlight'));
+}
+
+window._filterFlows = function(val) {
+  filterFlows(DATA, activeFlowId, val);
+};
+
+window.selectFlow = selectFlow;
+window.closeDetail = closeDetail;
+
+function refreshLayout() {
+  clearFlowHighlight();
+  renderNodes(DATA);
+  if (activeFlowId) {
+    renderConnections(DATA, activeFlowId);
+    highlightFlow(DATA, activeFlowId);
+  } else {
+    renderConnections(DATA, null);
+  }
+}
+
+let resizeTimer = null;
+function onResize() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(refreshLayout, 150);
+}
+
+function init() {
+  fetch('data/flow-architecture.json')
+    .then(r => r.json())
+    .then(data => {
+      DATA = data;
+      refreshLayout();
+      renderFlows(DATA, activeFlowId, '');
+    });
+  window.addEventListener('resize', onResize);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetail();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

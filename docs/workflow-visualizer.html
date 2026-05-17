@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/frame.css">
+<style>
+:root {
+  --bg: #09090f;
+  --bg-panel: #0e0e18;
+  --bg-card: #161625;
+  --bg-hover: #1e1e32;
+  --border: #252540;
+  --border-light: #35355a;
+  --text: #e4e4f0;
+  --text-dim: #8888a8;
+  --text-muted: #555570;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --purple: #8b5cf6;
+  --rose: #f43f5e;
+  --cyan: #06b6d4;
+  --tab-height: 38px;
+  --sidebar-width: 220px;
+}
+body { background: var(--bg); color: var(--text); }
+header { background: var(--bg-panel); border-bottom-color: var(--border); }
+header h1 { font-size: 14px; }
+header .version { font-size: 10px; color: var(--text-muted); background: var(--bg-card); padding: 2px 6px; border-radius: 4px; }
+header .back-link { color: var(--text-muted); }
+
+.tab-bar {
+  display: flex; gap: 0; height: var(--tab-height); background: var(--bg-panel);
+  border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto;
+}
+.tab {
+  padding: 0 14px; height: 100%; display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; color: var(--text-dim); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
+  background: transparent; border-top: none; border-left: none; border-right: none;
+}
+.tab:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.tab .count {
+  font-size: 9px; padding: 1px 5px; border-radius: 8px;
+  background: var(--bg-card); color: var(--text-muted);
+}
+
+.sidebar { background: var(--bg-panel); border-right-color: var(--border); }
+.sidebar-header { border-bottom-color: var(--border); }
+.sidebar-search { border-bottom-color: var(--border); }
+.sidebar-search input { background: var(--bg); color: var(--text); border-color: var(--border); }
+.sidebar-search input:focus { border-color: var(--blue); }
+.sidebar-search input::placeholder { color: var(--text-muted); }
+.flow-item { color: var(--text-dim); }
+.flow-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+.flow-item.active { background: rgba(59,130,246,0.06); color: var(--blue); border-left-color: var(--blue); }
+.flow-item .steps-badge {
+  margin-left: auto; font-size: 8px; padding: 1px 4px;
+  border-radius: 6px; background: var(--bg-card); color: var(--text-muted);
+}
+
+.canvas-area {
+  flex: 1; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.015) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.canvas-viewport {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transform-origin: 0 0;
+}
+.canvas-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.canvas-svg.interactive { pointer-events: auto; }
+
+.node { cursor: grab; }
+.node:active { cursor: grabbing; }
+.node-card {
+  padding: 10px 14px; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: all 0.3s; position: relative; min-width: 120px;
+}
+.node-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; border-radius: 8px 8px 0 0;
+}
+.node.cat-frontend .node-card { border-color: rgba(59,130,246,0.3); }
+.node.cat-frontend .node-card::before { background: var(--blue); }
+.node.cat-backend .node-card { border-color: rgba(16,185,129,0.3); }
+.node.cat-backend .node-card::before { background: var(--green); }
+.node.cat-library .node-card { border-color: rgba(245,158,11,0.3); }
+.node.cat-library .node-card::before { background: var(--amber); }
+.node.cat-infra .node-card { border-color: rgba(139,92,246,0.3); }
+.node.cat-infra .node-card::before { background: var(--purple); }
+.node.cat-external .node-card { border-color: rgba(107,114,128,0.3); }
+.node.cat-external .node-card::before { background: var(--text-muted); }
+
+.node.active .node-card { transform: translateY(-2px); }
+.node.active.cat-frontend .node-card { box-shadow: 0 0 24px rgba(59,130,246,0.25); border-color: var(--blue); }
+.node.active.cat-backend .node-card { box-shadow: 0 0 24px rgba(16,185,129,0.25); border-color: var(--green); }
+.node.active.cat-library .node-card { box-shadow: 0 0 24px rgba(245,158,11,0.25); border-color: var(--amber); }
+.node.active.cat-infra .node-card { box-shadow: 0 0 24px rgba(139,92,246,0.25); border-color: var(--purple); }
+.node.active.cat-external .node-card { box-shadow: 0 0 24px rgba(107,114,128,0.25); border-color: var(--text-muted); }
+
+.node-tag {
+  font-size: 8px; padding: 1px 4px; border-radius: 3px;
+  background: rgba(255,255,255,0.04); color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.conn { fill: none; stroke: var(--border-light); stroke-width: 1.5; transition: all 0.3s; }
+.conn.dimmed { opacity: 0.06; }
+.conn.active { stroke-width: 2.5; }
+.conn.animated { stroke-dasharray: 6 4; animation: dash 0.6s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -20; } }
+.conn.c-blue { stroke: var(--blue); }
+.conn.c-green { stroke: var(--green); }
+.conn.c-amber { stroke: var(--amber); }
+.conn.c-purple { stroke: var(--purple); }
+.conn.c-rose { stroke: var(--rose); }
+.conn.c-cyan { stroke: var(--cyan); }
+
+.arrow-marker { fill: var(--border-light); }
+.arrow-marker.c-blue { fill: var(--blue); }
+.arrow-marker.c-green { fill: var(--green); }
+.arrow-marker.c-amber { fill: var(--amber); }
+.arrow-marker.c-purple { fill: var(--purple); }
+.arrow-marker.c-rose { fill: var(--rose); }
+.arrow-marker.c-cyan { fill: var(--cyan); }
+
+.edge-label {
+  font-size: 8px; fill: var(--text-muted); text-anchor: middle;
+  font-family: 'Inter', sans-serif; transition: all 0.3s;
+}
+.edge-label.active { fill: var(--text); font-weight: 600; font-size: 9px; }
+.edge-label.dimmed { opacity: 0; }
+.edge-label-bg { fill: rgba(9,9,15,0.9); stroke: var(--border); stroke-width: 0.5; rx: 3; }
+
+.detail-panel { background: var(--bg-panel); border-top-color: var(--border); }
+.detail-header { border-bottom-color: var(--border); background: var(--bg-panel); }
+.detail-header .desc { font-size: 10px; color: var(--text-dim); }
+.detail-close { color: var(--text-muted); }
+.detail-close:hover { background: var(--bg-hover); color: var(--text); }
+.step:hover { background: rgba(255,255,255,0.02); }
+.step.active { background: rgba(59,130,246,0.06); }
+.step-num { background: var(--bg-card); color: var(--text-muted); }
+.step.active .step-num { background: var(--blue); color: white; }
+.step-route { color: var(--amber); }
+.step-detail { color: var(--text-dim); }
+
+.zoom-controls {
+  position: absolute; bottom: 12px; right: 12px; display: flex; gap: 4px; z-index: 5;
+}
+.zoom-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg-panel); color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  transition: all 0.15s;
+}
+.zoom-btn:hover { background: var(--bg-hover); color: var(--text); border-color: var(--border-light); }
+.zoom-level {
+  height: 28px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg-panel); color: var(--text-muted); font-size: 9px;
+  display: flex; align-items: center; font-family: 'JetBrains Mono', monospace;
+}
+
+.legend {
+  display: flex; gap: 10px; padding: 4px 14px; background: var(--bg-panel);
+  border-top: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--text-muted); }
+.legend-dot { width: 6px; height: 6px; border-radius: 2px; }
+.legend-stats { margin-left: auto; font-size: 9px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+.empty-state .icon { font-size: 36px; margin-bottom: 8px; opacity: 0.2; }
+.empty-state h3 { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 4px; }
+.empty-state p { font-size: 10px; max-width: 240px; line-height: 1.4; }
+
+.minimap {
+  position: absolute; bottom: 48px; right: 12px; width: 140px; height: 90px;
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px;
+  overflow: hidden; z-index: 5; opacity: 0.8;
+}
+.minimap:hover { opacity: 1; }
+.minimap-viewport {
+  position: absolute; border: 1px solid var(--blue); background: rgba(59,130,246,0.08);
+  pointer-events: none;
+}
+.minimap-node {
+  position: absolute; border-radius: 2px; opacity: 0.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Workflow Visualizer <span class="version">v1.0</span></h1>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span style="font-size:10px;color:var(--text-muted);" id="jsonSource">inline data</span>
+    <a href="index.html" class="back-link">← Docs</a>
+  </div>
+</header>
+
+<div class="tab-bar" id="tabBar"></div>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-header" id="sidebarHeader">Workflows</div>
+    <div class="sidebar-search">
+      <input type="text" id="flowSearch" placeholder="Search..." oninput="window._filterFlows(this.value)">
+    </div>
+    <div class="flow-list" id="flowList"></div>
+  </aside>
+
+  <div class="canvas-area" id="canvasArea">
+    <div class="canvas-viewport" id="canvasViewport">
+      <svg class="canvas-svg" id="connectionsSvg"></svg>
+      <div id="nodesContainer"></div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="icon">⊹</div>
+      <h3>Select a workflow</h3>
+      <p>Choose an action from the sidebar to visualize the flow between packages.</p>
+    </div>
+
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-header">
+        <h2 id="detailTitle">Flow</h2>
+        <span class="desc" id="detailDesc">Description</span>
+        <button class="detail-close" onclick="window.closeDetail()">✕</button>
+      </div>
+      <div class="detail-steps" id="detailSteps"></div>
+    </div>
+
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="window.zoomIn()" title="Zoom in">+</button>
+      <div class="zoom-level" id="zoomLevel">100%</div>
+      <button class="zoom-btn" onclick="window.zoomOut()" title="Zoom out">−</button>
+      <button class="zoom-btn" onclick="window.zoomReset()" title="Reset view" style="font-size:11px;">⌂</button>
+    </div>
+
+    <div class="minimap" id="minimap"></div>
+  </div>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<script src="js/frame.js"></script>
+<script>
+// ===== STATE =====
+let DATA = null;
+let activeTab = null;
+let activeFlowId = null;
+let activeStepIndex = null;
+let zoom = { x: 0, y: 0, scale: 1 };
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let nodePixels = {};
+const COLORS = ['c-blue','c-green','c-amber','c-purple','c-rose','c-cyan'];
+
+// ===== INIT =====
+function init() {
+  fetch('data/workflow-visualizer.json')
+    .then(r => r.json())
+    .then(data => {
+      DATA = data;
+      activeTab = DATA.categories[0];
+      renderTabs();
+      renderLegend();
+      selectTab(activeTab);
+      setupPanZoom();
+      window.addEventListener('resize', () => { clearTimeout(window._resizeTimer); window._resizeTimer = setTimeout(refreshLayout, 100); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+    });
+}
+
+// ===== TABS =====
+function renderTabs() {
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = '';
+  for (const cat of DATA.categories) {
+    const count = DATA.flows.filter(f => f.cat === cat).length;
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (cat === activeTab ? ' active' : '');
+    tab.innerHTML = `${cat} <span class="count">${count}</span>`;
+    tab.onclick = () => selectTab(cat);
+    bar.appendChild(tab);
+  }
+}
+
+function selectTab(cat) {
+  activeTab = cat;
+  activeFlowId = null;
+  activeStepIndex = null;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.startsWith(cat)));
+  document.getElementById('sidebarHeader').textContent = cat + ' Workflows';
+  document.getElementById('flowSearch').value = '';
+  closeDetail();
+  renderFlows();
+  renderNodes();
+  renderConnections();
+  updateMinimap();
+}
+
+function renderFlows(filter) {
+  const list = document.getElementById('flowList');
+  list.innerHTML = '';
+  const flows = DATA.flows.filter(f => f.cat === activeTab);
+  const filtered = filter ? flows.filter(f => (f.name + ' ' + f.desc).toLowerCase().includes(filter.toLowerCase())) : flows;
+  for (const flow of filtered) {
+    const item = document.createElement('div');
+    item.className = 'flow-item' + (flow.id === activeFlowId ? ' active' : '');
+    item.dataset.flowId = flow.id;
+    item.onclick = () => selectFlow(flow.id);
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    const idx = DATA.flows.indexOf(flow);
+    dot.style.background = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f43f5e','#06b6d4'][idx % 6];
+    item.appendChild(dot);
+    const name = document.createElement('span');
+    name.textContent = flow.name;
+    item.appendChild(name);
+    const badge = document.createElement('span');
+    badge.className = 'steps-badge';
+    badge.textContent = flow.steps.length;
+    item.appendChild(badge);
+    list.appendChild(item);
+  }
+}
+
+window._filterFlows = function(val) { renderFlows(val); };
+
+// ===== NODES =====
+function renderNodes() {
+  const container = document.getElementById('nodesContainer');
+  container.innerHTML = '';
+  nodePixels = {};
+  for (const pkg of DATA.packages) {
+    const div = document.createElement('div');
+    div.className = `node cat-${pkg.cat}`;
+    div.id = 'node-' + pkg.id;
+    div.style.left = pkg.x + 'px';
+    div.style.top = pkg.y + 'px';
+    div.style.width = (pkg.w || 140) + 'px';
+    div.innerHTML = `
+      <div class="node-card">
+        <div class="node-name"><span class="emoji">${pkg.emoji}</span>${pkg.name}</div>
+        <div class="node-desc">${pkg.desc}</div>
+        ${pkg.tags ? `<div class="node-tags">${pkg.tags.map(t => `<span class="node-tag">${t}</span>`).join('')}</div>` : ''}
+      </div>`;
+    container.appendChild(div);
+  }
+  requestAnimationFrame(() => {
+    for (const pkg of DATA.packages) {
+      const el = document.getElementById('node-' + pkg.id);
+      if (el) nodePixels[pkg.id] = { x: pkg.x, y: pkg.y, w: el.offsetWidth, h: el.offsetHeight };
+    }
+    renderConnections();
+    updateMinimap();
+  });
+}
+
+function refreshLayout() {
+  renderNodes();
+  if (activeFlowId) { highlightFlow(activeFlowId); renderConnections(); }
+}
+
+// ===== CONNECTIONS =====
+function getEdgePoint(fromId, toId) {
+  const fp = nodePixels[fromId], tp = nodePixels[toId];
+  if (!fp || !tp) return null;
+  if (fromId === toId) {
+    return { x1: fp.x + fp.w * 0.2, y1: fp.y, x2: fp.x + fp.w * 0.8, y2: fp.y, cx1: fp.x + fp.w * 0.05, cy1: fp.y - 30, cx2: fp.x + fp.w * 0.95, cy2: fp.y - 30, self: true };
+  }
+  const cx1 = fp.x + fp.w / 2, cy1 = fp.y + fp.h / 2;
+  const cx2 = tp.x + tp.w / 2, cy2 = tp.y + tp.h / 2;
+  const dx = cx2 - cx1, dy = cy2 - cy1;
+  const angle = Math.atan2(dy, dx);
+  const padH = fp.w / 2 + 4, padV = fp.h / 2 + 4;
+  let ex1, ey1, ex2, ey2;
+  if (Math.abs(dx) > Math.abs(dy) * 0.7) {
+    ex1 = cx1 + (dx > 0 ? padH : -padH);
+    ey1 = Math.max(fp.y + 4, Math.min(fp.y + fp.h - 4, cy1 + Math.tan(angle) * (dx > 0 ? padH : -padH)));
+    const padH2 = tp.w / 2 + 4;
+    ex2 = cx2 + (dx > 0 ? -padH2 : padH2);
+    ey2 = Math.max(tp.y + 4, Math.min(tp.y + tp.h - 4, cy2 - Math.tan(angle) * (dx > 0 ? padH2 : -padH2)));
+  } else {
+    ey1 = cy1 + (dy > 0 ? padV : -padV);
+    ex1 = Math.max(fp.x + 4, Math.min(fp.x + fp.w - 4, cx1 + (dx / (Math.abs(dy) || 1)) * (dy > 0 ? padV : -padV)));
+    const padV2 = tp.h / 2 + 4;
+    ey2 = cy2 + (dy > 0 ? -padV2 : padV2);
+    ex2 = Math.max(tp.x + 4, Math.min(tp.x + tp.w - 4, cx2 - (dx / (Math.abs(dy) || 1)) * (dy > 0 ? padV2 : -padV2)));
+  }
+  return { x1: ex1, y1: ey1, x2: ex2, y2: ey2, self: false };
+}
+
+function renderConnections() {
+  const svg = document.getElementById('connectionsSvg');
+  const area = document.getElementById('canvasArea');
+  svg.setAttribute('width', area.clientWidth);
+  svg.setAttribute('height', area.clientHeight);
+  svg.innerHTML = '';
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  svg.appendChild(defs);
+
+  const mBase = createMarker('arrowhead', 'var(--border-light)');
+  defs.appendChild(mBase);
+  for (const c of COLORS) {
+    const color = getComputedStyle(document.documentElement).getPropertyValue('--' + c.replace('c-', '')).trim();
+    defs.appendChild(createMarker('arrowhead-' + c, color));
+  }
+
+  const allEdges = new Map();
+  for (const flow of DATA.flows) {
+    for (const step of flow.steps) {
+      if (step.from !== step.to) {
+        const key = step.from + '->' + step.to;
+        if (!allEdges.has(key)) allEdges.set(key, []);
+        allEdges.get(key).push({ flowId: flow.id, stepIndex: flow.steps.indexOf(step) });
+      }
+    }
+  }
+
+  const activeEdges = new Map();
+  if (activeFlowId) {
+    const flow = DATA.flows.find(f => f.id === activeFlowId);
+    if (flow) {
+      flow.steps.forEach((step, i) => {
+        if (step.from !== step.to) {
+          const key = step.from + '->' + step.to;
+          if (!activeEdges.has(key)) activeEdges.set(key, COLORS[i % COLORS.length]);
+        }
+      });
+    }
+  }
+
+  for (const [key, usages] of allEdges) {
+    const [fromId, toId] = key.split('->');
+    const ep = getEdgePoint(fromId, toId);
+    if (!ep) continue;
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    let path;
+    if (ep.self) {
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${ep.x1} ${ep.y1} C ${ep.cx1} ${ep.cy1}, ${ep.cx2} ${ep.cy2}, ${ep.x2} ${ep.y2}`);
+    } else {
+      const dx = ep.x2 - ep.x1, dy = ep.y2 - ep.y1;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const bend = Math.min(30, dist * 0.1);
+      const nx = -dy / dist * bend, ny = dx / dist * bend;
+      const mx = (ep.x1 + ep.x2) / 2 + nx * 0.5, my = (ep.y1 + ep.y2) / 2 + ny * 0.5;
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${ep.x1} ${ep.y1} Q ${mx} ${my}, ${ep.x2} ${ep.y2}`);
+    }
+    path.setAttribute('class', 'conn');
+    path.dataset.edge = key;
+    if (activeEdges.has(key)) {
+      path.classList.add('active', 'animated', activeEdges.get(key));
+      path.setAttribute('marker-end', `url(#arrowhead-${activeEdges.get(key)})`);
+    } else if (activeFlowId) {
+      path.classList.add('dimmed');
+      path.setAttribute('marker-end', 'url(#arrowhead)');
+    } else {
+      path.setAttribute('marker-end', 'url(#arrowhead)');
+    }
+    g.appendChild(path);
+
+    if (activeEdges.has(key) && !ep.self) {
+      const flow = DATA.flows.find(f => f.id === activeFlowId);
+      const steps = flow.steps.filter(s => s.from + '->' + s.to === key);
+      if (steps.length > 0) {
+        const labels = steps.map(s => s.label.length > 20 ? s.label.slice(0, 18) + '…' : s.label);
+        const dx = ep.x2 - ep.x1, dy = ep.y2 - ep.y1;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const bend = Math.min(30, dist * 0.1);
+        const nx = -dy / dist * bend, ny = dx / dist * bend;
+        const mx = (ep.x1 + ep.x2) / 2 + nx * 0.5, my = (ep.y1 + ep.y2) / 2 + ny * 0.5 - 8;
+        const textLen = Math.max(...labels.map(l => l.length));
+        const tw = textLen * 5.2 + 10;
+        const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bg.setAttribute('class', 'edge-label-bg');
+        bg.setAttribute('x', mx - tw / 2);
+        bg.setAttribute('y', my - 7);
+        bg.setAttribute('width', tw);
+        bg.setAttribute('height', 15);
+        g.appendChild(bg);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('class', 'edge-label active');
+        text.setAttribute('x', mx);
+        text.setAttribute('y', my + 4);
+        text.textContent = labels.join(' / ');
+        g.appendChild(text);
+      }
+    }
+    svg.appendChild(g);
+  }
+}
+
+function createMarker(id, color) {
+  const m = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  m.setAttribute('id', id);
+  m.setAttribute('markerWidth', '7');
+  m.setAttribute('markerHeight', '5');
+  m.setAttribute('refX', '7');
+  m.setAttribute('refY', '2.5');
+  m.setAttribute('orient', 'auto');
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  p.setAttribute('points', '0 0, 7 2.5, 0 5');
+  p.setAttribute('class', 'arrow-marker');
+  p.style.fill = color;
+  m.appendChild(p);
+  return m;
+}
+
+// ===== FLOW SELECTION =====
+function selectFlow(flowId) {
+  activeFlowId = flowId;
+  activeStepIndex = null;
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.toggle('active', el.dataset.flowId === flowId));
+  const flow = DATA.flows.find(f => f.id === flowId);
+  if (!flow) return;
+
+  document.getElementById('detailTitle').textContent = flow.name;
+  document.getElementById('detailDesc').textContent = flow.desc;
+  const stepsEl = document.getElementById('detailSteps');
+  stepsEl.innerHTML = '';
+  flow.steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.dataset.stepIndex = i;
+    div.onmouseenter = () => highlightStep(i);
+    div.onclick = () => highlightStep(i);
+    const num = document.createElement('span');
+    num.className = 'step-num';
+    num.textContent = i + 1;
+    const content = document.createElement('div');
+    content.className = 'step-content';
+    const route = document.createElement('div');
+    route.className = 'step-route';
+    route.textContent = step.from + (step.from === step.to ? '' : ' → ' + step.to);
+    const label = document.createElement('div');
+    label.className = 'step-label';
+    label.textContent = step.label;
+    const detail = document.createElement('div');
+    detail.className = 'step-detail';
+    detail.textContent = step.detail;
+    content.appendChild(route);
+    content.appendChild(label);
+    content.appendChild(detail);
+    div.appendChild(num);
+    div.appendChild(content);
+    stepsEl.appendChild(div);
+  });
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('emptyState').style.display = 'none';
+  highlightFlow(flowId);
+  renderConnections();
+}
+
+function closeDetail() {
+  activeFlowId = null;
+  activeStepIndex = null;
+  document.getElementById('detailPanel').classList.remove('open');
+  document.querySelectorAll('.flow-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('emptyState').style.display = '';
+  clearHighlight();
+  renderConnections();
+}
+
+function highlightFlow(flowId) {
+  const flow = DATA.flows.find(f => f.id === flowId);
+  if (!flow) return;
+  const activeNodes = new Set();
+  flow.steps.forEach(s => { activeNodes.add(s.from); activeNodes.add(s.to); });
+  document.querySelectorAll('.node').forEach(el => {
+    const id = el.id.replace('node-', '');
+    el.classList.toggle('dimmed', !activeNodes.has(id));
+    el.classList.toggle('active', activeNodes.has(id));
+    el.classList.toggle('pulse', activeNodes.has(id));
+  });
+}
+
+function highlightStep(stepIndex) {
+  activeStepIndex = stepIndex;
+  const flow = DATA.flows.find(f => f.id === activeFlowId);
+  if (!flow) return;
+  const step = flow.steps[stepIndex];
+  if (!step) return;
+
+  document.querySelectorAll('.step').forEach(el => el.classList.toggle('active', parseInt(el.dataset.stepIndex) === stepIndex));
+  document.querySelectorAll('.node').forEach(el => {
+    const id = el.id.replace('node-', '');
+    const isActive = id === step.from || id === step.to;
+    el.classList.toggle('dimmed', !isActive);
+    el.classList.toggle('active', isActive);
+    el.classList.toggle('pulse', isActive);
+  });
+
+  document.querySelectorAll('.conn').forEach(el => {
+    el.classList.remove('active', 'animated', ...COLORS);
+    el.classList.add('dimmed');
+  });
+  if (step.from !== step.to) {
+    const key = step.from + '->' + step.to;
+    const conn = document.querySelector(`.conn[data-edge="${key}"]`);
+    if (conn) {
+      conn.classList.remove('dimmed');
+      const color = COLORS[stepIndex % COLORS.length];
+      conn.classList.add('active', 'animated', color);
+    }
+  }
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.node').forEach(el => el.classList.remove('dimmed', 'active', 'pulse'));
+  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+  activeStepIndex = null;
+}
+
+// ===== PAN & ZOOM =====
+function setupPanZoom() {
+  const area = document.getElementById('canvasArea');
+  area.addEventListener('mousedown', e => {
+    if (e.target === area || e.target.id === 'connectionsSvg' || e.target.id === 'nodesContainer') {
+      isPanning = true;
+      panStart = { x: e.clientX - zoom.x, y: e.clientY - zoom.y };
+      area.style.cursor = 'grabbing';
+    }
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    zoom.x = e.clientX - panStart.x;
+    zoom.y = e.clientY - panStart.y;
+    applyTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    isPanning = false;
+    document.getElementById('canvasArea').style.cursor = '';
+  });
+  area.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.08 : 0.08;
+    const newScale = Math.max(0.2, Math.min(3, zoom.scale + delta));
+    const rect = area.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const ratio = newScale / zoom.scale;
+    zoom.x = mx - (mx - zoom.x) * ratio;
+    zoom.y = my - (my - zoom.y) * ratio;
+    zoom.scale = newScale;
+    applyTransform();
+  }, { passive: false });
+}
+
+function applyTransform() {
+  const vp = document.getElementById('canvasViewport');
+  vp.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})`;
+  document.getElementById('zoomLevel').textContent = Math.round(zoom.scale * 100) + '%';
+  updateMinimap();
+}
+
+window.zoomIn = function() { zoom.scale = Math.min(3, zoom.scale + 0.15); applyTransform(); };
+window.zoomOut = function() { zoom.scale = Math.max(0.2, zoom.scale - 0.15); applyTransform(); };
+window.zoomReset = function() { zoom = { x: 0, y: 0, scale: 1 }; applyTransform(); };
+
+// ===== MINIMAP =====
+function updateMinimap() {
+  const minimap = document.getElementById('minimap');
+  minimap.innerHTML = '';
+  if (!nodePixels || Object.keys(nodePixels).length === 0) return;
+
+  const area = document.getElementById('canvasArea');
+  const aw = area.clientWidth, ah = area.clientHeight;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const p of Object.values(nodePixels)) {
+    minX = Math.min(minX, p.x);
+    minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x + p.w);
+    maxY = Math.max(maxY, p.y + p.h);
+  }
+  const padding = 40;
+  minX -= padding; minY -= padding; maxX += padding; maxY += padding;
+  const worldW = maxX - minX, worldH = maxY - minY;
+  const mw = 140, mh = 90;
+  const scale = Math.min(mw / worldW, mh / worldH);
+  const ox = (mw - worldW * scale) / 2, oy = (mh - worldH * scale) / 2;
+
+  const catColors = { frontend: '#3b82f6', backend: '#10b981', library: '#f59e0b', infra: '#8b5cf6', external: '#6b7280' };
+  for (const pkg of DATA.packages) {
+    const p = nodePixels[pkg.id];
+    if (!p) continue;
+    const dot = document.createElement('div');
+    dot.className = 'minimap-node';
+    dot.style.left = (ox + (p.x - minX) * scale) + 'px';
+    dot.style.top = (oy + (p.y - minY) * scale) + 'px';
+    dot.style.width = Math.max(4, p.w * scale) + 'px';
+    dot.style.height = Math.max(3, p.h * scale) + 'px';
+    dot.style.background = catColors[pkg.cat] || '#6b7280';
+    minimap.appendChild(dot);
+  }
+
+  const vp = document.createElement('div');
+  vp.className = 'minimap-viewport';
+  const vx = ox + (-zoom.x / zoom.scale - minX) * scale;
+  const vy = oy + (-zoom.y / zoom.scale - minY) * scale;
+  const vw = (aw / zoom.scale) * scale;
+  const vh = (ah / zoom.scale) * scale;
+  vp.style.left = Math.max(0, vx) + 'px';
+  vp.style.top = Math.max(0, vy) + 'px';
+  vp.style.width = Math.min(mw, vw) + 'px';
+  vp.style.height = Math.min(mh, vh) + 'px';
+  minimap.appendChild(vp);
+}
+
+// ===== LEGEND =====
+function renderLegend() {
+  const legend = document.getElementById('legend');
+  const items = [
+    { cat: 'frontend', label: 'Frontend', color: '#3b82f6' },
+    { cat: 'backend', label: 'Backend', color: '#10b981' },
+    { cat: 'library', label: 'Library', color: '#f59e0b' },
+    { cat: 'infra', label: 'Infrastructure', color: '#8b5cf6' },
+    { cat: 'external', label: 'External', color: '#6b7280' },
+  ];
+  legend.innerHTML = items.map(i => `<span class="legend-item"><span class="legend-dot" style="background:${i.color}"></span>${i.label}</span>`).join('');
+  legend.innerHTML += `<span class="legend-stats">${DATA.packages.length} packages · ${DATA.flows.length} workflows</span>`;
+}
+
+window.closeDetail = closeDetail;
+
+// ===== START =====
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
