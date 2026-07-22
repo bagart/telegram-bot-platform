@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$DIR"
+
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+#docker compose up -d --build --force-recreate
+

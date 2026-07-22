@@ -22,8 +22,8 @@ Route::prefix('tg')->group(function () {
             Laravel\Middlewares\TgSecretValidatorMiddleware::class,
         ]);
 
-    // POST /tg/webhook/{bot_id} — token resolved from DB by bot_id, IP + secret validation
-    Route::post('/webhook/{bot_id}', [Laravel\TgWebhookController::class, 'postByBotId'])
+    // POST /tg/tg_webhook/{bot_id} — token resolved from DB by bot_id, IP + secret validation
+    Route::post('/tg_webhook/{bot_id}', [Laravel\TgWebhookController::class, 'postByBotId'])
         ->middleware([
             Laravel\Middlewares\TgIpValidatorMiddleware::class,
             Laravel\Middlewares\TgSecretValidatorMiddleware::class,

@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/xhprof-lib.php';
+
 $usage = <<<USAGE
 Usage: php xhprof-to-folded.php [--metric=wt|cpu|mu|pmu|ct] <file.xhprof>
 
@@ -47,75 +49,21 @@ if (!in_array($metric, $validMetrics, true)) {
     exit(1);
 }
 
-$data = unserialize(file_get_contents($file));
-if (!is_array($data)) {
+$data = loadXhprofData($file);
+if ($data === null) {
     fwrite(STDERR, "Invalid xhprof data\n");
     exit(1);
 }
 
-[$callers, $callees, $roots, $mainKey] = buildGraph($data);
+[, $callees, $roots] = buildCallGraph($data);
 
 $stacks = [];
 foreach ($roots as $root) {
-    walkStack($root, [], 0, $metric, $callers, $callees, $stacks);
+    walkStack($root, [], 0, $metric, $callees, $stacks);
 }
 
 foreach ($stacks as $stack => $weight) {
     echo "$stack $weight\n";
-}
-
-function buildGraph(array $data): array
-{
-    $callers = [];
-    $callees = [];
-    $hasParent = [];
-
-    foreach ($data as $key => $val) {
-        if ($key === 'main()') {
-            continue;
-        }
-        $parts = explode('==>', $key, 2);
-        if (count($parts) === 2) {
-            [$parent, $child] = $parts;
-            $callees[$parent][] = ['func' => $child, 'data' => $val];
-            $callers[$child][] = ['func' => $parent, 'data' => $val];
-            $hasParent[$child] = true;
-        } elseif (count($parts) === 1) {
-            $callees['main()'][] = ['func' => $parts[0], 'data' => $val];
-            $callers[$parts[0]][] = ['func' => 'main()', 'data' => $val];
-            $hasParent[$parts[0]] = true;
-        }
-    }
-
-    $roots = [];
-    foreach ($callees as $func => $children) {
-        if (!isset($hasParent[$func])) {
-            $roots[] = $func;
-        }
-    }
-    if ($roots === []) {
-        $roots = ['main()'];
-    }
-
-    if (isset($data['main()'])) {
-        $mainKey = 'main()';
-    } else {
-        $mainKey = $roots[0] ?? 'main()';
-    }
-
-    return [$callers, $callees, $roots, $mainKey];
-}
-
-function getValue(array $data, string $metric): float
-{
-    return match ($metric) {
-        'wt' => (float)($data['wt'] ?? 0),
-        'cpu' => (float)($data['cpu'] ?? 0),
-        'mu' => (float)($data['mu'] ?? 0),
-        'pmu' => (float)($data['pmu'] ?? 0),
-        'ct' => (float)($data['ct'] ?? 1),
-        default => (float)($data['wt'] ?? 0),
-    };
 }
 
 function walkStack(
@@ -123,10 +71,14 @@ function walkStack(
     array $stack,
     float $inclusiveWeight,
     string $metric,
-    array $callers,
     array $callees,
-    array &$stacks
+    array &$stacks,
+    array $path = []
 ): float {
+    if (isset($path[$func])) {
+        return 0;
+    }
+    $path[$func] = true;
     $stack[] = $func;
 
     if (!isset($callees[$func]) || $callees[$func] === []) {
@@ -139,12 +91,12 @@ function walkStack(
     $children = $callees[$func];
     $totalChildren = 0;
     foreach ($children as $child) {
-        $totalChildren += getValue($child['data'], $metric);
+        $totalChildren += getMetricValue($child['data'], $metric);
     }
 
     foreach ($children as $child) {
-        $childWeight = getValue($child['data'], $metric);
-        walkStack($child['func'], $stack, $childWeight, $metric, $callers, $callees, $stacks);
+        $childWeight = getMetricValue($child['data'], $metric);
+        walkStack($child['func'], $stack, $childWeight, $metric, $callees, $stacks, $path);
     }
 
     if ($totalChildren === 0) {

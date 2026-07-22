@@ -1,0 +1,5 @@
+# Swagger API docs
+#   http://swagger.localhost/  → Swagger UI
+swagger.localhost {
+    reverse_proxy swagger:8080
+}

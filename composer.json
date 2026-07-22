@@ -30,6 +30,7 @@
         "ext-zlib": "*"
     },
     "require-dev": {
+        "ext-xhprof": "*",
         "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.24",
         "laravel/boost": "^2.0",
@@ -40,27 +41,32 @@
         "nunomaduro/collision": "^8.9",
         "nunomaduro/larastan": "*",
         "pestphp/pest": "^4.4",
-        "pestphp/pest-plugin-laravel": "^4.1"
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "amphp/dns": "^2.4",
+        "react/dns": "^1.14"
     },
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
-            "BAGArt\\AsyncKernel\\": "misc/BAGArt/php-async-kernel-lib/src/",
-            "BAGArt\\ASKClient\\": "misc/BAGArt/php-async-kernel-client/src/",
             "BAGArt\\ASKClientRedis\\": "misc/BAGArt/php-async-kernel-client-redis/src/",
-            "BAGArt\\TelegramBot\\": "misc/BAGArt/telegram-bot-lib/src/",
+            "BAGArt\\ASKClient\\": "misc/BAGArt/php-async-kernel-client/src/",
+            "BAGArt\\AsyncKernel\\": "misc/BAGArt/php-async-kernel-lib/src/",
             "BAGArt\\TelegramBotBasic\\": "misc/BAGArt/telegram-bot-basic-lib/src/",
-            "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-bot-management-lib/src/"
+            "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-bot-management-lib/src/",
+            "BAGArt\\TelegramBot\\": "misc/BAGArt/telegram-bot-lib/src/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/",
-            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
+            "BAGArt\\ASKClientRedis\\Tests\\": "misc/BAGArt/php-async-kernel-client-redis/tests/",
+            "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/",
             "BAGArt\\AsyncKernel\\Tests\\": "misc/BAGArt/php-async-kernel-lib/tests/",
-            "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/"
+            "BAGArt\\TelegramBotBasic\\Tests\\": "misc/BAGArt/telegram-bot-basic-lib/tests/",
+            "BAGArt\\TelegramBotManagement\\Tests\\": "misc/BAGArt/telegram-bot-management-lib/tests/",
+            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
+            "Tests\\": "tests/"
         },
         "files": []
     },
@@ -138,5 +144,31 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "misc/BAGArt/php-async-kernel-client-redis"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/php-async-kernel-client"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/php-async-kernel-lib"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-bot-basic-lib"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-bot-lib"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-bot-management-lib"
+        }
+    ]
 }

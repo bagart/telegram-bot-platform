@@ -47,11 +47,11 @@ $configTelegram = [
     | Poller
     |--------------------------------------------------------------------------
     |
-    | Default poller type for long-polling commands.
+    | Default tg_daemons type for long-polling commands.
     | Available: async, sync, async-scheduler.
     |
     */
-    'poller' => env('TELEGRAM_POLLER', 'async'),
+    'tg_daemons' => env('TELEGRAM_POLLER', 'async'),
 
     /*
     |--------------------------------------------------------------------------
@@ -72,7 +72,7 @@ $configTelegram = [
     | Automatic long-polling schedule via Laravel's task scheduler.
     | Set SCHEDULE_TG_POLL_ENABLED=false to disable.
     |
-    | The poller runs as a daemon via `php commands/poller-daemon.php`.
+    | The tg_daemons runs as a daemon via `php commands/tg_daemons-daemon.php`.
     | Expression follows Laravel's cron format (default: every minute).
     |
     */
@@ -122,9 +122,13 @@ $configTelegram = [
     ],
 ];
 
+// Local module discovery: each folder modules/<Name>/config.php must return
+// ['provider' => TgModuleContract::class]. Composer-installed modules are
+// listed in 'modules_providers' below. Both sources are booted by
+// TelegramBotServiceProvider::bootModules().
 $configTelegram['modules'] = (function (): array {
     $configTelegramModules = [];
-    $configTelegramModulesPath = base_path().DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'TelegramBots'.DIRECTORY_SEPARATOR;
+    $configTelegramModulesPath = base_path().DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
     $paths = is_dir($configTelegramModulesPath) ? scandir($configTelegramModulesPath) : [];
 
     foreach ($paths as $moduleName) {
@@ -135,7 +139,8 @@ $configTelegram['modules'] = (function (): array {
             continue;
         }
         $curConfigFile = $configTelegramModulesPath.$moduleName.DIRECTORY_SEPARATOR.'config.php';
-        if (! is_readable($curConfigFile)) {
+        // is_file instead of is_readable: is_readable is unreliable on Windows drives
+        if (! is_file($curConfigFile)) {
             continue;
         }
         $curConfig = include $curConfigFile;
@@ -147,6 +152,10 @@ $configTelegram['modules'] = (function (): array {
 
     return $configTelegramModules;
 })();
+
+// Composer-installed modules: list of TgModuleContract class-strings,
+// published by packages into the app config.
+$configTelegram['modules_providers'] = [];
 
 $remap = ['log_channel'];
 foreach ($configTelegram['modules'] as $name => $configTelegramModule) {

@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+trap 'trap - INT TERM; echo "Aborting..."; kill 0 2>/dev/null; exit 130' INT TERM
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+STORAGE="$DIR/storage/app/tmp/xhprof/benchmark-dns"
+rm -rf "$STORAGE"
+mkdir -p "$STORAGE"
+
+XHPROF_FLAGS="${XHPROF_FLAGS:-CPU,MEMORY}"
+BENCHMARK_TIMEOUT="${BENCHMARK_TIMEOUT:-1200}"
+BENCHMARK_DIR="$DIR/misc/BAGArt/php-async-kernel-client/commands"
+BENCHMARK="$BENCHMARK_DIR/benchmark_dns.php"
+RESULT_INCLUDE="$BENCHMARK_DIR/includes/benchmark_dns/result.php"
+
+RUNS=1
+for arg in "$@"; do
+    case "$arg" in
+        --runs=*) RUNS="${arg#*=}" ;;
+    esac
+done
+
+echo "{\"runs\":$RUNS}" > "$STORAGE/meta.json"
+
+RESOLVERS=($(
+    XDEBUG_MODE=off php -r "
+    require_once '$DIR/vendor/autoload.php';
+    use BAGArt\ASKClient\Dns\AskDnsRegistry;
+    \$r = AskDnsRegistry::build();
+    foreach (\$r->types() as \$t) {
+        \$c = \$r->resolve(\$t);
+        if (class_exists(\$c)) echo \$t.\"\\n\";
+    }" 2>/dev/null
+))
+
+if [ ${#RESOLVERS[@]} -eq 0 ]; then
+    echo "No DNS adapters available. Check installed packages."
+    exit 1
+fi
+
+TIMESTAMP=$(date +%s)
+echo "=== Profiling all DNS resolvers: $TIMESTAMP ==="
+echo "    Target: $STORAGE"
+echo ""
+
+OVERALL_START=$(date +%s)
+
+for r in "${RESOLVERS[@]}"; do
+    RDIR="$STORAGE/$r"
+    mkdir -p "$RDIR"
+    echo "--- [$r] ---"
+    RSTART=$(date +%s)
+    XDEBUG_MODE=off \
+    XHPROF_FLAGS="$XHPROF_FLAGS" \
+    XHPROF_OUTPUT="$RDIR" \
+    XHPROF_PROJECT_DIR="$DIR" \
+    timeout --foreground "$BENCHMARK_TIMEOUT" \
+        php -d xdebug.mode=off -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" "$BENCHMARK" --adapter="$r" --timeout="$BENCHMARK_TIMEOUT" "$@" > "$RDIR/result.json"
+    EXIT_CODE=$?
+    REND=$(date +%s)
+    RDELTA=$((REND - RSTART))
+
+    if [ $EXIT_CODE -eq 124 ]; then
+        echo "  [${r}] TIMEOUT after ${RDELTA}s" >&2
+        echo '{"error":"Timed out","concurrent_time":0,"ok":0,"fail":0,"total":0,"rps":0,"peak_memory":0,"peak_memory_delta":0,"baseline_memory":0,"per_host":[]}' > "$RDIR/result.json"
+    elif [ $EXIT_CODE -ne 0 ]; then
+        echo "  [${r}] FAILED (exit $EXIT_CODE) after ${RDELTA}s" >&2
+    else
+        echo "  [${r}] OK (${RDELTA}s)"
+        sleep 5
+    fi
+    echo ""
+done
+
+OVERALL_END=$(date +%s)
+OVERALL_DELTA=$((OVERALL_END - OVERALL_START))
+
+echo "=== Done in ${OVERALL_DELTA}s ==="
+echo "=== DNS Benchmark Results ==="
+XDEBUG_MODE=off \
+php "$RESULT_INCLUDE" "$STORAGE"
+
+echo ""
+echo "=== Profiles in: $STORAGE ==="
+ls -la "$STORAGE"/*/*.xhprof 2>/dev/null || echo "(no xhprof files found)"

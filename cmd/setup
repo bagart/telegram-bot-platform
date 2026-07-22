@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+#
+# BAGArt Dual-Mode Composer Setup
+#
+# Detects local BAGArt libraries in misc/BAGArt/ and configures
+# Composer path repositories for fast local development.
+# Falls back to published Packagist packages when local libs are absent.
+#
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+COMPOSER_JSON="$PROJECT_DIR/composer.json"
+BACKUP="$PROJECT_DIR/.composer.json.bak"
+SETUP_PHP="$PROJECT_DIR/.setup_composer.php"
+
+DOCKER_MODE=false
+for arg in "$@"; do
+    case "$arg" in
+        --docker) DOCKER_MODE=true ;;
+    esac
+done
+
+# --- Detect local BAGArt libraries ---
+LIBS_DIR="$PROJECT_DIR/misc/BAGArt"
+LOCAL_LIBS=()
+for dir in "$LIBS_DIR"/*/; do
+    [ -d "$dir" ] && LOCAL_LIBS+=("$(basename "$dir")")
+done
+
+if [ ${#LOCAL_LIBS[@]} -eq 0 ]; then
+    echo "[setup] No local BAGArt libraries found — using published packages."
+    if [ "$DOCKER_MODE" = true ]; then
+        cd "$PROJECT_DIR"
+        composer install --no-interaction --no-progress 2>/dev/null || true
+    fi
+    exit 0
+fi
+
+echo "[setup] Found ${#LOCAL_LIBS[@]} local BAGArt libraries: ${LOCAL_LIBS[*]}"
+
+# --- Backup original composer.json ---
+cp "$COMPOSER_JSON" "$BACKUP"
+
+# --- Generate list of libs for PHP script ---
+LIB_LIST=$(IFS=,; echo "${LOCAL_LIBS[*]}")
+
+# --- Rewrite composer.json using PHP ---
+cat > "$SETUP_PHP" << 'PHPEOF'
+<?php
+$composerJson = $argv[1];
+$libs = explode(',', $argv[2]);
+
+$composer = json_decode(file_get_contents($composerJson), true);
+
+// Mapping: dir name => [package name, namespace]
+$map = [
+    'php-async-kernel-lib'       => ['bagart/async-kernel',          'BAGArt\\AsyncKernel'],
+    'php-async-kernel-client'    => ['bagart/ask-client',             'BAGArt\\ASKClient'],
+    'php-async-kernel-client-redis' => ['bagart/ask-client-redis',   'BAGArt\\ASKClientRedis'],
+    'telegram-bot-lib'           => ['bagart/telegram-bot-lib',       'BAGArt\\TelegramBot'],
+    'telegram-bot-basic-lib'     => ['bagart/telegram-bot-basic-lib', 'BAGArt\\TelegramBotBasic'],
+    'telegram-bot-management-lib'=> ['bagart/telegram-bot-management-lib', 'BAGArt\\TelegramBotManagement'],
+];
+
+// 1. Add path repositories
+$composer['repositories'] = [];
+foreach ($libs as $lib) {
+    if (isset($map[$lib])) {
+        $composer['repositories'][] = ['type' => 'path', 'url' => "misc/BAGArt/$lib"];
+    }
+}
+
+// 2. Reset autoload to app-only, then add lib entries
+$composer['autoload']['psr-4'] = [
+    'App\\' => 'app/',
+    'Database\\Factories\\' => 'database/factories/',
+    'Database\\Seeders\\' => 'database/seeders/',
+];
+
+// 3. Reset autoload-dev, then add lib test entries
+$composer['autoload-dev']['psr-4'] = [
+    'Tests\\' => 'tests/',
+];
+
+// 4. Add PSR-4 entries for each local lib
+foreach ($libs as $lib) {
+    if (!isset($map[$lib])) continue;
+    [$pkg, $ns] = $map[$lib];
+    $composer['autoload']['psr-4'][$ns . '\\'] = "misc/BAGArt/$lib/src/";
+    $composer['autoload-dev']['psr-4'][$ns . '\\Tests\\'] = "misc/BAGArt/$lib/tests/";
+}
+
+ksort($composer['autoload']['psr-4']);
+ksort($composer['autoload-dev']['psr-4']);
+
+echo json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+PHPEOF
+
+php "$SETUP_PHP" "$COMPOSER_JSON" "$LIB_LIST" > "${COMPOSER_JSON}.tmp"
+mv "${COMPOSER_JSON}.tmp" "$COMPOSER_JSON"
+rm "$SETUP_PHP"
+
+echo "[setup] composer.json rewritten with path repositories."
+
+# --- Run composer update ---
+cd "$PROJECT_DIR"
+composer update --no-interaction --no-progress
+
+# --- Restore original composer.json ---
+cp "$BACKUP" "$COMPOSER_JSON"
+rm "$BACKUP"
+
+echo "[setup] Done. Autoload is ready — local libs linked via path repos."

@@ -1,0 +1,5 @@
+# XHProf profile viewer
+#   http://xhprof.localhost/  → XHProf Inbox
+xhprof.localhost {
+    reverse_proxy xhprof-inbox:80
+}

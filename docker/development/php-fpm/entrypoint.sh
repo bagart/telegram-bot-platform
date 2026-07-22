@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
 
+cd /var/www
+
+# Auto-setup: detect local libs, configure path repos if present
+if [ -f "scripts/setup.sh" ]; then
+    echo "Running BAGArt setup..."
+    ./scripts/setup --docker 2>/dev/null || composer install --no-interaction --no-progress
+fi
+
 # Clear configurations to avoid caching issues in development
 echo "Clearing configurations..."
 php artisan config:clear

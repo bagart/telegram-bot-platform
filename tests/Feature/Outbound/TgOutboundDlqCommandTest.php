@@ -4,22 +4,15 @@ declare(strict_types=1);
 
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\AsyncKernel\ASKClock;
-use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
-use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Configs\TgBotConfig;
 use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
-use BAGArt\TelegramBot\Outbound\Config\OutboundSetup;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
-use BAGArt\TelegramBot\Outbound\LeaseRenewer;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
-use BAGArt\TelegramBot\Outbound\OutboundPipeline;
 use BAGArt\TelegramBot\Outbound\OutboundTask;
 use BAGArt\TelegramBot\Outbound\OutboundTaskState;
-use BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker;
-use BAGArt\TelegramBot\Outbound\TgOutboundDaemon;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
 use Psr\SimpleCache\CacheInterface;
 
@@ -65,30 +58,14 @@ if (!function_exists('makeTestOutboundCache')) {
 
 beforeEach(function () {
     $clock = new ASKClock();
-    $queue = new InMemoryOutboundQueue($clock);
+    $this->queue = new InMemoryOutboundQueue($clock);
     $cache = makeTestOutboundCache();
-    $stats = new TgOutboundStats($cache);
-    $pipeline = new OutboundPipeline([]);
-    $leaseRenewer = new LeaseRenewer($queue, $clock);
-    $logger = new ASKLogWrapper();
-    $config = new OutboundWorkerConfig();
-    $scheduler = new ASKFiberScheduler();
-    $cb = new OutboundCircuitBreaker($cache);
+    $this->stats = new TgOutboundStats($cache);
+    $this->workerConfig = new OutboundWorkerConfig();
 
-    $worker = new TgOutboundDaemon(
-        queue: $queue,
-        pipeline: $pipeline,
-        circuitBreaker: $cb,
-        stats: $stats,
-        leaseRenewer: $leaseRenewer,
-        logger: $logger,
-        config: $config,
-        scheduler: $scheduler,
-    );
-
-    $sender = Mockery::mock(TgSenderContract::class);
-    $this->outboundSetup = new OutboundSetup($worker, $stats, $queue, $sender, $pipeline, $cb, $leaseRenewer, $scheduler);
-    $this->app->instance(OutboundSetup::class, $this->outboundSetup);
+    $this->app->instance(\BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract::class, $this->queue);
+    $this->app->instance(TgOutboundStats::class, $this->stats);
+    $this->app->instance(OutboundWorkerConfig::class, $this->workerConfig);
 });
 
 describe('TgOutboundDlqCommand', function () {
@@ -98,10 +75,9 @@ describe('TgOutboundDlqCommand', function () {
     });
 
     it('list shows entries after push', function () {
-        $queue = $this->outboundSetup->queue;
         $task = new OutboundTask(id: 'dlq-test', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'SendMsg', dtoData: []);
         $envelope = new OutboundEnvelope($task, new OutboundTaskState());
-        $queue->pushToDeadLetter($envelope, 'bad_request');
+        $this->queue->pushToDeadLetter($envelope, 'bad_request');
 
         $this->artisan('tg:outbound:dlq', ['--list' => true, '--json' => true])
             ->assertOk();
@@ -123,19 +99,18 @@ describe('TgOutboundDlqCommand', function () {
     });
 
     it('retry restores DLQ entry to main queue', function () {
-        $queue = $this->outboundSetup->queue;
         $task = new OutboundTask(id: 'retry-me', botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'SendMsg', dtoData: ['chat_id' => 1]);
         $envelope = new OutboundEnvelope($task, new OutboundTaskState());
-        $queue->pushToDeadLetter($envelope, 'error');
+        $this->queue->pushToDeadLetter($envelope, 'error');
 
-        expect($queue->deadLetterSize())->toBe(1);
-        expect($queue->size())->toBe(0);
+        expect($this->queue->deadLetterSize())->toBe(1);
+        expect($this->queue->size())->toBe(0);
 
         $this->artisan('tg:outbound:dlq', ['--retry' => 'retry-me', '--json' => true])
             ->assertOk();
 
-        expect($queue->deadLetterSize())->toBe(0);
-        expect($queue->size())->toBe(1);
+        expect($this->queue->deadLetterSize())->toBe(0);
+        expect($this->queue->size())->toBe(1);
     });
 
     it('list with bot filter works', function () {
@@ -144,11 +119,10 @@ describe('TgOutboundDlqCommand', function () {
     });
 
     it('list with limit shows correct count', function () {
-        $queue = $this->outboundSetup->queue;
         for ($i = 0; $i < 5; $i++) {
             $task = new OutboundTask(id: "t{$i}", botConfig: new TgBotConfig(token: 'test:token', botId: 'bot1'), dtoClass: 'D', dtoData: []);
             $envelope = new OutboundEnvelope($task, new OutboundTaskState());
-            $queue->pushToDeadLetter($envelope, 'error');
+            $this->queue->pushToDeadLetter($envelope, 'error');
         }
 
         $this->artisan('tg:outbound:dlq', ['--list' => true, '--limit' => 3, '--json' => true])

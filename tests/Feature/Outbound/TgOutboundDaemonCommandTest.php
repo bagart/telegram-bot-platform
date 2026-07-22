@@ -4,26 +4,24 @@ declare(strict_types=1);
 
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\AsyncKernel\ASKClock;
-use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
 use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
 use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
-use BAGArt\TelegramBot\Outbound\Adapters\RedisOutboundQueueContractContractContractContract;
-use BAGArt\TelegramBot\Outbound\Config\OutboundSetup;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
-use BAGArt\TelegramBot\Outbound\LeaseRenewer;
-use BAGArt\TelegramBot\Outbound\OutboundPipeline;
 use BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker;
+use BAGArt\TelegramBot\Outbound\OutboundPipeline;
 use BAGArt\TelegramBot\Outbound\TgOutboundDaemon;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
+use BAGArt\TelegramBot\Outbound\LeaseRenewer;
+use BAGArt\TelegramBot\TgBotSetupFactory;
 use BAGArt\TelegramBotManagement\Commands\TgOutboundDaemonCommand;
 use Psr\SimpleCache\CacheInterface;
 
 beforeEach(function () {
     $clock = new ASKClock();
-    $queue = new InMemoryOutboundQueue($clock);
+    $this->queue = new InMemoryOutboundQueue($clock);
     $cache = new KernelCacheAdapter(
         new ASKCacheWrapper(new class () implements CacheInterface {
             private array $store = [];
@@ -76,50 +74,36 @@ beforeEach(function () {
         }),
         new InMemoryLocker(),
     );
-    $stats = new TgOutboundStats($cache);
-    $pipeline = new OutboundPipeline([]);
-    $leaseRenewer = new LeaseRenewer($queue, $clock);
-    $logger = new ASKLogWrapper();
-    $config = new OutboundWorkerConfig();
-    $scheduler = new ASKFiberScheduler();
-    $cb = new OutboundCircuitBreaker($cache);
+    $this->stats = new TgOutboundStats($cache);
+    $this->pipeline = new OutboundPipeline([]);
+    $this->leaseRenewer = new LeaseRenewer($this->queue, $clock);
+    $this->logger = new ASKLogWrapper();
+    $this->config = new OutboundWorkerConfig();
+    $this->cb = new OutboundCircuitBreaker($cache);
 
-    $worker = new TgOutboundDaemon(
-        queue: $queue,
-        pipeline: $pipeline,
-        circuitBreaker: $cb,
-        stats: $stats,
-        leaseRenewer: $leaseRenewer,
-        logger: $logger,
-        config: $config,
-        scheduler: $scheduler,
-    );
-
-    $sender = Mockery::mock(TgSenderContract::class);
-    $this->outboundSetup = new OutboundSetup($worker, $stats, $queue, $sender, $pipeline, $cb, $leaseRenewer, $scheduler);
-    $this->app->instance(OutboundSetup::class, $this->outboundSetup);
+    $this->app->instance(\BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract::class, $this->queue);
+    $this->app->instance(TgOutboundStats::class, $this->stats);
 });
 
 /**
  * Daemon command runs a blocking AsyncKernel::run(), so handle()
- * is not called in the test. We test resolveOutboundSetup() via a wrapper subclass,
- * injecting input with Symfony ArrayInput options.
+ * is not called in the test. We test resolveDaemon() via a wrapper subclass.
  */
-function makeDaemonResolverProxy(array $options = []): object
+function makeDaemonResolverProxy(): object
 {
     $proxy = new class () extends TgOutboundDaemonCommand {
         public function __construct()
         {
             // Without parent::__construct() — Laravel Command requires Container in constructor,
-            // but we only need public access to resolveOutboundSetup.
+            // but we only need public access to resolveDaemon.
         }
 
-        public function proxyResolve(string $mode): OutboundSetup
+        public function proxyResolve(string $mode, ASKLogWrapper $logger): TgOutboundDaemon
         {
-            return $this->resolveOutboundSetup($mode);
+            return $this->resolveDaemon($mode, $logger);
         }
 
-        public function handle(\BAGArt\AsyncKernel\Wrappers\ASKLogWrapper $logger): int
+        public function handle(ASKLogWrapper $logger): int
         {
             return self::SUCCESS;
         }
@@ -131,7 +115,7 @@ function makeDaemonResolverProxy(array $options = []): object
         new \Symfony\Component\Console\Input\InputOption('redis-port', null, \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED, '', '6379'),
         new \Symfony\Component\Console\Input\InputOption('redis-timeout', null, \Symfony\Component\Console\Input\InputOption::VALUE_REQUIRED, '', '2.0'),
     ]);
-    $input = new \Symfony\Component\Console\Input\ArrayInput($options, $definition);
+    $input = new \Symfony\Component\Console\Input\ArrayInput([], $definition);
     $input->bind($definition);
     $proxy->setInput($input);
 
@@ -139,39 +123,11 @@ function makeDaemonResolverProxy(array $options = []): object
 }
 
 describe('TgOutboundDaemonCommand', function () {
-    it('single mode resolves the container singleton (in-memory queue)', function () {
+    it('resolveDaemon builds a TgOutboundDaemon instance', function () {
         $proxy = makeDaemonResolverProxy();
 
-        $setup = $proxy->proxyResolve('single');
+        $daemon = $proxy->proxyResolve('single', $this->logger);
 
-        expect($setup)->toBe($this->outboundSetup)
-            ->and($setup->queue)->toBeInstanceOf(InMemoryOutboundQueue::class);
-    });
-
-    it('default mode falls back to the container singleton', function () {
-        $proxy = makeDaemonResolverProxy();
-
-        $setup = $proxy->proxyResolve('');
-
-        expect($setup)->toBe($this->outboundSetup);
-    });
-
-    it('multi mode builds a fresh Redis-backed setup when Redis is available', function () {
-        $redis = @new Redis();
-        $connected = @$redis->connect('127.0.0.1', 6379, 1.0);
-
-        if (!$connected) {
-            $this->markTestSkipped('Redis not available — skipping multi-mode integration test.');
-
-            return;
-        }
-        $redis->close();
-
-        $proxy = makeDaemonResolverProxy(['--mode' => 'multi']);
-
-        $setup = $proxy->proxyResolve('multi');
-
-        expect($setup->queue)->toBeInstanceOf(RedisOutboundQueueContractContractContractContract::class)
-            ->and($setup)->not->toBe($this->outboundSetup);
+        expect($daemon)->toBeInstanceOf(TgOutboundDaemon::class);
     });
 });

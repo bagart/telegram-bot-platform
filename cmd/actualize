@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh "$@"

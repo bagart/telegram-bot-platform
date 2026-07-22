@@ -207,9 +207,15 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 # Project Conventions
 
 - When reading MD files, always append their content to the end of the conversation context.
+- For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
+- **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
 - Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.
-- ALWAYS use LF line endings, never CRLF. Write all files with `\n` only.
+- ALWAYS use LF line endings, never CRLF. Write all files with `\n` only. Generated code MUST be LF-only — this is enforced by `.gitattributes` (`* text=auto eol=lf`), which overrides any global `core.autocrlf=true`.
+  - **Agent pitfalls (from real incidents):**
+    - After ANY `git checkout` / `git stash apply` / `git show > file`, re-verify with `file <path>` or `grep -c $'\r' <path>` — on Windows W: drives CRLF can sneak in despite `.gitattributes`. Convert if needed.
+    - When converting a file to LF programmatically, ALWAYS read fully into memory BEFORE opening for write. NEVER write `open(p,'wb').write(open(p,'rb').read()...)` — the write-open truncates the file before the nested read completes, destroying it.
+    - `is_readable()` and PHP/Pint file writes are unreliable on the W: drive (WSL mount); prefer `is_file()` and expect Pint to be read-only here (use `pint --test` + manual fixes).
 - Strict contracts only — no `method_exists`, `instanceof` duck-typing across library boundaries. If a caller needs a method, it MUST be declared in the interface/contract. Do not add dead methods; every public method must have a real caller.
 
 ## Telegram Bot Platform Structure
@@ -226,9 +232,8 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 ## Webhook Endpoints
 
-- `POST /tg/{token}` — WebhookController (token from URL, no middleware)
-- `POST /tg/example/{token}` — TgWebhookExample (token from URL)
-- `POST /tg/webhook/{bot_uuid}` — TgWebhookExample (token from DB, IP + secret token middleware)
+- `POST /tg/` — `TgWebhookController::post` (token resolved from secret header, IP + secret validation)
+- `POST /tg/webhook/{bot_id}` — `TgWebhookController::postByBotId` (token resolved from DB by `{bot_id}`, IP + secret + bot-id-resolver middleware)
 
 ## Routes
 
@@ -237,8 +242,8 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 ## DTO Generation
 
-- Run `php artisan tg:dev:dto:actualize --full --debug` to regenerate Telegram API DTOs.
-- DTOs are generated to `misc/BAGArt/telegram-bot-basic-lib/src/TgApi/`.
+- Run `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
+- DTOs are generated to `misc/BAGArt/telegram-bot-lib/src/TgApi/`.
 
 ## Daemon Shutdown & State Management (Async Kernel)
 
@@ -248,7 +253,7 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 **Rules:**
 - `TgBotSetup` does NOT contain daemons — it holds only readonly DTOs and contracts for processors (`tgSender`, `outboundStats`, `logger`, `processorRegistry`, etc.).
-- Daemons are built explicitly by the caller: factory method `createOutboundComponents()` returns shared components (queue, stats, sender, daemon), the caller picks what it needs and constructs `new TgOutboundDaemon(...)`.
+- Daemons are built explicitly by the caller: factory method `createOutboundDaemonParts()` returns shared components (`['queue','pipeline','circuitBreaker','stats','leaseRenewer']`), the caller picks what it needs and constructs `new TgOutboundDaemon(...)`.
 - `TelegramBotServiceProvider` registers only contracts (`TgSenderContract`, `OutboundQueueContract`, `TgOutboundStats`) as singletons — never the daemon itself. Daemon is always built in the command.
 - Cache, locker, and queue drivers should be read from Laravel config via `config()` when inside the framework. If the library's internal implementation doesn't match Laravel's driver (e.g. `InMemoryLocker` vs Laravel's cache-based locker), create a `Framework/Laravel/Laravel*Adapter` in the library.
 
@@ -260,8 +265,8 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 Shutdown does not aim for a fast exit. The goal is seamless completion of in-flight work:
 
-- If the queue implements `ASKShutdownToCompleteContract` — all in-memory tasks are completed even if it takes minutes. No new tasks are pulled from the queue.
-- Without the contract — the current task completes, no new tasks are accepted.
+- Daemons implementing `ASKShutdownAware` drain in-flight work across the `STOPPING → DRAINING → FORCING` phases; `shutdown()` returns `false` until drained, so all in-memory tasks are completed even if it takes minutes. No new tasks are pulled once `prepareShutdown()` has run.
+- Daemons without `ASKShutdownAware` — the current task completes, no new tasks are accepted.
 
 ### State storage rules
 

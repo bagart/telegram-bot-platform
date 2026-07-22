@@ -2,27 +2,29 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/lib.php';
+
 $storageDir = '/var/www/xhprof-inbox/storage';
 
-$file = $_GET['file'] ?? '';
-if (!$file || str_contains($file, '..')) {
+$request = resolveXhprofRequest($storageDir, $_GET['file'] ?? '');
+if ($request['status'] === 'bad_param') {
     http_response_code(400);
     exit('Invalid file parameter');
 }
-
-$path = $storageDir . '/' . $file;
-if (!is_file($path) || !str_ends_with($path, '.xhprof')) {
+if ($request['status'] === 'not_found') {
     http_response_code(404);
     exit('File not found');
 }
 
-$data = @unserialize(file_get_contents($path));
-if (!is_array($data)) {
+$file = $request['file'];
+$path = $request['path'];
+$basename = $request['basename'];
+
+$data = loadXhprofData($path);
+if ($data === null) {
     http_response_code(400);
     exit('Invalid xhprof data');
 }
-
-$basename = basename($file);
 
 // Build call graph from xhprof data
 $edges = [];

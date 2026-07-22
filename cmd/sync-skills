@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Sync BAGArt custom skills to all per-agent skill directories.
+#
+# Canonical source: .agents/skills/
+# Targets:           .claude/skills/  .cursor/skills/  .github/skills/  .junie/skills/
+#
+# The baseline Boost skills (laravel-best-practices, pest-testing, etc.) are managed
+# by `php artisan boost:install` and are NOT touched here. This script only syncs the
+# 6 custom BAGArt domain skills listed below.
+#
+# Usage:  bash scripts/sync-skills        # sync (create/overwrite copies)
+#         bash scripts/sync-skills --check # exit 1 if anything is out of sync
+#
+# Why copies and not symlinks: Windows checkouts (this project runs on win32) handle
+# symlinks unreliably across Git Bash / WSL / the IDE. Plain copies are robust and
+# diffable. Run this script after editing any canonical skill.
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE="$ROOT/.agents/skills"
+
+# Custom BAGArt skills only — Boost-managed skills are excluded.
+SKILLS=(
+  async-kernel-development
+  outbound-pipeline-development
+  telegram-dto-generation
+  multi-bot-management
+  highload-stability
+  phpstorm-workflow
+)
+
+TARGETS=(
+  "$ROOT/.claude/skills"
+  "$ROOT/.cursor/skills"
+  "$ROOT/.github/skills"
+  "$ROOT/.junie/skills"
+)
+
+CHECK_ONLY=0
+if [[ "${1:-}" == "--check" ]]; then
+  CHECK_ONLY=1
+fi
+
+if [[ ! -d "$SOURCE" ]]; then
+  echo "ERROR: canonical source $SOURCE not found" >&2
+  exit 2
+fi
+
+sync_skill() {
+  local skill="$1" target_dir="$2"
+  local src="$SOURCE/$skill"
+  local dst="$target_dir/$skill"
+
+  if [[ ! -d "$src" ]]; then
+    echo "  WARN: source skill $src missing — skipping"
+    return 0
+  fi
+
+  mkdir -p "$dst"
+  # Mirror the directory: copy files, remove files that no longer exist in source.
+  if command -v rsync >/dev/null 2>&1; then
+    if [[ $CHECK_ONLY -eq 1 ]]; then
+      if ! rsync -a --delete --itemize-changes -n "$src/" "$dst/" | grep -q .; then
+        return 0
+      else
+        echo "  OUT OF SYNC: $dst"
+        return 1
+      fi
+    else
+      rsync -a --delete "$src/" "$dst/"
+    fi
+  else
+    # Fallback: cp (no delete of stale files). Acceptable on Windows without rsync.
+    cp -r "$src/." "$dst/"
+    if [[ $CHECK_ONLY -eq 1 ]]; then
+      if ! diff -qr "$src" "$dst" >/dev/null 2>&1; then
+        echo "  OUT OF SYNC: $dst"
+        return 1
+      fi
+    fi
+  fi
+  return 0
+}
+
+status=0
+for target in "${TARGETS[@]}"; do
+  echo "→ $target"
+  for skill in "${SKILLS[@]}"; do
+    if ! sync_skill "$skill" "$target"; then
+      status=1
+    fi
+  done
+done
+
+if [[ $CHECK_ONLY -eq 1 ]]; then
+  if [[ $status -eq 0 ]]; then
+    echo "✓ All custom skills in sync."
+  else
+    echo "✗ Out of sync. Run: bash scripts/sync-skills.sh" >&2
+  fi
+else
+  echo "✓ Synced ${#SKILLS[@]} skills to ${#TARGETS[@]} targets."
+fi
+exit $status

@@ -2,27 +2,30 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/lib.php';
+
 $storageDir = '/var/www/xhprof-inbox/storage';
 
-$file = $_GET['file'] ?? '';
-if (!$file || str_contains($file, '..')) {
+$request = resolveXhprofRequest($storageDir, $_GET['file'] ?? '');
+if ($request['status'] === 'bad_param') {
     http_response_code(400);
     exit('Invalid file parameter');
 }
-
-$path = $storageDir . '/' . $file;
-if (!is_file($path) || !str_ends_with($path, '.xhprof')) {
+if ($request['status'] === 'not_found') {
     http_response_code(404);
     exit('File not found');
 }
 
-$data = @unserialize(file_get_contents($path));
-if (!is_array($data)) {
+$file = $request['file'];
+$path = $request['path'];
+$basename = $request['basename'];
+
+$data = loadXhprofData($path);
+if ($data === null) {
     http_response_code(400);
     exit('Invalid xhprof data');
 }
 
-$basename = basename($file);
 $hasHtml = file_exists($path . '.html');
 $htmlUrl = 'storage/' . htmlspecialchars($file) . '.html';
 $hasSvg = file_exists($path . '.svg');
@@ -75,30 +78,6 @@ $dataJson = json_encode([
 $treeHtml = buildTreeHtml($data, $rows, $totals);
 
 $measure = $data['main()'] ?? ['wt' => 0, 'cpu' => 0, 'mu' => 0, 'pmu' => 0, 'ct' => count($data) - 1];
-
-function fmtU(int $n): string
-{
-    if ($n >= 1000000) {
-        return number_format($n / 1000000, 3) . ' s';
-    }
-    if ($n >= 1000) {
-        return number_format($n / 1000, 2) . ' ms';
-    }
-    return $n . ' µs';
-}
-function fmtMem(int $n): string
-{
-    if ($n >= (1 << 30)) {
-        return number_format($n / (1 << 30), 2) . ' GiB';
-    }
-    if ($n >= (1 << 20)) {
-        return number_format($n / (1 << 20), 2) . ' MiB';
-    }
-    if ($n >= 1024) {
-        return number_format($n / 1024, 2) . ' KiB';
-    }
-    return $n . ' B';
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -180,19 +159,19 @@ a:hover{text-decoration:underline}
   <div class="summary-cards">
     <div class="summary-card">
       <div class="label">Wall Time</div>
-      <div class="value wt"><?= fmtU((int)($measure['wt'] ?? 0)) ?></div>
+      <div class="value wt"><?= formatMicroseconds((int)($measure['wt'] ?? 0)) ?></div>
     </div>
     <div class="summary-card">
       <div class="label">CPU Time</div>
-      <div class="value cpu"><?= fmtU((int)($measure['cpu'] ?? 0)) ?></div>
+      <div class="value cpu"><?= formatMicroseconds((int)($measure['cpu'] ?? 0)) ?></div>
     </div>
     <div class="summary-card">
       <div class="label">Memory Usage</div>
-      <div class="value mem"><?= fmtMem((int)($measure['mu'] ?? 0)) ?></div>
+      <div class="value mem"><?= formatMemory((int)($measure['mu'] ?? 0)) ?></div>
     </div>
     <div class="summary-card">
       <div class="label">Peak Memory</div>
-      <div class="value mem"><?= fmtMem((int)($measure['pmu'] ?? 0)) ?></div>
+      <div class="value mem"><?= formatMemory((int)($measure['pmu'] ?? 0)) ?></div>
     </div>
     <div class="summary-card">
       <div class="label">Functions Called</div>
@@ -440,66 +419,3 @@ renderFlat();
 </script>
 </body>
 </html>
-<?php
-
-function buildTreeHtml(array $data, array $rows, array $totals): string
-{
-    $tree = [];
-    foreach ($data as $key => $val) {
-        if ($key === 'main()') {
-            continue;
-        }
-        $parts = explode('==>', $key, 2);
-        $parent = $parts[0] ?? '';
-        $child = $parts[1] ?? $parts[0];
-        $tree[$parent][] = ['child' => $child, 'wt' => (int)($val['wt'] ?? 0), 'ct' => (int)($val['ct'] ?? 0)];
-    }
-
-    $hasParent = [];
-    foreach ($tree as $p => $children) {
-        foreach ($children as $c) {
-            $hasParent[$c['child']] = true;
-        }
-    }
-
-    $roots = [];
-    foreach ($tree as $p => $children) {
-        if (!isset($hasParent[$p])) {
-            $roots[] = $p;
-        }
-    }
-    if ($roots === []) {
-        $roots = array_keys($tree);
-    }
-
-    $totalWt = $totals['wt'] ?? 1;
-
-    $render = function (string $func, int $depth, array &$visited = []) use (&$render, &$tree, $totalWt, &$rows): string {
-        if (isset($visited[$func])) {
-            return '';
-        }
-        $visited[$func] = true;
-
-        $wt = $rows[$func]['wt'] ?? 0;
-        $pct = $totalWt > 0 ? ($wt / $totalWt * 100) : 0;
-        $indent = str_repeat('  ', $depth);
-        $h = $indent . '<details><summary><span class="func-name">' . htmlspecialchars($func) . '</span> <span class="func-val">' . number_format((float)$pct, 1) . '% / ' . number_format($wt / 1000, 2) . 'ms</span></summary>';
-        if (isset($tree[$func])) {
-            usort($tree[$func], fn ($a, $b) => $b['wt'] - $a['wt']);
-            foreach ($tree[$func] as $c) {
-                $h .= $render($c['child'], $depth + 1, $visited);
-            }
-        }
-        $h .= $indent . '</details>';
-        return $h;
-    };
-
-    $html = '';
-    usort($roots, fn ($a, $b) => ($rows[$b]['wt'] ?? 0) - ($rows[$a]['wt'] ?? 0));
-    foreach ($roots as $r) {
-        $visited = [];
-        $html .= $render($r, 0, $visited);
-    }
-
-    return $html;
-}

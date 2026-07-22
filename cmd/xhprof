@@ -8,7 +8,7 @@ set -uo pipefail
 #   cmd/xhprof report <file.xhprof>
 #
 # Examples:
-#   cmd/xhprof run misc/.../benchmark.php --transport=guzzle
+#   cmd/xhprof run misc/.../benchmark_transport.php --transport=guzzle
 #   cmd/xhprof report storage/app/tmp/xhprof/PROFILE.xhprof
 
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -30,7 +30,7 @@ generate_reports() {
 case "${1:-help}" in
     run)
         shift
-        XDEBUG_MODE=off php -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" "$@"
+        XDEBUG_MODE=off php -d xdebug.mode=off -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" "$@"
         echo "--- Generating reports ---"
         generate_reports
         ;;

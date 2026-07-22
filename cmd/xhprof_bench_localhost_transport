@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+trap 'trap - INT TERM; echo "Aborting..."; kill 0 2>/dev/null; exit 130' INT TERM
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+STORAGE="$DIR/storage/app/tmp/xhprof/benchmark-localhost-transport"
+rm -rf "$STORAGE"
+mkdir -p "$STORAGE"
+
+# Read XHPROF_URL from .env (fallback to http://xhprof.localhost)
+XHPROF_URL=$(grep -m1 '^XHPROF_URL=' "$DIR/.env" 2>/dev/null | cut -d= -f2-)
+XHPROF_URL="${XHPROF_URL:-http://xhprof.localhost}"
+STORAGE_SUBDIR="benchmark-localhost-transport"
+
+XHPROF_FLAGS="${XHPROF_FLAGS:-CPU,MEMORY}"
+TRANSPORT_TIMEOUT="${TRANSPORT_TIMEOUT:-3600}"
+TIMESTAMP=$(date +%s)
+BENCHMARK_DIR="$DIR/misc/BAGArt/php-async-kernel-client/commands"
+BENCHMARK="$BENCHMARK_DIR/benchmark_localhost_transport.php"
+
+TRANSPORTS=("ask-socket" "curl-multi" "guzzle")
+if XDEBUG_MODE=off php -r 'exit(class_exists("\Amp\Http\Client\HttpClient") ? 0 : 1);' 2>/dev/null; then
+    TRANSPORTS+=("amphp")
+fi
+
+echo "=== Profiling all transports: $TIMESTAMP ==="
+echo "    Target: $STORAGE"
+echo ""
+
+OVERALL_START=$(date +%s)
+
+for transport in "${TRANSPORTS[@]}"; do
+    echo "--- [$transport] ---"
+
+    TSTART=$(date +%s)
+    XDEBUG_MODE=off \
+    XHPROF_FLAGS="$XHPROF_FLAGS" \
+    XHPROF_OUTPUT="$STORAGE" \
+    XHPROF_PROJECT_DIR="$DIR" \
+    timeout --foreground "$TRANSPORT_TIMEOUT" \
+        php -d "auto_prepend_file=$DIR/cmd/includes/xhprof-prepend.php" -d "xdebug.mode=off" \
+            "$BENCHMARK" --transport="$transport" "$@" 2>&1
+    EXIT_CODE=$?
+    TEND=$(date +%s)
+    TDELTA=$((TEND - TSTART))
+
+    if [ $EXIT_CODE -eq 124 ]; then
+        echo "  [${transport}] TIMEOUT after ${TDELTA}s" >&2
+    elif [ $EXIT_CODE -ne 0 ]; then
+        echo "  [${transport}] FAILED (exit $EXIT_CODE) after ${TDELTA}s" >&2
+    else
+        echo "  [${transport}] OK (${TDELTA}s)"
+    fi
+    echo ""
+done
+
+OVERALL_END=$(date +%s)
+OVERALL_DELTA=$((OVERALL_END - OVERALL_START))
+
+echo "=== Done in ${OVERALL_DELTA}s ==="
+echo "=== XHProf profiles in: $STORAGE ==="
+ls -la "$STORAGE"/xhprof* 2>/dev/null || echo "(no xhprof files found)"
+echo ""
+echo "Web viewer: $XHPROF_URL/storage/$STORAGE_SUBDIR/"
+echo ""
+echo "=== Generating summary HTML ==="
+RESULT_INCLUDE="$BENCHMARK_DIR/includes/benchmark_localhost_transport/result.php"
+XDEBUG_MODE=off php "$RESULT_INCLUDE" "$STORAGE"
+echo ""
+echo "Summary: $XHPROF_URL/storage/$STORAGE_SUBDIR/benchmark-result.html"

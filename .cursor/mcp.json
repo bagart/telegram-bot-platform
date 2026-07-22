@@ -7,6 +7,14 @@
                 "/home/bagart/code/telegram-bot-platform/artisan",
                 "boost:mcp"
             ]
+        },
+        "tg-ops": {
+            "command": "wsl.exe",
+            "args": [
+                "/usr/bin/php8.5",
+                "/home/bagart/code/telegram-bot-platform/artisan",
+                "tgbm:mcp"
+            ]
         }
     }
 }

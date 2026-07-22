@@ -1,0 +1,25 @@
+{
+    admin off
+    auto_https off
+
+    log {
+        output discard
+    }
+}
+
+import /etc/caddy/sites/*
+
+:80 {
+
+    log {
+        output stdout
+        format console
+    }
+
+    root * /var/www/public
+    php_fastcgi php-fpm:9000 {
+        env SERVER_SOFTWARE "caddy"
+    }
+    file_server
+}
+

@@ -4,21 +4,10 @@ declare(strict_types=1);
 
 use BAGArt\ASKClient\Lockers\InMemoryLocker;
 use BAGArt\AsyncKernel\ASKClock;
-use BAGArt\AsyncKernel\Drivers\ASKFiberScheduler;
 use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
-use BAGArt\AsyncKernel\Wrappers\ASKLogWrapper;
-use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\Outbound\Adapters\InMemoryOutboundQueue;
 use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
-use BAGArt\TelegramBot\Outbound\Config\OutboundSetup;
 use BAGArt\TelegramBot\Outbound\Config\OutboundWorkerConfig;
-use BAGArt\TelegramBot\Outbound\LeaseRenewer;
-use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
-use BAGArt\TelegramBot\Outbound\OutboundPipeline;
-use BAGArt\TelegramBot\Outbound\OutboundTask;
-use BAGArt\TelegramBot\Outbound\OutboundTaskState;
-use BAGArt\TelegramBot\Outbound\OutboundCircuitBreaker;
-use BAGArt\TelegramBot\Outbound\TgOutboundDaemon;
 use BAGArt\TelegramBot\Outbound\TgOutboundStats;
 use Psr\SimpleCache\CacheInterface;
 
@@ -64,30 +53,12 @@ if (!function_exists('makeTestOutboundCache')) {
 
 beforeEach(function () {
     $clock = new ASKClock();
-    $queue = new InMemoryOutboundQueue($clock);
+    $this->queue = new InMemoryOutboundQueue($clock);
     $cache = makeTestOutboundCache();
-    $stats = new TgOutboundStats($cache);
-    $pipeline = new OutboundPipeline([]);
-    $leaseRenewer = new LeaseRenewer($queue, $clock);
-    $logger = new ASKLogWrapper();
-    $config = new OutboundWorkerConfig();
-    $scheduler = new ASKFiberScheduler();
-    $cb = new OutboundCircuitBreaker($cache);
+    $this->stats = new TgOutboundStats($cache);
 
-    $worker = new TgOutboundDaemon(
-        queue: $queue,
-        pipeline: $pipeline,
-        circuitBreaker: $cb,
-        stats: $stats,
-        leaseRenewer: $leaseRenewer,
-        logger: $logger,
-        config: $config,
-        scheduler: $scheduler,
-    );
-
-    $sender = Mockery::mock(TgSenderContract::class);
-    $this->outboundSetup = new OutboundSetup($worker, $stats, $queue, $sender, $pipeline, $cb, $leaseRenewer, $scheduler);
-    $this->app->instance(OutboundSetup::class, $this->outboundSetup);
+    $this->app->instance(\BAGArt\TelegramBot\Contracts\Outbound\OutboundQueueContract::class, $this->queue);
+    $this->app->instance(TgOutboundStats::class, $this->stats);
 });
 
 describe('TgOutboundMetricsCommand', function () {

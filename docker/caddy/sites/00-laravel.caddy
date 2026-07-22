@@ -1,0 +1,16 @@
+# Main Laravel app — serves public/index.php
+#   http://localhost/       → Laravel
+#   http://localhost/xhprof/  → XHProf Inbox
+#   http://localhost/swagger/ → Swagger
+localhost, 127.0.0.1 {
+    root * /var/www/public
+    php_fastcgi php-fpm:9000
+    file_server
+
+    handle_path /xhprof/* {
+        reverse_proxy xhprof-inbox:80
+    }
+    handle_path /swagger/* {
+        reverse_proxy swagger:8080
+    }
+}

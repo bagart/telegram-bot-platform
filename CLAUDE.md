@@ -190,7 +190,21 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 </laravel-boost-guidelines>
 
+=== language rules ===
+
+# Language Rules
+
+- All code, comments, agent prompts, and documentation MUST be in English.
+- Russian (or other languages) is ONLY allowed in:
+  - `docs/_lang/ru/` — Russian translation of documentation
+- Agent prompts must be in English. Communication with the LLM-developer can be in Russian.
+- Comments must only explain non-obvious intent — never restate what the code already says.
+- Do not use comments to describe "stages" or "steps" — split the method instead.
+- All existing prompts, comments, and strings must be translated to English, with obvious ones removed.
+
 === project conventions ===
+
+<!-- Mirrored from AGENTS.md (lines 193+). Keep in sync. Canonical source: AGENTS.md. -->
 
 # Project Conventions
 
@@ -199,3 +213,79 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.
 - ALWAYS use LF line endings, never CRLF. Write all files with `\n` only.
 - Strict contracts only — no `method_exists`, `instanceof` duck-typing across library boundaries. If a caller needs a method, it MUST be declared in the interface/contract. Do not add dead methods; every public method must have a real caller.
+
+## Telegram Bot Platform Structure
+
+- `misc/BAGArt/telegram-bot-lib` — pure Telegram Bot API library (no Laravel)
+- `misc/BAGArt/telegram-bot-basic-lib` — basic webhook handlers, middleware, commands (works with pure PHP and Laravel)
+- `misc/BAGArt/telegram-bot-management-lib` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgBotModule`), DB migrations
+
+## Dependency Injection
+
+- Laravel-facing classes in `Http/Laravel/` (controllers, middlewares, form requests) must NOT receive `TgBotSetupFactory` via auto-binding. Only final/concrete classes.
+- `TgBotSetupFactory` is an internal detail of `TelegramBotServiceProvider` — it is used exclusively inside the provider to construct singletons.
+- All dependencies for Laravel classes must be registered as singletons in `TelegramBotServiceProvider` and received via method/constructor injection.
+
+## Webhook Endpoints
+
+- `POST /tg/` — `TgWebhookController::post` (token resolved from secret header, IP + secret validation)
+- `POST /tg/webhook/{bot_id}` — `TgWebhookController::postByBotId` (token resolved from DB by `{bot_id}`, IP + secret + bot-id-resolver middleware)
+
+## Routes
+
+- All tg routes are in `routes/web.php` under `Route::prefix('tg')` group.
+- Library service providers do NOT load routes — they are loaded from the main app.
+
+## DTO Generation
+
+- Run `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
+- DTOs are generated to `misc/BAGArt/telegram-bot-lib/src/TgApi/`.
+
+## Daemon Shutdown & State Management (Async Kernel)
+
+### Outbound Architecture
+
+`telegram-bot-lib` is a **read-only library** — all daemon wiring must be explicit in CLI commands and scripts via `new TgOutboundDaemon(...)`. This is the primary extensibility point for customization without editing library code.
+
+**Rules:**
+- `TgBotSetup` does NOT contain daemons — it holds only readonly DTOs and contracts for processors (`tgSender`, `outboundStats`, `logger`, `processorRegistry`, etc.).
+- Daemons are built explicitly by the caller: factory method `createOutboundDaemonParts()` returns shared components (`['queue','pipeline','circuitBreaker','stats','leaseRenewer']`), the caller picks what it needs and constructs `new TgOutboundDaemon(...)`.
+- `TelegramBotServiceProvider` registers only contracts (`TgSenderContract`, `OutboundQueueContract`, `TgOutboundStats`) as singletons — never the daemon itself. Daemon is always built in the command.
+- Cache, locker, and queue drivers should be read from Laravel config via `config()` when inside the framework. If the library's internal implementation doesn't match Laravel's driver (e.g. `InMemoryLocker` vs Laravel's cache-based locker), create a `Framework/Laravel/Laravel*Adapter` in the library.
+
+### SKInterruptException
+
+`SKInterruptException` always bubbles up. It does not resolve promises, and is NOT caught in middleware/pipeline. Pipeline code only catches business exceptions (`OutboundSkipException`, `OutboundBusinessErrorException`, `OutboundRetryException`), NOT `SKInterruptException`.
+
+### Daemon::shutdown — strategy
+
+Shutdown does not aim for a fast exit. The goal is seamless completion of in-flight work:
+
+- Daemons implementing `ASKShutdownAware` drain in-flight work across the `STOPPING → DRAINING → FORCING` phases; `shutdown()` returns `false` until drained, so all in-memory tasks are completed even if it takes minutes. No new tasks are pulled once `prepareShutdown()` has run.
+- Daemons without `ASKShutdownAware` — the current task completes, no new tasks are accepted.
+
+### State storage rules
+
+**In Redis — only readonly DTOs without behavior:**
+- `OutboundTask`, `OutboundTaskState`, `DeadLetterEntry` (JSON)
+- Metric counters (`incrementWithTtl`)
+
+**Do NOT store in Redis:**
+- Network connections (HTTP client, promises)
+- Callbacks/closures
+- Objects with behavior (services, middleware, executor)
+
+**Callbacks:** always prefer classes. If a callback wraps logic, extract into a readonly class. Store only state (readonly properties) in Redis, never behavior.
+
+**In-memory management:** every component with in-memory state must implement flush on shutdown (queue, cache, HTTP client, stats).
+
+### Lazy Connections
+
+Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). Connection must be deferred until the first actual use (lazy connect) or explicitly via `ASKWarmableContract::warm()`.
+
+`AsyncKernel::addDaemon()` calls `warm()` automatically when the daemon or tickable implements `ASKWarmableContract`. This is the designated warmup hook — same role as `tickable` is for tick execution.
+
+## Composer
+
+- Libraries are connected via `path` repositories — run `composer update` from WSL shell (not Git Bash).
+- Symlinks in `vendor/bagart/` point to `misc/BAGArt/` — changes in libs are immediately visible.

@@ -1,24 +1,20 @@
 services:
-  web:
-    image: nginx:latest # Using the default Nginx image with custom configuration.
-    volumes:
-      # Mount the application code for live updates
-      - ./:/var/www
-      # Mount the Nginx configuration file
-      - ./docker/development/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  caddy:
+    image: caddy:alpine
     ports:
-      # Map port 80 inside the container to the port specified by 'NGINX_PORT' on the host machine
-      - "80:80"
-    environment:
-      - NGINX_HOST=localhost
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./docker/caddy/sites:/etc/caddy/sites:ro
+      - ./:/var/www
     networks:
       - laravel-development
     depends_on:
       php-fpm:
-        condition: service_started  # Wait for php-fpm to start
+        condition: service_started
 
   php-fpm:
-    # For the php-fpm service, we will create a custom image to install the necessary PHP extensions and setup proper permissions.
     build:
       context: .
       dockerfile: ./docker/common/php-fpm/Dockerfile
@@ -26,27 +22,31 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
-        XDEBUG_ENABLED: ${XDEBUG_ENABLED:-true}
-        XDEBUG_MODE: develop,coverage,debug,profile
+        XDEBUG_ENABLED: ${XDEBUG_ENABLED:-false}
+        XDEBUG_MODE: ${XDEBUG_MODE:-develop,coverage,debug,profile}
         XDEBUG_HOST: ${XDEBUG_HOST:-host.docker.internal}
         XDEBUG_IDE_KEY: ${XDEBUG_IDE_KEY:-DOCKER}
         XDEBUG_LOG: /dev/stdout
         XDEBUG_LOG_LEVEL: 0
     env_file:
-      # Load the environment variables from the Laravel application
       - .env
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
-      # Mount the application code for live updates
       - ./:/var/www
+
+    tmpfs:
+      - /tmp
+
+    shm_size: 1gb
+
     networks:
       - laravel-development
     depends_on:
       postgres:
-        condition: service_started  # Wait for postgres to start
+        condition: service_started
+
 
   workspace:
-   # For the workspace service, we will also create a custom image to install and setup all the necessary stuff.
     build:
       context: .
       dockerfile: ./docker/development/workspace/Dockerfile
@@ -54,15 +54,17 @@ services:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
         XDEBUG_ENABLED: ${XDEBUG_ENABLED:-true}
-        XDEBUG_MODE: develop,coverage,debug,profile
+        XDEBUG_MODE: ${XDEBUG_MODE:-develop,coverage,debug,profile}
         XDEBUG_HOST: ${XDEBUG_HOST:-host.docker.internal}
         XDEBUG_IDE_KEY: ${XDEBUG_IDE_KEY:-DOCKER}
         XDEBUG_LOG: /dev/stdout
         XDEBUG_LOG_LEVEL: 0
     ports:
-      - '${VITE_PORT:-5173}:5173'
-    tty: true  # Enables an interactive terminal
-    stdin_open: true  # Keeps standard input open for 'docker exec'
+      - "${VITE_PORT:-5173}:5173"
+
+    tty: true
+    stdin_open: true
+
     env_file:
       - .env
     volumes:
@@ -75,9 +77,10 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      - POSTGRES_DB=tg_bot_manager
-      - POSTGRES_USER=laravel
-      - POSTGRES_PASSWORD=secret
+      POSTGRES_DB: tg_bot_manager
+      POSTGRES_USER: laravel
+      POSTGRES_PASSWORD: secret
+
     volumes:
       - postgres-data-development:/var/lib/postgresql/data
     networks:
@@ -90,12 +93,14 @@ services:
 
   swagger:
     image: swaggerapi/swagger-ui
-    ports:
-      - "${SWAGGER_PORT:-8081}:8080"
+    expose:
+      - "8080"
+
     volumes:
       - ./storage/api-docs:/swagger-ui/static
     environment:
-      - SWAGGER_JSON=/swagger-ui/static/openapi.yaml
+      SWAGGER_JSON: /swagger-ui/static/openapi.yaml
+
     networks:
       - laravel-development
 
@@ -103,8 +108,8 @@ services:
     build:
       context: ./docker/xhprof-inbox
       dockerfile: Dockerfile
-    ports:
-      - "${XHPROF_INBOX_PORT:-8082}:80"
+    expose:
+      - "80"
     volumes:
       - ./storage/app/tmp/xhprof:/var/www/xhprof-inbox/storage:ro
     networks:

@@ -25,7 +25,7 @@ app()->booted(function (): void {
         $extraOpts = $poll['options'] ? ' '.$poll['options'] : '';
 
         exec(
-            PHP_BINARY.' '.escapeshellarg($tgLibPath.'/commands/poller-daemon.php').$tokenArg.$extraOpts.' > /dev/null 2>&1 &'
+            PHP_BINARY.' '.escapeshellarg($tgLibPath.'/commands/tg_daemons-daemon.php').$tokenArg.$extraOpts.' > /dev/null 2>&1 &'
         );
     })->cron(config('telegram.schedule.poll.expression', '* * * * *'))
       ->name('tg:poll-daemon')

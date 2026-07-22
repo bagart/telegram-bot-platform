@@ -54,3 +54,17 @@ jobs:
 
       - name: Tests
         run: ./vendor/bin/pest
+
+      - name: Static analysis (phpstan, non-blocking)
+        # phpstan runs against a baseline of pre-existing errors. The remaining
+        # ~27 errors are contract violations in Processing/Processors/* that
+        # predate this CI step — tracked for a dedicated fix. continue-on-error
+        # keeps CI green while surfacing new regressions in the log.
+        continue-on-error: true
+        run: vendor/bin/phpstan analyse --no-interaction
+
+      - name: Highload audit (tgbm:audit --strict)
+        run: php artisan tgbm:audit --strict
+
+      - name: Skills sync check
+        run: bash scripts/sync-skills --check

@@ -9,7 +9,7 @@
     { "id":"core-lib", "name":"Core Lib", "desc":"DTOs · HTTP transport · Pipeline", "cat":"library", "emoji":"⚙️", "x":58, "y":50, "w":18, "tags":["bagart/telegram-bot-lib","Pure PHP"] },
     { "id":"database", "name":"Database", "desc":"PostgreSQL 17 · Migrations", "cat":"infra", "emoji":"🗃️", "x":12, "y":68, "w":16, "tags":["tg_bots","users","queues"] },
     { "id":"redis", "name":"Redis", "desc":"Cache · Session · Queue", "cat":"infra", "emoji":"⚡", "x":36, "y":68, "w":14, "tags":["PSR-16","Horizon"] },
-    { "id":"infra", "name":"Infrastructure", "desc":"Docker · Nginx · PHP 8.5 FPM", "cat":"infra", "emoji":"🐳", "x":58, "y":68, "w":16, "tags":["docker-compose","Horizon"] },
+    { "id":"infra", "name":"Infrastructure", "desc":"Docker · Caddy · PHP 8.5 FPM", "cat":"infra", "emoji":"🐳", "x":58, "y":68, "w":16, "tags":["docker-compose","Horizon"] },
     { "id":"filesystem", "name":"File System", "desc":"Generated DTOs · Config files", "cat":"infra", "emoji":"📁", "x":76, "y":68, "w":16, "tags":["DTO files","Configs"] }
   ],
   "flows": [
@@ -224,8 +224,8 @@
       "id":"docker-deploy", "name":"Docker Deploy", "cat":"Infrastructure",
       "desc":"Build and deploy full stack with Docker Compose",
       "steps":[
-        { "from":"user", "to":"infra", "label":"docker compose up -d", "detail":"Developer runs Docker Compose to start the full stack (Nginx, PHP-FPM, Postgres, Redis)." },
-        { "from":"infra", "to":"infra", "label":"Nginx + PHP-FPM start", "detail":"Nginx container serves the Laravel app, proxying PHP requests to PHP-FPM." },
+        { "from":"user", "to":"infra", "label":"docker compose up -d", "detail":"Developer runs Docker Compose to start the full stack (Caddy, PHP-FPM, Postgres, Redis)." },
+        { "from":"infra", "to":"infra", "label":"Caddy + PHP-FPM start", "detail":"Caddy serves the Laravel app, proxying PHP requests to PHP-FPM." },
         { "from":"infra", "to":"database", "label":"PostgreSQL starts", "detail":"PostgreSQL 17 container initializes the database cluster." },
         { "from":"infra", "to":"redis", "label":"Redis starts", "detail":"Redis container boots for cache, sessions, and queue." },
         { "from":"infra", "to":"laravel-app", "label":"php artisan migrate", "detail":"Startup script runs database migrations." },

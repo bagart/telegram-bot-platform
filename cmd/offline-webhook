@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-php misc/BAGArt/telegram-bot-lib/commands/offline/webhook-processing.php "$@"

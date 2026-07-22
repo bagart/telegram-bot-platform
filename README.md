@@ -25,15 +25,43 @@
 
 ## Setup
 
-## load lib
+### For Library Developers (you)
+
+Libraries live in `misc/BAGArt/`. Clone them first:
 
 ```bash
 mkdir -p misc/BAGArt
-cd misc/BAGArt 
-git clone git@github.com:bagart/telegram-bot-management-lib.git
-git clone git@github.com:bagart/telegram-bot-basic-lib.git
+cd misc/BAGArt
+git clone git@github.com:bagart/async-kernel.git php-async-kernel-lib
+git clone git@github.com:bagart/ask-client.git php-async-kernel-client
+git clone git@github.com:bagart/ask-client-redis.git php-async-kernel-client-redis
 git clone git@github.com:bagart/telegram-bot-lib.git
+git clone git@github.com:bagart/telegram-bot-basic-lib.git
+git clone git@github.com:bagart/telegram-bot-management-lib.git
 ```
+
+Then run setup — it auto-detects local libs and configures Composer path repositories:
+
+```bash
+./scripts/setup
+```
+
+This lets you edit library code in `misc/BAGArt/` and have changes reflected instantly without re-installing.
+
+### For Colleagues
+
+No need to clone libraries manually. Just:
+
+```bash
+cp .env.example .env
+# Edit .env with your settings
+docker compose up -d
+docker compose exec workspace bash
+composer install
+npm install && npm run build
+```
+
+Libraries install from published [Packagist](https://packagist.org/packages/bagart/) packages automatically.
 
 ### Run Laravel
 
@@ -41,12 +69,6 @@ Docker env: https://docs.docker.com/guides/frameworks/laravel/development-setup/
 
 #### Development Environment
 ```bash
-
-#In case of a problem: UID/GUID
-#cp .env.example .env
-#nano .etc
-#At the end of the file - uncommit changes and fix: UID/GID
-
 docker compose up -d
 docker compose exec workspace bash
 ```
@@ -60,7 +82,7 @@ npm run dev
 #### Production Environment
 
 ```bash
-docker compose -f compose.prod.yaml up --build -d
+docker compose -f docker-compose.prod.yaml up --build -d
 ```
 
 ## Test of Work
@@ -94,7 +116,7 @@ php misc/BAGArt/TelegramBotBasic/RawExamples/GetUpdateDTOWithPollerExample.php -
 - **Laravel Framework**: is simple and useful Framework based on PHP. 
 - **PostgreSQL**: Version **17** is most Powerful SQL DB.
 - **Redis**: Used for caching, session management and queues.
-- **Nginx**: Used as the web server to serve the Laravel application and handle HTTP requests.
+- **Caddy**: Used as the web server to serve the Laravel application with automatic HTTPS.
 - **Docker Compose**: Orchestrates the services, simplifying the process of starting and stopping the environment.
 - **Health Checks**: Implemented in the Docker Compose configurations and Laravel application to ensure all services are operational.
 

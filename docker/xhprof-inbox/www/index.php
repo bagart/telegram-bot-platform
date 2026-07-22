@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/lib.php';
+
 $storageDir = '/var/www/xhprof-inbox/storage';
 
 function scanXhprofFiles(string $dir): array
@@ -43,46 +45,9 @@ function scanXhprofFiles(string $dir): array
     return $groups;
 }
 
-function formatBytes(int $bytes): string
-{
-    if ($bytes >= 1073741824) {
-        return number_format($bytes / 1073741824, 1) . ' GiB';
-    }
-    if ($bytes >= 1048576) {
-        return number_format($bytes / 1048576, 1) . ' MiB';
-    }
-    if ($bytes >= 1024) {
-        return number_format($bytes / 1024, 1) . ' KiB';
-    }
-    return $bytes . ' B';
-}
-
-function formatTime(int $us): string
-{
-    if ($us >= 1000000) {
-        return number_format($us / 1000000, 2) . ' s';
-    }
-    if ($us >= 1000) {
-        return number_format($us / 1000, 2) . ' ms';
-    }
-    return $us . ' µs';
-}
-
 function getProfileSummary(string $path): ?array
 {
-    $data = @unserialize(file_get_contents($path));
-    if (!is_array($data)) {
-        return null;
-    }
-
-    $main = $data['main()'] ?? ['wt' => 0, 'cpu' => 0, 'mu' => 0, 'pmu' => 0];
-    return [
-        'wt' => (int)($main['wt'] ?? 0),
-        'cpu' => (int)($main['cpu'] ?? 0),
-        'mu' => (int)($main['mu'] ?? 0),
-        'pmu' => (int)($main['pmu'] ?? 0),
-        'ct' => count($data) - 1,
-    ];
+    return loadProfileSummary($path);
 }
 
 $groups = scanXhprofFiles($storageDir);
@@ -166,7 +131,7 @@ tr:hover td{background:#1c2128}
   <div class="stats">
     <span>Groups: <strong><?= $groupCount ?></strong></span>
     <span>Profiles: <strong><?= $totalFiles ?></strong></span>
-    <span>Total size: <strong><?= formatBytes($totalSize) ?></strong></span>
+    <span>Total size: <strong><?= formatMemory($totalSize) ?></strong></span>
     <span>Storage: <strong>/var/www/xhprof-inbox/storage/</strong></span>
   </div>
 </div>
@@ -217,9 +182,9 @@ tr:hover td{background:#1c2128}
                   <?php if ($file['has_svg']): ?><span class="file-check ok">✓ SVG</span><?php endif; ?>
                 </div>
               </td>
-              <td class="file-meta"><?= formatBytes($file['size']) ?></td>
+              <td class="file-meta"><?= formatMemory($file['size']) ?></td>
               <td class="file-meta"><?= date('Y-m-d H:i:s', $file['mtime']) ?></td>
-              <td class="file-meta"><?= $summary ? formatTime($summary['wt']) : '—' ?></td>
+              <td class="file-meta"><?= $summary ? formatMicroseconds($summary['wt']) : '—' ?></td>
               <td class="file-meta"><?= $summary ? number_format($summary['ct']) : '—' ?></td>
               <td>
                 <div class="actions">

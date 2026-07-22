@@ -1,0 +1,11 @@
+# Telegram bot lib — serves misc/BAGArt/telegram-bot-lib/public/
+#   http://telegram.localhost/ → Telegram bot webhooks entry points
+#   http://telegram.localhost/config.php
+#   http://telegram.localhost/index-async.php
+#   http://telegram.localhost/index-sync.php
+#   http://telegram.localhost/index-queue.php
+telegram.localhost {
+    root * /var/www/misc/BAGArt/telegram-bot-lib/public
+    php_fastcgi php-fpm:9000
+    file_server
+}

@@ -26,16 +26,13 @@
             <directory>misc/BAGArt/telegram-bot-management-lib/tests</directory>
         </testsuite>
         <testsuite name="AsyncKernelLib">
-            <directory>misc/BAGArt/php-async-kernel/tests</directory>
+            <directory>misc/BAGArt/php-async-kernel-lib/tests</directory>
         </testsuite>
         <testsuite name="ASKClientLib">
             <directory>misc/BAGArt/php-async-kernel-client/tests</directory>
         </testsuite>
         <testsuite name="ASKClientRedisLib">
             <directory>misc/BAGArt/php-async-kernel-client-redis/tests</directory>
-        </testsuite>
-        <testsuite name="DaemonRunnerLib">
-            <directory>misc/BAGArt/daemon-runner/tests</directory>
         </testsuite>
     </testsuites>
     <source>

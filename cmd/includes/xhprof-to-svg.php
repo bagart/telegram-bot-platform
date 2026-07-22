@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/xhprof-lib.php';
+
 $usage = <<<USAGE
 Usage: php xhprof-to-svg.php [--metric=wt|cpu|mu|pmu|ct] <file.xhprof>
 
@@ -36,8 +38,8 @@ if (!in_array($metric, $validMetrics, true)) {
     exit(1);
 }
 
-$data = unserialize(file_get_contents($file));
-if (!is_array($data)) {
+$data = loadXhprofData($file);
+if ($data === null) {
     fwrite(STDERR, "Invalid xhprof data\n");
     exit(1);
 }
@@ -147,10 +149,6 @@ function generateFlamegraphSvg(array $data, string $title, string $metric): stri
     }
 
     $funcCount = count($funcSet);
-    $funcList = [];
-    foreach ($funcSet as $fn => $_) {
-        $funcList[] = htmlspecialchars($fn, ENT_QUOTES);
-    }
 
     return <<<SVG
 <svg width="{$width}" height="{$svgHeight}" xmlns="http://www.w3.org/2000/svg" style="background:#0d1117;font-family:monospace">
@@ -220,30 +218,7 @@ SVG;
 
 function buildStacks(array $data, string $metric): array
 {
-    $callees = [];
-    $hasParent = [];
-
-    foreach ($data as $key => $val) {
-        if ($key === 'main()') {
-            continue;
-        }
-        $parts = explode('==>', $key, 2);
-        if (count($parts) === 2) {
-            [$parent, $child] = $parts;
-            $callees[$parent][] = ['func' => $child, 'data' => $val];
-            $hasParent[$child] = true;
-        }
-    }
-
-    $roots = [];
-    foreach ($callees as $func => $children) {
-        if (!isset($hasParent[$func])) {
-            $roots[] = $func;
-        }
-    }
-    if ($roots === []) {
-        $roots = ['main()'];
-    }
+    [, $callees, $roots] = buildCallGraph($data);
 
     $stacks = [];
 
@@ -258,7 +233,7 @@ function buildStacks(array $data, string $metric): array
             return;
         }
         foreach ($callees[$func] as $c) {
-            $w = getValue($c['data'], $metric);
+            $w = getMetricValue($c['data'], $metric);
             $walk($c['func'], $stack, $w > 0 ? $w : $weight, $visited);
         }
     };
@@ -272,16 +247,4 @@ function buildStacks(array $data, string $metric): array
     }
 
     return $stacks;
-}
-
-function getValue(array $data, string $metric): float
-{
-    return match ($metric) {
-        'wt' => (float)($data['wt'] ?? 0),
-        'cpu' => (float)($data['cpu'] ?? 0),
-        'mu' => (float)($data['mu'] ?? 0),
-        'pmu' => (float)($data['pmu'] ?? 0),
-        'ct' => (float)($data['ct'] ?? 1),
-        default => (float)($data['wt'] ?? 0),
-    };
 }

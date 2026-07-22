@@ -9,7 +9,7 @@
     { "id":"core-lib", "name":"Core Lib", "desc":"DTOs · HTTP transport · Pipeline", "cat":"library", "emoji":"⚙️", "x":550, "y":450, "w":160, "tags":["telegram-bot-lib","Pure PHP"] },
     { "id":"database", "name":"Database", "desc":"PostgreSQL 17 · Migrations", "cat":"infra", "emoji":"🗃️", "x":150, "y":600, "w":140, "tags":["tg_bots","users","queues"] },
     { "id":"redis", "name":"Redis", "desc":"Cache · Session · Queue", "cat":"infra", "emoji":"⚡", "x":380, "y":600, "w":120, "tags":["PSR-16","Horizon"] },
-    { "id":"infra", "name":"Infrastructure", "desc":"Docker · Nginx · PHP 8.5 FPM", "cat":"infra", "emoji":"🐳", "x":580, "y":600, "w":140, "tags":["docker-compose"] },
+    { "id":"infra", "name":"Infrastructure", "desc":"Docker · Caddy · PHP 8.5 FPM", "cat":"infra", "emoji":"🐳", "x":580, "y":600, "w":140, "tags":["docker-compose"] },
     { "id":"filesystem", "name":"File System", "desc":"Generated DTOs · Config files", "cat":"infra", "emoji":"📁", "x":750, "y":600, "w":140, "tags":["DTO files","Configs"] }
   ],
   "categories": ["Auth","Bot Management","Messaging","Dev Tools","User Settings","Infrastructure","Dev Workflow"],
@@ -159,7 +159,7 @@
     ]},
     { "id":"docker-deploy", "name":"Docker Deploy", "cat":"Infrastructure", "desc":"Build and deploy full stack with Docker Compose", "steps":[
       { "from":"user", "to":"infra", "label":"docker compose up -d", "detail":"Developer runs Docker Compose to start full stack." },
-      { "from":"infra", "to":"infra", "label":"Nginx + PHP-FPM start", "detail":"Nginx serves Laravel app, proxying to PHP-FPM." },
+      { "from":"infra", "to":"infra", "label":"Caddy + PHP-FPM start", "detail":"Caddy serves Laravel app, proxying to PHP-FPM." },
       { "from":"infra", "to":"database", "label":"PostgreSQL starts", "detail":"PostgreSQL 17 container initializes database cluster." },
       { "from":"infra", "to":"redis", "label":"Redis starts", "detail":"Redis container boots for cache, sessions, queue." },
       { "from":"infra", "to":"laravel-app", "label":"php artisan migrate", "detail":"Startup script runs database migrations." },
