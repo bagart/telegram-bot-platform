@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Check for outdated dependencies.
+#
+# Usage:
+#   cmd/deps/outdated
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+if command -v composer >/dev/null 2>&1; then
+  say "Composer outdated..."
+  composer outdated --direct 2>&1 || true
+else
+  warn "Composer not found — skipping"
+fi
+
+if command -v npm >/dev/null 2>&1 && [[ -f package.json ]]; then
+  say "npm outdated..."
+  npm outdated 2>&1 || true
+else
+  warn "npm or package.json not found — skipping"
+fi

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Fast pre-push gate.
+#
+# Runs quick local validation before pushing.
+# Does not bypass hooks, security checks, or CI.
+#
+# Usage:
+#   cmd/git/prepush
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+# PHP formatting
+if command -v vendor/bin/pint >/dev/null 2>&1; then
+  say "PHP formatting..."
+  if vendor/bin/pint --test >/dev/null 2>&1; then
+    ok "Pint OK"
+  else
+    err "Pint failed"
+    ((FAILS++))
+  fi
+fi
+
+# ESLint
+if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
+  say "ESLint..."
+  if npx eslint . >/dev/null 2>&1; then
+    ok "ESLint OK"
+  else
+    err "ESLint failed"
+    ((FAILS++))
+  fi
+fi
+
+# Compose validation
+if command -v docker >/dev/null 2>&1; then
+  say "Compose validation..."
+  if docker compose -f docker-compose.dev.yaml config --quiet >/dev/null 2>&1; then
+    ok "Compose dev OK"
+  else
+    err "Compose dev invalid"
+    ((FAILS++))
+  fi
+fi
+
+# Secret check
+if git ls-files .env 2>/dev/null | grep -q .; then
+  err ".env is tracked"
+  ((FAILS++))
+fi
+
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS check(s) failed — fix before pushing"
+  exit "$EX_CHECK"
+else
+  ok "Pre-push checks passed"
+  exit "$EX_OK"
+fi

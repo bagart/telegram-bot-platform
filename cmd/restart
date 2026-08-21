@@ -1,7 +1,3 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-DIR="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$DIR"
-
-docker compose restart "$@"
+# Backward-compatible wrapper for the canonical `cmd/docker/restart`.
+exec "$(dirname "$0")/docker/restart" "$@"

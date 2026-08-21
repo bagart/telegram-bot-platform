@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Quick commit: validate working tree, run fast checks, then commit.
+#
+# Does NOT bypass Git hooks or security checks.
+# CI remains authoritative.
+#
+# Usage:
+#   cmd/git/quick-commit "fix: description"
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+if [[ $# -eq 0 ]]; then
+  fail "Usage: cmd/git/quick-commit \"<message>\""
+fi
+
+MSG="$1"
+
+# --- Show changed files ---
+say "Changed files:"
+git diff --stat HEAD
+echo ""
+
+# --- Fast PHP formatting check ---
+if command -v vendor/bin/pint >/dev/null 2>&1; then
+  say "Checking PHP formatting..."
+  if ! vendor/bin/pint --test >/dev/null 2>&1; then
+    warn "PHP formatting issues found — run cmd/dev/fix first"
+    exit "$EX_CHECK"
+  fi
+  ok "PHP formatting OK"
+fi
+
+# --- Fast lint check ---
+if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
+  say "Checking ESLint..."
+  if ! npx eslint . >/dev/null 2>&1; then
+    warn "ESLint issues found — run cmd/dev/fix first"
+    exit "$EX_CHECK"
+  fi
+  ok "ESLint OK"
+fi
+
+# --- Secret scan (basic) ---
+if git ls-files .env 2>/dev/null | grep -q .; then
+  err ".env is tracked — remove with: git rm --cached .env"
+  exit "$EX_CHECK"
+fi
+
+# --- Commit (never --no-verify) ---
+say "Committing: $MSG"
+git commit -m "$MSG"
+ok "Commit created"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Build the development stack images.
+#
+# Normal builds use Docker's cache. Use `--no-cache` only when explicitly
+# required — it is slow and destructive.
+#
+# Usage:
+#   cmd/docker/build
+#   cmd/docker/build --no-cache
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/docker.sh"
+
+require_docker
+
+cd "$REPO_ROOT"
+docker compose -f docker-compose.dev.yaml build "$@"

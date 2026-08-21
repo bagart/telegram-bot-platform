@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Audit dependencies for known vulnerabilities.
+#
+# Runs Composer audit and npm audit where available.
+#
+# Usage:
+#   cmd/deps/audit
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+# Composer audit
+if command -v composer >/dev/null 2>&1; then
+  say "Composer audit..."
+  if composer audit --no-dev 2>&1; then
+    ok "Composer audit passed"
+  else
+    err "Composer audit found issues"
+    ((FAILS++))
+  fi
+else
+  warn "Composer not found — skipping"
+fi
+
+# npm audit
+if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
+  say "npm audit..."
+  if npm audit --audit-level=high 2>&1; then
+    ok "npm audit passed"
+  else
+    err "npm audit found issues"
+    ((FAILS++))
+  fi
+else
+  warn "npm or package-lock.json not found — skipping"
+fi
+
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS audit(s) failed"
+  exit "$EX_CHECK"
+else
+  ok "All audits passed"
+  exit "$EX_OK"
+fi

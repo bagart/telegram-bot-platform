@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Stable wrapper around the normal commit workflow.
+#
+# Usage:
+#   cmd/git/commit "fix: description"
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+if [[ $# -eq 0 ]]; then
+  fail "Usage: cmd/git/commit \"<message>\""
+fi
+
+MSG="$1"
+shift
+
+git commit -m "$MSG" "$@"

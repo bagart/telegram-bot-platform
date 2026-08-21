@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Aggregate applicable local security checks.
+#
+# Tool selection is governed by the Security SDD.
+# This command is a stable interface — no policy is hardcoded.
+#
+# Usage:
+#   cmd/dev/security
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+run_check() {
+  local label="$1"; shift
+  say "$label"
+  if "$@" >/dev/null 2>&1; then
+    ok "$label passed"
+  else
+    err "$label failed"
+    ((FAILS++))
+  fi
+}
+
+# Composer audit
+if command -v composer >/dev/null 2>&1; then
+  run_check "Composer audit" composer audit --no-dev
+fi
+
+# npm audit
+if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
+  run_check "npm audit" npm audit --audit-level=high
+fi
+
+# Secret scanning (git secrets or gitleaks)
+if command -v gitleaks >/dev/null 2>&1; then
+  run_check "Secret scanning (gitleaks)" gitleaks detect --no-banner
+elif command -v git-secrets >/dev/null 2>&1; then
+  run_check "Secret scanning (git-secrets)" git-secrets --scan
+fi
+
+# .env not tracked
+say "Checking .env is not tracked..."
+if git ls-files .env 2>/dev/null | grep -q .; then
+  err ".env is tracked by Git — remove it with: git rm --cached .env"
+  ((FAILS++))
+else
+  ok ".env is not tracked"
+fi
+
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS security check(s) failed"
+  exit "$EX_CHECK"
+else
+  ok "All security checks passed"
+  exit "$EX_OK"
+fi

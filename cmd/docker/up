@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Start the development stack.
+#
+# Usage:
+#   cmd/docker/up                     # normal dev stack
+#   cmd/docker/up ai                  # dev stack + ai Compose profile
+#   cmd/docker/up postgres redis      # targeted services
+#
+# `ai` is a semantic profile argument, never passed as a service name.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/docker.sh"
+
+require_docker
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+PROFILES=()
+SERVICES=()
+AI_REQUESTED=false
+for arg in "$@"; do
+  case "$arg" in
+    ai) PROFILES+=(--profile ai); AI_REQUESTED=true ;;
+    *)  SERVICES+=("$arg") ;;
+  esac
+done
+
+if [[ "$AI_REQUESTED" == true ]]; then
+  missing=()
+  [[ -z "${OMNIROUTE_JWT_SECRET:-}" ]]    && missing+=("OMNIROUTE_JWT_SECRET")
+  [[ -z "${OMNIROUTE_API_KEY_SECRET:-}" ]] && missing+=("OMNIROUTE_API_KEY_SECRET")
+  [[ -z "${OMNIROUTE_PASSWORD:-}" ]]       && missing+=("OMNIROUTE_PASSWORD")
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    err "AI profile requested but required secrets are not set:"
+    for v in "${missing[@]}"; do
+      echo "  - $v" >&2
+    done
+    echo "  Set them in .env and retry." >&2
+    exit "$EX_USAGE"
+  fi
+fi
+
+cd "$REPO_ROOT"
+docker compose -f docker-compose.dev.yaml "${PROFILES[@]}" up -d "${SERVICES[@]}"

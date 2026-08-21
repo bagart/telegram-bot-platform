@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Aggregate applicable linting / formatting checks.
+#
+# Developers should not need to remember individual tool names.
+#
+# Usage:
+#   cmd/dev/lint
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+run_lint() {
+  local label="$1"; shift
+  say "$label"
+  if "$@" >/dev/null 2>&1; then
+    ok "$label passed"
+  else
+    err "$label failed"
+    ((FAILS++))
+  fi
+}
+
+# PHP formatting
+if command -v vendor/bin/pint >/dev/null 2>&1; then
+  run_lint "PHP formatting (Pint)" vendor/bin/pint --test
+fi
+
+# PHPStan
+if command -v vendor/bin/phpstan >/dev/null 2>&1; then
+  run_lint "PHPStan" vendor/bin/phpstan analyse --no-progress
+fi
+
+# ESLint
+if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
+  run_lint "ESLint" npx eslint .
+fi
+
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS lint check(s) failed"
+  exit "$EX_CHECK"
+else
+  ok "All lint checks passed"
+  exit "$EX_OK"
+fi

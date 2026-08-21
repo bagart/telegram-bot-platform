@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# Diagnose the local development environment.
+#
+# Reports OK / WARN / FAIL for each check.
+# Does not modify anything — read-only diagnosis.
+#
+# Usage:
+#   cmd/dev/doctor
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+WARNS=0
+
+check_ok()   { ok "$1"; }
+check_warn() { warn "$1"; ((WARNS++)); }
+check_fail() { err "$1"; ((FAILS++)); }
+
+# --- PHP ---
+say "PHP"
+if command -v php >/dev/null 2>&1; then
+  PHP_VER="$(php -r 'echo PHP_VERSION;' 2>/dev/null)"
+  check_ok "PHP $PHP_VER"
+else
+  check_fail "PHP not found"
+fi
+
+# --- Composer ---
+say "Composer"
+if command -v composer >/dev/null 2>&1; then
+  COMP_VER="$(composer --version 2>/dev/null | head -1)"
+  check_ok "$COMP_VER"
+else
+  check_warn "Composer not found"
+fi
+
+# --- Node / npm ---
+say "Node / npm"
+if command -v node >/dev/null 2>&1; then
+  NODE_VER="$(node -v)"
+  check_ok "Node $NODE_VER"
+else
+  check_warn "Node not found"
+fi
+if command -v npm >/dev/null 2>&1; then
+  NPM_VER="$(npm -v)"
+  check_ok "npm $NPM_VER"
+else
+  check_warn "npm not found"
+fi
+
+# --- Docker ---
+say "Docker"
+if command -v docker >/dev/null 2>&1; then
+  DOCKER_VER="$(docker --version 2>/dev/null)"
+  check_ok "$DOCKER_VER"
+  if docker compose version >/dev/null 2>&1; then
+    COMP_VER="$(docker compose version --short 2>/dev/null)"
+    check_ok "Docker Compose $COMP_VER"
+  else
+    check_fail "Docker Compose plugin not found"
+  fi
+else
+  check_warn "Docker not found"
+fi
+
+# --- Git ---
+say "Git"
+if command -v git >/dev/null 2>&1; then
+  GIT_VER="$(git --version)"
+  check_ok "$GIT_VER"
+else
+  check_fail "Git not found"
+fi
+
+# --- .env ---
+say "Environment"
+if [[ -f .env ]]; then
+  check_ok ".env present"
+else
+  check_warn ".env not found — run cmd/dev/setup"
+fi
+
+# --- Repository structure ---
+say "Repository structure"
+MISSING=()
+for d in app config database public resources routes tests cmd docker; do
+  [[ -d "$d" ]] || MISSING+=("$d")
+done
+if [[ ${#MISSING[@]} -eq 0 ]]; then
+  check_ok "All expected directories present"
+else
+  check_fail "Missing directories: ${MISSING[*]}"
+fi
+
+# --- Compose files ---
+say "Docker Compose"
+if docker compose -f docker-compose.dev.yaml config --quiet >/dev/null 2>&1; then
+  check_ok "docker-compose.dev.yaml valid"
+else
+  check_fail "docker-compose.dev.yaml invalid"
+fi
+if docker compose -f docker-compose.prod.yaml config --quiet >/dev/null 2>&1; then
+  check_ok "docker-compose.prod.yaml valid"
+else
+  check_fail "docker-compose.prod.yaml invalid"
+fi
+
+# --- Git hooks ---
+say "Git hooks"
+HOOK_MARKER="# managed-by-telegram-bot-platform"
+HOOKS_DIR=".git/hooks"
+if [[ -f "$HOOKS_DIR/pre-push" ]]; then
+  if grep -q "$HOOK_MARKER" "$HOOKS_DIR/pre-push" 2>/dev/null; then
+    check_ok "pre-push hook: project-owned"
+  else
+    check_warn "pre-push hook: foreign (backup at pre-push.backup if you ran setup)"
+  fi
+else
+  check_warn "pre-push hook: missing (run cmd/dev/setup)"
+fi
+
+# --- OmniRoute (AI profile) ---
+say "OmniRoute / AI"
+if [[ -n "${OMNIROUTE_JWT_SECRET:-}" && -n "${OMNIROUTE_API_KEY_SECRET:-}" && -n "${OMNIROUTE_PASSWORD:-}" ]]; then
+  check_ok "AI secrets configured"
+else
+  check_warn "AI secrets not set — run cmd/docker/up ai will fail until set in .env"
+fi
+
+# --- Summary ---
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS failure(s), $WARNS warning(s)"
+  exit "$EX_CHECK"
+elif [[ $WARNS -gt 0 ]]; then
+  warn "$WARNS warning(s)"
+  exit "$EX_OK"
+else
+  ok "All checks passed"
+  exit "$EX_OK"
+fi

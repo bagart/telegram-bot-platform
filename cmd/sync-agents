@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Synchronize agent instruction files.
+#
+# AGENTS.md is the canonical source. CLAUDE.md and GEMINI.md are
+# compatibility mirrors for their respective agents.
+#
+# Usage:
+#   cmd/sync-agents
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+if [[ ! -f AGENTS.md ]]; then
+  fail "AGENTS.md not found — this is the canonical source"
+fi
+
+for target in CLAUDE.md GEMINI.md; do
+  if [[ -f "$target" ]]; then
+    if diff -q AGENTS.md "$target" >/dev/null 2>&1; then
+      ok "$target is in sync"
+    else
+      cp AGENTS.md "$target"
+      ok "$target updated from AGENTS.md"
+    fi
+  else
+    cp AGENTS.md "$target"
+    ok "$target created from AGENTS.md"
+  fi
+done
+
+ok "Agent sync complete"

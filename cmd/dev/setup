@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Bootstrap the repository into a usable development state.
+#
+# Steps:
+#   1. Validate repository structure
+#   2. Validate .env exists
+#   3. Install PHP dependencies (Composer)
+#   4. Install JS dependencies (npm)
+#   5. Build frontend assets
+#   6. Generate app key (if missing)
+#   7. Run database migrations
+#   8. Install Git hooks (safe — never overwrites foreign hooks)
+#
+# Usage:
+#   cmd/dev/setup
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+# --- 1. Repository structure ---
+say "Validating repository structure..."
+for d in app config database public resources routes tests; do
+  [[ -d "$d" ]] || fail "Missing directory: $d"
+done
+[[ -f artisan ]] || fail "Missing artisan"
+[[ -f composer.json ]] || fail "Missing composer.json"
+ok "Repository structure OK"
+
+# --- 2. .env ---
+if [[ ! -f .env ]]; then
+  warn ".env not found — copying from .env.example"
+  cp .env.example .env
+  warn "Edit .env with your settings before continuing"
+fi
+ok ".env present"
+
+# --- 3. Composer ---
+say "Installing PHP dependencies..."
+if command -v composer >/dev/null 2>&1; then
+  composer install --no-interaction --no-progress 2>&1 | sed 's/^/    /'
+  ok "Composer done"
+else
+  warn "composer not found — skipping PHP dependency install"
+fi
+
+# --- 4. npm ---
+say "Installing JS dependencies..."
+if command -v npm >/dev/null 2>&1; then
+  npm install 2>&1 | sed 's/^/    /'
+  ok "npm done"
+else
+  warn "npm not found — skipping JS dependency install"
+fi
+
+# --- 5. Frontend build ---
+say "Building frontend assets..."
+if command -v npm >/dev/null 2>&1 && [[ -f package.json ]]; then
+  npm run build 2>&1 | sed 's/^/    /'
+  ok "Frontend build done"
+else
+  warn "Skipping frontend build (npm or package.json missing)"
+fi
+
+# --- 6. App key ---
+if grep -q "^APP_KEY=$" .env 2>/dev/null; then
+  say "Generating application key..."
+  php artisan key:generate --no-interaction 2>&1 | sed 's/^/    /'
+  ok "App key generated"
+else
+  ok "App key already set"
+fi
+
+# --- 7. Database migrations ---
+say "Running database migrations..."
+php artisan migrate --no-interaction 2>&1 | sed 's/^/    /'
+ok "Migrations done"
+
+# --- 8. Git hooks ---
+HOOKS_DIR=".git/hooks"
+PRE_PUSH="$HOOKS_DIR/pre-push"
+HOOK_MARKER="# managed-by-telegram-bot-platform"
+
+if [[ -f "$PRE_PUSH" ]] && ! grep -q "$HOOK_MARKER" "$PRE_PUSH" 2>/dev/null; then
+  warn "Foreign pre-push hook found — backing up to pre-push.backup"
+  cp "$PRE_PUSH" "$PRE_PUSH.backup"
+fi
+
+cat > "$PRE_PUSH" << HOOK
+#!/usr/bin/env bash
+$HOOK_MARKER
+# Installed by cmd/dev/setup — safe to upgrade via setup/doctor.
+"$REPO_ROOT/cmd/git/prepush" "\$@"
+HOOK
+chmod +x "$PRE_PUSH"
+ok "Git hooks installed"
+
+ok "Setup complete"

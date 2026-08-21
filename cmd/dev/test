@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Run tests.
+#
+# Selects the applicable test strategy based on the optional argument.
+#
+# Usage:
+#   cmd/dev/test              # all tests
+#   cmd/dev/test unit         # unit tests only
+#   cmd/dev/test integration  # integration tests only
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+SUITE="${1:-}"
+
+if [[ ! -f vendor/bin/pest ]]; then
+  fail "Pest not found — run composer install"
+fi
+
+case "$SUITE" in
+  "")
+    say "Running all tests..."
+    php artisan test --compact
+    ;;
+  unit)
+    say "Running unit tests..."
+    php artisan test --compact --testsuite=Unit
+    ;;
+  integration)
+    say "Running integration tests..."
+    php artisan test --compact --testsuite=Integration
+    ;;
+  *)
+    fail "Unknown test suite '${SUITE}' (expected: unit, integration, or no argument for all)"
+    ;;
+esac
+
+ok "Tests complete"

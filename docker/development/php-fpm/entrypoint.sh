@@ -4,9 +4,9 @@ set -e
 cd /var/www
 
 # Auto-setup: detect local libs, configure path repos if present
-if [ -f "scripts/setup.sh" ]; then
+if [ -f "cmd/setup" ]; then
     echo "Running BAGArt setup..."
-    ./scripts/setup --docker 2>/dev/null || composer install --no-interaction --no-progress
+    ./cmd/setup --docker 2>/dev/null || composer install --no-interaction --no-progress
 fi
 
 # Clear configurations to avoid caching issues in development

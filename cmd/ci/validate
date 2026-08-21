@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Validate repository integration.
+#
+# Checks baseline integration, CI configuration, required files,
+# hooks, Docker integration, and drift.
+#
+# Usage:
+#   cmd/ci/validate
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+check_present() {
+  local label="$1" path="$2"
+  if [[ -e "$path" ]]; then
+    ok "$label"
+  else
+    err "$label missing: $path"
+    ((FAILS++))
+  fi
+}
+
+# --- Required files ---
+say "Required files"
+check_present "artisan" "artisan"
+check_present "composer.json" "composer.json"
+check_present "package.json" "package.json"
+check_present "docker-compose.dev.yaml" "docker-compose.dev.yaml"
+check_present "docker-compose.prod.yaml" "docker-compose.prod.yaml"
+check_present ".env.example" ".env.example"
+check_present ".gitignore" ".gitignore"
+check_present ".dockerignore" ".dockerignore"
+
+# --- Docker Compose validation ---
+say "Docker Compose"
+if command -v docker >/dev/null 2>&1; then
+  if docker compose -f docker-compose.dev.yaml config --quiet >/dev/null 2>&1; then
+    ok "docker-compose.dev.yaml valid"
+  else
+    err "docker-compose.dev.yaml invalid"
+    ((FAILS++))
+  fi
+  if docker compose -f docker-compose.dev.yaml --profile ai config --quiet >/dev/null 2>&1; then
+    ok "docker-compose.dev.yaml (ai profile) valid"
+  else
+    err "docker-compose.dev.yaml (ai profile) invalid"
+    ((FAILS++))
+  fi
+  if docker compose -f docker-compose.prod.yaml config --quiet >/dev/null 2>&1; then
+    ok "docker-compose.prod.yaml valid"
+  else
+    err "docker-compose.prod.yaml invalid"
+    ((FAILS++))
+  fi
+else
+  warn "Docker not found — skipping compose validation"
+fi
+
+# --- cmd/ structure ---
+say "cmd/ structure"
+check_present "cmd/docker/up" "cmd/docker/up"
+check_present "cmd/docker/down" "cmd/docker/down"
+check_present "cmd/docker/build" "cmd/docker/build"
+check_present "cmd/dev/setup" "cmd/dev/setup"
+check_present "cmd/dev/doctor" "cmd/dev/doctor"
+check_present "cmd/dev/check" "cmd/dev/check"
+check_present "cmd/lib/root.sh" "cmd/lib/root.sh"
+check_present "cmd/lib/common.sh" "cmd/lib/common.sh"
+check_present "cmd/lib/docker.sh" "cmd/lib/docker.sh"
+
+# --- Stale references ---
+say "Stale references"
+if grep -r "docker-compose\.yaml" --include='*.sh' --include='*.yaml' --include='*.md' -l . 2>/dev/null | grep -v node_modules | grep -v vendor | grep -v .git | head -5; then
+  err "Stale docker-compose.yaml references found"
+  ((FAILS++))
+else
+  ok "No stale docker-compose.yaml references"
+fi
+
+# --- .env not tracked ---
+say "Git tracking"
+if git ls-files .env 2>/dev/null | grep -q .; then
+  err ".env is tracked"
+  ((FAILS++))
+else
+  ok ".env not tracked"
+fi
+
+echo ""
+if [[ $FAILS -gt 0 ]]; then
+  err "$FAILS validation check(s) failed"
+  exit "$EX_CHECK"
+else
+  ok "All validation checks passed"
+  exit "$EX_OK"
+fi

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Docker security inspection interface.
+#
+# This is a stable interface, not a security framework. It will delegate to
+# applicable security runners (Dockerfile, Compose, image, SBOM, secrets,
+# configuration). The actual scanners and severity policy are defined in the
+# security plan (03-security-and-supply-chain.md) — no policy decisions are
+# hardcoded here.
+#
+# Usage:
+#   cmd/docker/scan
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/docker.sh"
+
+require_docker
+
+PROFILE="${1:-dev}"
+case "$PROFILE" in
+  dev|prod) ;;
+  *) fail "unknown scan profile '${PROFILE}' (expected 'dev' or 'prod')" ;;
+esac
+
+FILE="$(compose_file "$PROFILE")"
+
+echo "==> docker/scan: no scanner configured yet"
+echo "    target: $FILE"
+echo "    Scanners (Dockerfile / Compose / image / SBOM / secrets / config) are defined in 03-security-and-supply-chain.md."
+echo "    This command is a stable interface point; it intentionally succeeds without action."
+exit "$EX_OK"

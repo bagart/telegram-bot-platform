@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Update dependencies.
+#
+# Usage:
+#   cmd/deps/update              # update all
+#   cmd/deps/update composer     # PHP only
+#   cmd/deps/update npm          # JS only
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+TARGET="${1:-all}"
+
+case "$TARGET" in
+  all|composer)
+    if command -v composer >/dev/null 2>&1; then
+      say "Updating Composer dependencies..."
+      composer update --no-interaction --no-progress
+      ok "Composer updated"
+    else
+      warn "Composer not found — skipping"
+    fi
+    ;;
+esac
+
+case "$TARGET" in
+  all|npm)
+    if command -v npm >/dev/null 2>&1 && [[ -f package.json ]]; then
+      say "Updating npm dependencies..."
+      npm update 2>&1
+      ok "npm updated"
+    else
+      warn "npm or package.json not found — skipping"
+    fi
+    ;;
+esac
+
+ok "Update complete"
