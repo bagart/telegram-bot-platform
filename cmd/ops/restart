@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Restart a compose service (06-runtime-operations.md §58-§59).
+#
+# Dangerous operation: requires an explicit service name and confirmation.
+# Never restarts anything implicitly.
+#
+# Usage:
+#   cmd/ops/restart <service> --confirm=restart
+#   services: php-fpm | workspace | caddy | redis | swagger | postgres
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+SERVICE=""
+CONFIRM=""
+for arg in "$@"; do
+  case "$arg" in
+    --confirm=restart) CONFIRM="restart" ;;
+    --confirm=*) fail "Unknown confirmation target '${arg#--confirm=}' (expected: restart)" ;;
+    -*) fail "Unknown option '$arg'" ;;
+    *) SERVICE="$arg" ;;
+  esac
+done
+
+[[ -n "$SERVICE" ]] || fail "Usage: cmd/ops/restart <service> --confirm=restart"
+[[ -n "$CONFIRM" ]] || fail "Refusing to restart without explicit confirmation: add --confirm=restart"
+
+case "$SERVICE" in
+  php-fpm|workspace|caddy|redis|swagger|postgres) ;;
+  *) fail "Unknown service '$SERVICE' (allowed: php-fpm, workspace, caddy, redis, swagger, postgres)" ;;
+esac
+
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+say "Restarting $SERVICE"
+if docker compose -f docker-compose.dev.yaml restart "$SERVICE"; then
+  ok "$SERVICE restarted"
+else
+  err "restart failed — is the stack running? (cmd/docker/up)"
+  exit "$EX_ENV"
+fi

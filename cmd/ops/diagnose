@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Aggregate runtime diagnostics (06-runtime-operations.md §52, §58).
+#
+# Runs the full local diagnostic stack: environment doctor, security checks,
+# repository integration validation. Read-only.
+#
+# Usage:
+#   cmd/ops/diagnose
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+run_stage() {
+  local name="$1"; shift
+  say "==> $name"
+  if "$@"; then
+    ok "$name passed"
+  else
+    err "$name failed"
+    FAILS=$((FAILS+1))
+  fi
+  echo ""
+}
+
+run_stage "doctor"      bash cmd/dev/doctor
+run_stage "security"    bash cmd/dev/security
+run_stage "integration" bash cmd/ci/validate
+
+if [[ "$FAILS" -gt 0 ]]; then
+  err "$FAILS diagnostic stage(s) failed"
+  exit "$EX_CHECK"
+fi
+ok "all diagnostic stages passed"
+exit "$EX_OK"

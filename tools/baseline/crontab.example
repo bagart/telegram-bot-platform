@@ -1,0 +1,13 @@
+# Host-side maintenance schedule (07-resilience-and-disaster-recovery.md §12-§13, §45).
+# GitHub Actions cannot reach the host's postgres/redis — backup and DR tests
+# must run on the machine that owns the data. Install with:
+#   crontab -e  → paste the lines below (adjust paths/time).
+#
+# Nightly verified PostgreSQL backup at 03:10, keep 7 (script default).
+10 3 * * * cd ~/code/telegram-bot-platform && cmd/ops/backup >> storage/backups/cron.log 2>&1
+#
+# Weekly isolated restore test, Sunday 04:40 (07 §13: restore proves recoverability).
+40 4 * * 0 cd ~/code/telegram-bot-platform && cmd/ops/dr-test >> storage/backups/cron.log 2>&1
+#
+# Optional: push newest verified backup off-site daily (07 §7 independent storage).
+# 30 3 * * * rsync -a ~/code/telegram-bot-platform/storage/backups/ backup-host:/srv/backups/tg-bot-manager/

@@ -31,3 +31,4 @@ yarn-error.log
 /.vscode
 /.zed
 .composer.json.bak
+storage/backups/

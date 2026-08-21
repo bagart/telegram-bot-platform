@@ -16,6 +16,10 @@ source "$REPO_ROOT/cmd/lib/output.sh"
 require_root_dir
 cd "$REPO_ROOT"
 
+# Line endings (LF everywhere, 02-developer-tooling.md §37)
+say "Normalizing line endings to LF..."
+php tools/baseline/lf-check.php --all --fix && ok "Line endings OK"
+
 # PHP formatting (Pint)
 if command -v vendor/bin/pint >/dev/null 2>&1; then
   say "Fixing PHP formatting (Pint)..."

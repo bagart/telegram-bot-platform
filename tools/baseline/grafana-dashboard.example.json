@@ -1,0 +1,71 @@
+{
+  "__inputs": [
+    { "name": "DS_PROMETHEUS", "label": "Prometheus", "type": "datasource" }
+  ],
+  "title": "Telegram Bot Platform",
+  "uid": "tg-bot-platform",
+  "schemaVersion": 39,
+  "editable": true,
+  "time": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Dependencies up",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "tg_db_up", "legendFormat": "postgres" }, { "expr": "tg_redis_up", "legendFormat": "redis" }],
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "green", "value": 1 } ] }, "min": 0, "max": 1 } }
+    },
+    {
+      "id": 2,
+      "title": "Outbound queue depth",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+      "targets": [{ "expr": "tg_outbound_queue_depth", "legendFormat": "queue" }],
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 500 } ] } } }
+    },
+    {
+      "id": 3,
+      "title": "Dead letters (depth / pushed / replayed)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+      "targets": [
+        { "expr": "tg_dlq_depth_total", "legendFormat": "depth" },
+        { "expr": "tg_dlq_pushed_last24h", "legendFormat": "pushed 24h" },
+        { "expr": "tg_dlq_retried_last24h", "legendFormat": "retried 24h" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Sent (last 24h window)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [{ "expr": "tg_sent_last24h", "legendFormat": "sent" }]
+    },
+    {
+      "id": 5,
+      "title": "Telegram 429 rate-limit retries (last 24h)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [{ "expr": "tg_retry_rate_limit_last24h", "legendFormat": "429 retries" }]
+    },
+    {
+      "id": 6,
+      "title": "Failures & circuit breaker (last 24h)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "tg_failed_network_last24h", "legendFormat": "network" },
+        { "expr": "tg_failed_fatal_last24h", "legendFormat": "fatal" },
+        { "expr": "tg_retry_circuit_breaker_last24h", "legendFormat": "circuit breaker" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Business errors (4xx class, last 24h)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [{ "expr": "tg_business_error_last24h", "legendFormat": "business errors" }]
+    }
+  ]
+}

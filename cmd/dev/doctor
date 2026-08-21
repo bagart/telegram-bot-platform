@@ -5,7 +5,7 @@
 # Does not modify anything — read-only diagnosis.
 #
 # Usage:
-#   cmd/dev/doctor
+#   cmd/dev/doctor [--format=text|json] [--quiet] [--help]
 
 set -euo pipefail
 
@@ -13,22 +13,41 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/dev/doctor [--format=text|json] [--quiet] [--help]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
+# Section headers are human-only decoration; keep the JSON stream clean.
+if [[ "$FORMAT" != "text" ]]; then
+  say() { :; }
+fi
+
 FAILS=0
 WARNS=0
 
-check_ok()   { ok "$1"; }
-check_warn() { warn "$1"; ((WARNS++)); }
-check_fail() { err "$1"; ((FAILS++)); }
+__doctor_record() {
+  local status="$1" message="$2"
+  __CONTRACT_RESULTS+=("$(printf '%s' "{\"control\":\"${message//\"/\\\"}\",\"status\":\"${status}\",\"message\":\"\"}")")
+}
+
+check_ok()   { [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]] && ok "$1"; __doctor_record passed "$1"; return 0; }
+check_warn() { warn "$1"; WARNS=$((WARNS+1)); __doctor_record warning "$1"; return 0; }
+check_fail() { err "$1"; FAILS=$((FAILS+1)); __doctor_record failed "$1"; return 0; }
 
 # --- PHP ---
 say "PHP"
 if command -v php >/dev/null 2>&1; then
   PHP_VER="$(php -r 'echo PHP_VERSION;' 2>/dev/null)"
-  check_ok "PHP $PHP_VER"
+  check_ok "PHP $PHP_VER ($(command -v php))"
 else
   check_fail "PHP not found"
 fi
@@ -60,10 +79,14 @@ fi
 # --- Docker ---
 say "Docker"
 if command -v docker >/dev/null 2>&1; then
-  DOCKER_VER="$(docker --version 2>/dev/null)"
-  check_ok "$DOCKER_VER"
+  DOCKER_VER="$(docker --version 2>/dev/null || true)"
+  if [[ -n "$DOCKER_VER" ]]; then
+    check_ok "$DOCKER_VER"
+  else
+    check_fail "docker found but not functional (daemon/context broken?)"
+  fi
   if docker compose version >/dev/null 2>&1; then
-    COMP_VER="$(docker compose version --short 2>/dev/null)"
+    COMP_VER="$(docker compose version --short 2>/dev/null || true)"
     check_ok "Docker Compose $COMP_VER"
   else
     check_fail "Docker Compose plugin not found"
@@ -116,16 +139,55 @@ fi
 
 # --- Git hooks ---
 say "Git hooks"
-HOOK_MARKER="# managed-by-telegram-bot-platform"
-HOOKS_DIR=".git/hooks"
-if [[ -f "$HOOKS_DIR/pre-push" ]]; then
-  if grep -q "$HOOK_MARKER" "$HOOKS_DIR/pre-push" 2>/dev/null; then
-    check_ok "pre-push hook: project-owned"
-  else
-    check_warn "pre-push hook: foreign (backup at pre-push.backup if you ran setup)"
-  fi
+EXPECTED_HOOKS_PATH="tools/git-hooks"
+CURRENT_HOOKS_PATH="$(git config core.hooksPath || true)"
+if [[ "$CURRENT_HOOKS_PATH" == "$EXPECTED_HOOKS_PATH" ]]; then
+  check_ok "core.hooksPath: $CURRENT_HOOKS_PATH"
+  for hook in pre-commit commit-msg pre-push; do
+    if [[ -x "$REPO_ROOT/$EXPECTED_HOOKS_PATH/$hook" ]]; then
+      check_ok "hook $hook: installed"
+    else
+      check_fail "hook $hook: missing or not executable (run cmd/dev/setup)"
+    fi
+  done
 else
-  check_warn "pre-push hook: missing (run cmd/dev/setup)"
+  check_warn "core.hooksPath not set (got: '${CURRENT_HOOKS_PATH:-<empty>}') — run cmd/dev/setup"
+fi
+
+# --- Line-ending control ---
+say "Line-ending control"
+if [[ -f .gitattributes ]] && grep -q "eol=lf" .gitattributes; then
+  check_ok ".gitattributes enforces LF"
+else
+  check_fail ".gitattributes missing or does not enforce eol=lf"
+fi
+if command -v php >/dev/null 2>&1 && [[ -f tools/baseline/lf-check.php ]]; then
+  if php tools/baseline/lf-check.php --all >/dev/null 2>&1; then
+    check_ok "tracked files are LF"
+  else
+    check_fail "CRLF found in tracked files — run: cmd/dev/fix"
+  fi
+fi
+
+# --- Profiles ---
+say "Profiles"
+if [[ -f tools/baseline/VERSION ]]; then
+  check_ok "baseline version: $(cat tools/baseline/VERSION | tr -d '[:space:]')"
+fi
+if command -v php >/dev/null 2>&1 && [[ -f tools/baseline/quarantine-check.php ]]; then
+  if php tools/baseline/quarantine-check.php >/dev/null 2>&1; then
+    check_ok "test quarantine registry valid"
+  else
+    check_fail "quarantine registry has expired/malformed entries — see: php tools/baseline/quarantine-check.php"
+  fi
+fi
+if [[ -f tools/baseline/profiles.sh ]]; then
+  DETECTED="$(bash tools/baseline/profiles.sh 2>/dev/null || true)"
+  if [[ -n "$DETECTED" ]]; then
+    check_ok "detected: $DETECTED"
+  else
+    check_warn "no profiles detected"
+  fi
 fi
 
 # --- OmniRoute (AI profile) ---
@@ -137,6 +199,14 @@ else
 fi
 
 # --- Summary ---
+if [[ "$FORMAT" == "json" ]]; then
+  CODE="$EX_OK"
+  [[ "$FAILS" -gt 0 ]] && CODE="$EX_CHECK"
+  printf '{"exit_code":%d,"failures":%d,"warnings":%d,"results":[%s]}\n' \
+    "$CODE" "$FAILS" "$WARNS" "$(IFS=,; echo "${__CONTRACT_RESULTS[*]:-}")"
+  exit "$CODE"
+fi
+
 echo ""
 if [[ $FAILS -gt 0 ]]; then
   err "$FAILS failure(s), $WARNS warning(s)"

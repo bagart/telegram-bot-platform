@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Aggregate applicable linting / formatting checks.
-#
-# Developers should not need to remember individual tool names.
+# Aggregate applicable linting / formatting checks (02-developer-tooling.md §12).
 #
 # Usage:
-#   cmd/dev/lint
+#   cmd/dev/lint [--format=text|json|github] [--verbose] [--quiet]
 
 set -euo pipefail
 
@@ -12,43 +10,57 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/dev/lint [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 FAILS=0
 
-run_lint() {
-  local label="$1"; shift
-  say "$label"
-  if "$@" >/dev/null 2>&1; then
-    ok "$label passed"
-  else
-    err "$label failed"
-    ((FAILS++))
+run_tool() {
+  local control="$1"; shift
+  if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+    say "$control"
   fi
+  local tmp
+  tmp="$(mktemp)"
+  if contract_exec "$control" "$@" >"$tmp" 2>&1; then
+    report_result "$control" passed ""
+    rm -f "$tmp"
+    return 0
+  fi
+  report_result "$control" failed "$(tail -n 3 "$tmp" | tr '\n' ' ' | cut -c1-200)"
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    echo "--- $control output ---" >&2
+    cat "$tmp" >&2
+  fi
+  rm -f "$tmp"
+  return 1
 }
 
-# PHP formatting
 if command -v vendor/bin/pint >/dev/null 2>&1; then
-  run_lint "PHP formatting (Pint)" vendor/bin/pint --test
+  if ! run_tool "pint" vendor/bin/pint --test; then FAILS=$((FAILS+1)); fi
 fi
 
-# PHPStan
 if command -v vendor/bin/phpstan >/dev/null 2>&1; then
-  run_lint "PHPStan" vendor/bin/phpstan analyse --no-progress
+  if ! run_tool "phpstan" vendor/bin/phpstan analyse --no-progress; then FAILS=$((FAILS+1)); fi
 fi
 
-# ESLint
 if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
-  run_lint "ESLint" npx eslint .
+  if ! run_tool "eslint" npx eslint .; then FAILS=$((FAILS+1)); fi
 fi
 
-echo ""
-if [[ $FAILS -gt 0 ]]; then
-  err "$FAILS lint check(s) failed"
-  exit "$EX_CHECK"
-else
-  ok "All lint checks passed"
-  exit "$EX_OK"
+if command -v php >/dev/null 2>&1; then
+  if ! run_tool "yaml" php tools/baseline/yaml-lint.php; then FAILS=$((FAILS+1)); fi
+  if ! run_tool "shell-syntax" bash tools/baseline/shell-lint.sh; then FAILS=$((FAILS+1)); fi
 fi
+
+report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"

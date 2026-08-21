@@ -1,0 +1,54 @@
+name: security
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - master
+      - workos
+  pull_request:
+  schedule:
+    # Weekly dependency/secret sweep — cheap, no container builds (cost guard).
+    - cron: '23 4 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Composer audit
+        run: composer audit --no-dev
+
+      - name: SAST (Semgrep, report mode — enforce after tuning, 11 §47)
+        continue-on-error: true
+        run: |
+          pip install --quiet semgrep
+          semgrep scan --config=p/php --config=p/security --error --quiet app misc/BAGArt
+
+      - name: Secret scan (built-in baseline scanner)
+        run: php tools/baseline/secret-scan.php --all
+
+      - name: .env must not be tracked
+        run: |
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo "::error::.env is tracked by Git"
+            exit 1
+          fi

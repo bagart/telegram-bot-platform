@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Quick commit: validate working tree, run fast checks, then commit.
 #
-# Does NOT bypass Git hooks or security checks.
-# CI remains authoritative.
+# Does NOT bypass Git hooks or security checks. CI remains authoritative.
+# Never stages anything implicitly: with an empty index it fails instead of
+# silently staging everything (02-developer-tooling.md §24).
 #
 # Usage:
 #   cmd/git/quick-commit "fix: description"
@@ -17,44 +18,70 @@ source "$REPO_ROOT/cmd/lib/output.sh"
 require_root_dir
 cd "$REPO_ROOT"
 
-if [[ $# -eq 0 ]]; then
-  fail "Usage: cmd/git/quick-commit \"<message>\""
-fi
-
+[[ $# -ge 1 ]] || fail 'Usage: cmd/git/quick-commit "<message>"'
 MSG="$1"
 
-# --- Show changed files ---
-say "Changed files:"
-git diff --stat HEAD
-echo ""
-
-# --- Fast PHP formatting check ---
-if command -v vendor/bin/pint >/dev/null 2>&1; then
-  say "Checking PHP formatting..."
-  if ! vendor/bin/pint --test >/dev/null 2>&1; then
-    warn "PHP formatting issues found — run cmd/dev/fix first"
-    exit "$EX_CHECK"
-  fi
-  ok "PHP formatting OK"
+# --- Commit message contract (same validator as the commit-msg hook) ---
+TMP_MSG="$(mktemp)"
+printf '%s\n' "$MSG" > "$TMP_MSG"
+if ! php tools/baseline/commit-msg.php "$TMP_MSG"; then
+  rm -f "$TMP_MSG"
+  exit "$EX_CHECK"
 fi
+rm -f "$TMP_MSG"
 
-# --- Fast lint check ---
-if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
-  say "Checking ESLint..."
-  if ! npx eslint . >/dev/null 2>&1; then
-    warn "ESLint issues found — run cmd/dev/fix first"
-    exit "$EX_CHECK"
-  fi
-  ok "ESLint OK"
-fi
-
-# --- Secret scan (basic) ---
-if git ls-files .env 2>/dev/null | grep -q .; then
-  err ".env is tracked — remove with: git rm --cached .env"
+# --- Staged scope must be explicit ---
+STAGED="$(git diff --cached --name-only --diff-filter=ACMR)"
+if [[ -z "$STAGED" ]]; then
+  warn "Nothing is staged."
+  say "Stage your change explicitly first, e.g.:"
+  echo "    git add <files>" >&2
   exit "$EX_CHECK"
 fi
 
-# --- Commit (never --no-verify) ---
+say "Staged files:"
+git diff --cached --stat
+echo ""
+
+# --- Sensitive-file warnings (§25) ---
+while IFS= read -r f; do
+  case "$f" in
+    .env|*.env|*.pem|*.key|*credentials*|*.p12)
+      err "Sensitive file staged: $f"
+      exit "$EX_CHECK"
+      ;;
+  esac
+done <<< "$STAGED"
+
+LARGE="$(git diff --cached --numstat | awk '$1 != "-" && ($1 + $2) > 5000 {print $3}')"
+if [[ -n "$LARGE" ]]; then
+  warn "Very large staged change(s):"
+  echo "$LARGE" >&2
+fi
+
+UNTRACKED_COUNT="$(git ls-files --others --exclude-standard | wc -l)"
+if [[ "$UNTRACKED_COUNT" -gt 0 ]]; then
+  warn "$UNTRACKED_COUNT untracked file(s) exist but are NOT part of this commit"
+fi
+
+# --- Fast gates: line endings + secrets on the staged set ---
+php tools/baseline/lf-check.php --staged
+php tools/baseline/secret-scan.php --staged
+
+# --- PHP formatting check on staged php files ---
+if command -v vendor/bin/pint >/dev/null 2>&1; then
+  STAGED_PHP="$(git diff --cached --name-only --diff-filter=ACM -- '*.php')"
+  if [[ -n "$STAGED_PHP" ]]; then
+    say "Pint (staged)"
+    # shellcheck disable=SC2086
+    vendor/bin/pint --test $STAGED_PHP || {
+      warn "Formatting issues — run cmd/dev/fix first"
+      exit "$EX_CHECK"
+    }
+  fi
+fi
+
+# --- Commit (hooks still run; never --no-verify) ---
 say "Committing: $MSG"
 git commit -m "$MSG"
 ok "Commit created"

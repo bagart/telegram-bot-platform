@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Release a platform library (05-ci-cd-and-release.md §29, §58).
+#
+# Platform libraries live in misc/BAGArt/<lib> as standalone Git repositories,
+# consumed by the application through Composer path repositories. Publishing
+# is tag-driven: a pushed, annotated vX.Y.Z tag on the library's VCS source
+# triggers Packagist — never publish from the path-repo checkout.
+#
+# Gates before tagging: clean library tree, valid composer.json, library test
+# suite green.
+#
+# Usage:
+#   cmd/release/lib <lib-name> <version> [--push]
+#   cmd/release/lib telegram-bot-lib 1.4.2 --push
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+
+LIB_NAME="${1:-}"
+VERSION="${2:-}"
+PUSH=0
+[[ "${3:-}" == "--push" ]] && PUSH=1
+
+[[ -n "$LIB_NAME" && -n "$VERSION" ]] || fail "Usage: cmd/release/lib <lib-name> <version> [--push]"
+[[ "$VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "Version must be semver (X.Y.Z), got: $VERSION"
+VERSION="${VERSION#v}"
+
+LIB_DIR="$REPO_ROOT/misc/BAGArt/$LIB_NAME"
+[[ -d "$LIB_DIR" ]] || fail "Library not found: $LIB_DIR (expected a standalone Git clone)"
+[[ -d "$LIB_DIR/.git" ]] || fail "$LIB_NAME is not a Git repository — release tags must be created on the library's VCS source"
+
+cd "$LIB_DIR"
+
+say "Gate 1/4: clean working tree"
+if [[ -n "$(git status --porcelain)" ]]; then
+  err "Library tree is dirty — commit or stash first"
+  git status --short | head -5 >&2
+  exit "$EX_CHECK"
+fi
+ok "clean"
+
+say "Gate 2/4: composer.json valid"
+command -v composer >/dev/null 2>&1 || { err "composer is required"; exit "$EX_DEP"; }
+composer validate --no-check-publish --no-check-lock --quiet 2>/dev/null \
+  || { err "composer.json invalid"; exit "$EX_CHECK"; }
+ok "valid"
+
+say "Gate 3/4: library test suite"
+if grep -q '"test"' composer.json; then
+  composer test || { err "Library tests failed — release blocked"; exit "$EX_CHECK"; }
+  ok "tests passed"
+else
+  warn "no composer test script — skipping (add one before Tier-0 release)"
+fi
+
+say "Gate 4/4: tag availability"
+TAG="v$VERSION"
+if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+  err "Tag $TAG already exists"
+  exit "$EX_CHECK"
+fi
+ok "$TAG is free"
+
+git tag -a "$TAG" -m "Release $TAG (created by cmd/release/lib)"
+ok "Annotated tag $TAG created on $(git rev-parse --short HEAD)"
+
+if [[ "$PUSH" -eq 1 ]]; then
+  BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+  git push origin "$BRANCH" --follow-tags
+  ok "Pushed $TAG — Packagist will pick it up from the VCS source"
+else
+  say "Dry run: tag created locally. Publish with:"
+  echo "    cd $LIB_DIR && git push origin $(git rev-parse --abbrev-ref HEAD) --follow-tags"
+fi
+
+ok "Release $LIB_NAME $TAG complete"

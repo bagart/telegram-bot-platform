@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# commit-msg hook: validates the project commit convention.
+# Prefix list is defined in tools/baseline/commit-msg.php (single definition site).
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+exec php "$ROOT/tools/baseline/commit-msg.php" "$1"

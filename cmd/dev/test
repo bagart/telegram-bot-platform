@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Run tests.
+# Run tests (02-developer-tooling.md §11).
 #
-# Selects the applicable test strategy based on the optional argument.
+# Selects the applicable test suite by argument. Suite names mirror
+# phpunit.xml testsuites; library suites run through the same entrypoint.
 #
 # Usage:
-#   cmd/dev/test              # all tests
-#   cmd/dev/test unit         # unit tests only
-#   cmd/dev/test integration  # integration tests only
+#   cmd/dev/test [suite] [--format=text|json]
+#   suites: (none)|unit|integration|feature|e2e|async|telegram|basic|management|libs
 
 set -euo pipefail
 
@@ -14,32 +14,71 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/dev/test [suite] [--format=text|json]"
+  echo "Suites: (none)|unit|integration|feature|e2e|async|telegram|basic|management|libs"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
-SUITE="${1:-}"
+[[ -f vendor/bin/pest ]] || { err "Pest not found — run composer install"; exit "$EX_DEP"; }
 
-if [[ ! -f vendor/bin/pest ]]; then
-  fail "Pest not found — run composer install"
-fi
+SUITE="${POSITIONAL[0]:-}"
+
+run_pest() {
+  local label="$1"; shift
+  if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+    say "$label"
+  fi
+  local tmp
+  tmp="$(mktemp)"
+  if contract_exec "$label" php artisan test "$@" >"$tmp" 2>&1; then
+    report_result "$label" passed ""
+    [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]] && tail -5 "$tmp"
+  else
+    report_result "$label" failed ""
+    cat "$tmp" >&2
+  fi
+  rm -f "$tmp"
+}
 
 case "$SUITE" in
-  "")
-    say "Running all tests..."
-    php artisan test --compact
-    ;;
-  unit)
-    say "Running unit tests..."
-    php artisan test --compact --testsuite=Unit
-    ;;
-  integration)
-    say "Running integration tests..."
-    php artisan test --compact --testsuite=Integration
+  "")        ARGS=(--compact) ;;
+  unit)      ARGS=(--compact --testsuite=Unit) ;;
+  integration|feature) ARGS=(--compact --testsuite=Feature) ;;
+  async)     ARGS=(--compact --testsuite=AsyncKernelLib) ;;
+  telegram)  ARGS=(--compact --testsuite=TelegramBotLib) ;;
+  basic)     ARGS=(--compact --testsuite=TelegramBotBasicLib) ;;
+  management) ARGS=(--compact --testsuite=TelegramBotManagementLib) ;;
+  libs)      ARGS=(--compact --testsuite=TelegramBotLib --testsuite=TelegramBotBasicLib --testsuite=TelegramBotManagementLib --testsuite=AsyncKernelLib) ;;
+  e2e)
+    if command -v npx >/dev/null 2>&1 && grep -q "playwright" package.json 2>/dev/null; then
+      if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then say "e2e"; fi
+      local_disabled=""
+      if contract_exec "e2e" npx playwright test; then
+        report_result "e2e" passed ""
+      else
+        report_result "e2e" failed ""
+        FAILS=1
+      fi
+      report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"
+    else
+      err "No e2e runner configured (Playwright not found in package.json)"
+      report_result "e2e" skipped "no runner configured"
+      report_finish "$EX_OK"
+    fi
     ;;
   *)
-    fail "Unknown test suite '${SUITE}' (expected: unit, integration, or no argument for all)"
+    fail "Unknown suite '$SUITE' (expected: unit, integration, feature, e2e, async, telegram, basic, management, libs, or none for all)"
     ;;
 esac
 
-ok "Tests complete"
+run_pest "tests:${SUITE:-all}" "${ARGS[@]}"
+report_finish "$EX_OK"

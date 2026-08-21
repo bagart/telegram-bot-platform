@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Restore a PostgreSQL backup (07-resilience-and-disaster-recovery.md §48, §49).
+#
+# DANGEROUS OPERATION: overwrites the target database. Requires an explicit
+# confirmation flag and refuses to run against anything but a local compose
+# service. Repeated restores of the same backup are safe (idempotent drop+create).
+#
+# Usage:
+#   cmd/ops/restore <backup-file.sql.gz> --confirm=database
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+TARGET=""
+CONFIRM=""
+for arg in "$@"; do
+  case "$arg" in
+    --confirm=database) CONFIRM="database" ;;
+    --confirm=*) fail "Unknown confirmation target '${arg#--confirm=}' (only 'database' is supported here)" ;;
+    *) TARGET="$arg" ;;
+  esac
+done
+
+[[ -n "$TARGET" && -f "$TARGET" ]] || fail "Usage: cmd/ops/restore <backup-file.sql.gz> --confirm=database"
+[[ -n "$CONFIRM" ]] || fail "Refusing to restore without explicit confirmation: add --confirm=database"
+
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+DB_SERVICE="postgres"
+DB_NAME="$(grep -E '^DB_DATABASE=' .env 2>/dev/null | cut -d= -f2 || true)"
+DB_USER="$(grep -E '^DB_USERNAME=' .env 2>/dev/null | cut -d= -f2 || true)"
+DB_NAME="${DB_NAME:-tg_bot_manager}"
+DB_USER="${DB_USER:-laravel}"
+
+say "Restoring $(basename "$TARGET") into $DB_NAME@$DB_SERVICE"
+warn "All current data in $DB_NAME will be replaced"
+
+bash cmd/ops/backup-verify "$TARGET" || { err "Refusing to restore a backup that fails verification"; exit "$EX_CHECK"; }
+
+if ! gunzip -c "$TARGET" | docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+    psql -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1 -q 2>/dev/null; then
+  err "Restore failed — database state may be partial. Re-run with the same backup to retry (idempotent)."
+  exit "$EX_ENV"
+fi
+
+ok "Restore applied"
+say "Post-restore verification"
+php artisan migrate:status >/dev/null 2>&1 && ok "migration state readable" || warn "migrate:status failed — inspect manually"
+
+exit "$EX_OK"

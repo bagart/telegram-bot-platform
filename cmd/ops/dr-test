@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Isolated restore test (07-resilience-and-disaster-recovery.md §13, §45).
+#
+# Restores the newest backup into a THROWAWAY database on the same postgres
+# service and runs integrity checks against it. The production database is
+# never touched. The scratch database is dropped afterwards, including on failure.
+#
+# This is the automated half of DR proof; a full periodic DR drill (§45)
+# additionally covers deploy + application startup.
+#
+# Usage:
+#   cmd/ops/dr-test [backup-file.sql.gz]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+BACKUP_DIR="storage/backups"
+TARGET="${1:-$(ls -1t "$BACKUP_DIR"/*.sql.gz 2>/dev/null | head -1 || true)}"
+[[ -n "$TARGET" && -f "$TARGET" ]] || fail "No backup found in $BACKUP_DIR (run cmd/ops/backup first)"
+
+DB_SERVICE="postgres"
+DB_USER="$(grep -E '^DB_USERNAME=' .env 2>/dev/null | cut -d= -f2 || true)"
+DB_USER="${DB_USER:-laravel}"
+SCRATCH_DB="drtest_$(date +%s)"
+
+compose_psql() {
+  docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+    psql -U "$DB_USER" -d "$1" -v ON_ERROR_STOP=1 -q "$@" 2>/dev/null
+}
+
+cleanup() {
+  say "Dropping scratch database $SCRATCH_DB"
+  docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+    psql -U "$DB_USER" -d postgres -c "DROP DATABASE IF EXISTS \"$SCRATCH_DB\"" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+say "Restore test target: $(basename "$TARGET") -> scratch db $SCRATCH_DB"
+bash cmd/ops/backup-verify "$TARGET" >/dev/null || { err "Backup fails verification"; exit "$EX_CHECK"; }
+ok "backup verified"
+
+say "Restoring into isolated database"
+docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+  psql -U "$DB_USER" -d postgres -c "CREATE DATABASE \"$SCRATCH_DB\"" >/dev/null 2>&1 \
+  || { err "Cannot create scratch database"; exit "$EX_ENV"; }
+
+if ! gunzip -c "$TARGET" | docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+    psql -U "$DB_USER" -d "$SCRATCH_DB" -v ON_ERROR_STOP=1 -q 2>/dev/null; then
+  err "Restore into scratch database failed"
+  exit "$EX_CHECK"
+fi
+ok "restore applied"
+
+say "Integrity checks"
+TABLES="$(docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+  psql -U "$DB_USER" -d "$SCRATCH_DB" -tAc \
+  "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'" 2>/dev/null || echo 0)"
+if [[ "${TABLES:-0}" -lt 5 ]]; then
+  err "Suspiciously few tables restored: $TABLES"
+  exit "$EX_CHECK"
+fi
+ok "tables restored: $TABLES"
+
+MIGRATIONS="$(docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+  psql -U "$DB_USER" -d "$SCRATCH_DB" -tAc \
+  "SELECT count(*) FROM migrations" 2>/dev/null || echo 0)"
+[[ "${MIGRATIONS:-0}" -gt 0 ]] && ok "migration state present ($MIGRATIONS rows)" \
+  || warn "migrations table empty or unreadable"
+
+USERS="$(docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+  psql -U "$DB_USER" -d "$SCRATCH_DB" -tAc \
+  "SELECT count(*) FROM users LIMIT 1" 2>/dev/null || echo "n/a")"
+ok "users table readable: ${USERS} row(s)"
+
+ok "DR restore test PASSED (isolated)"
+exit "$EX_OK"

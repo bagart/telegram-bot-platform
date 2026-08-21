@@ -83,22 +83,28 @@ php artisan migrate --no-interaction 2>&1 | sed 's/^/    /'
 ok "Migrations done"
 
 # --- 8. Git hooks ---
-HOOKS_DIR=".git/hooks"
-PRE_PUSH="$HOOKS_DIR/pre-push"
-HOOK_MARKER="# managed-by-telegram-bot-platform"
+# Hooks live in tools/git-hooks/ and are activated via core.hooksPath,
+# so they are version-controlled and identical for every clone.
+HOOKS_PATH="tools/git-hooks"
 
-if [[ -f "$PRE_PUSH" ]] && ! grep -q "$HOOK_MARKER" "$PRE_PUSH" 2>/dev/null; then
-  warn "Foreign pre-push hook found — backing up to pre-push.backup"
-  cp "$PRE_PUSH" "$PRE_PUSH.backup"
+for hook in pre-commit commit-msg pre-push; do
+  [[ -f "$REPO_ROOT/$HOOKS_PATH/$hook" ]] || fail "Missing hook: $HOOKS_PATH/$hook"
+  chmod +x "$REPO_ROOT/$HOOKS_PATH/$hook"
+done
+
+CURRENT_HOOKS_PATH="$(git config core.hooksPath || true)"
+if [[ "$CURRENT_HOOKS_PATH" != "$HOOKS_PATH" ]]; then
+  git config core.hooksPath "$HOOKS_PATH"
+  ok "core.hooksPath set to $HOOKS_PATH"
+else
+  ok "core.hooksPath already set to $HOOKS_PATH"
 fi
 
-cat > "$PRE_PUSH" << HOOK
-#!/usr/bin/env bash
-$HOOK_MARKER
-# Installed by cmd/dev/setup — safe to upgrade via setup/doctor.
-"$REPO_ROOT/cmd/git/prepush" "\$@"
-HOOK
-chmod +x "$PRE_PUSH"
-ok "Git hooks installed"
+# Migrate legacy project-owned hook from .git/hooks (foreign hooks are kept).
+LEGACY_HOOK=".git/hooks/pre-push"
+if [[ -f "$LEGACY_HOOK" ]] && grep -q "# managed-by-telegram-bot-platform" "$LEGACY_HOOK" 2>/dev/null; then
+  rm -f "$LEGACY_HOOK"
+  ok "Legacy project pre-push hook removed (now managed via core.hooksPath)"
+fi
 
 ok "Setup complete"

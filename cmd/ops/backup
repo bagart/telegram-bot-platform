@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Create a verified PostgreSQL backup (07-resilience-and-disaster-recovery.md §4-§5, §12).
+#
+# Dumps through the running compose postgres service, records a checksum and
+# applies local retention (default: keep last 7). Redis is intentionally not
+# dumped: cache is rebuildable and queue semantics are defined separately (07 §16-§18).
+#
+# Usage:
+#   cmd/ops/backup [keep-count]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+KEEP="${1:-7}"
+case "$KEEP" in ''|*[!0-9]*) fail "keep-count must be a number (got: $KEEP)" ;; esac
+
+DB_SERVICE="postgres"
+DB_NAME="$(grep -E '^DB_DATABASE=' .env 2>/dev/null | cut -d= -f2 || true)"
+DB_USER="$(grep -E '^DB_USERNAME=' .env 2>/dev/null | cut -d= -f2 || true)"
+DB_NAME="${DB_NAME:-tg_bot_manager}"
+DB_USER="${DB_USER:-laravel}"
+
+BACKUP_DIR="storage/backups"
+mkdir -p "$BACKUP_DIR"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+TARGET="$BACKUP_DIR/${STAMP}-${DB_NAME}.sql.gz"
+
+say "Dumping $DB_NAME (service: $DB_USER@$DB_SERVICE)"
+if ! docker compose -f docker-compose.dev.yaml exec -T "$DB_SERVICE" \
+    pg_dump -U "$DB_USER" --no-owner --no-privileges "$DB_NAME" 2>/dev/null | gzip > "$TARGET"; then
+  rm -f "$TARGET"
+  err "pg_dump failed — is the postgres container running? (cmd/docker/up)"
+  exit "$EX_ENV"
+fi
+
+[[ -s "$TARGET" ]] || { rm -f "$TARGET"; err "Backup file is empty"; exit "$EX_CHECK"; }
+ok "Created $(basename "$TARGET") ($(du -h "$TARGET" | cut -f1))"
+
+sha256sum "$TARGET" > "$TARGET.sha256"
+ok "Checksum recorded"
+
+bash cmd/ops/backup-verify "$TARGET" || { err "New backup failed verification"; exit "$EX_CHECK"; }
+
+# Retention: keep the newest KEEP backups.
+mapfile -t OLD < <(ls -1t "$BACKUP_DIR"/*.sql.gz 2>/dev/null | tail -n +"$((KEEP + 1))")
+for f in "${OLD[@]:-}"; do
+  [[ -z "$f" ]] && continue
+  rm -f "$f" "$f.sha256"
+  say "Retention: removed $(basename "$f")"
+done
+
+ok "Backup complete"
+exit "$EX_OK"

@@ -26,7 +26,7 @@ if command -v vendor/bin/pint >/dev/null 2>&1; then
     ok "Pint OK"
   else
     err "Pint failed"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
 fi
 
@@ -37,7 +37,7 @@ if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
     ok "ESLint OK"
   else
     err "ESLint failed"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
 fi
 
@@ -48,14 +48,14 @@ if command -v docker >/dev/null 2>&1; then
     ok "Compose dev OK"
   else
     err "Compose dev invalid"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
 fi
 
 # Secret check
 if git ls-files .env 2>/dev/null | grep -q .; then
   err ".env is tracked"
-  ((FAILS++))
+  FAILS=$((FAILS+1))
 fi
 
 echo ""

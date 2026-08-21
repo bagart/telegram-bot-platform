@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Dead-letter replay (06-runtime-operations.md §19-§20).
+#
+# Replay must be inspect-first and capped: no "replay everything" button.
+# Default mode PREVIEWS the oldest message (truncated). Actual replay requires
+# --confirm=replay and --count limited to 50 per invocation.
+#
+# Usage:
+#   cmd/ops/replay <tg-dlq:{botId}>                    # preview only
+#   cmd/ops/replay <tg-dlq:{botId}> --count=10 --confirm=replay
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+KEY=""
+COUNT=0
+CONFIRM=""
+for arg in "$@"; do
+  case "$arg" in
+    --confirm=replay) CONFIRM="replay" ;;
+    --confirm=*) fail "Unknown confirmation target '${arg#--confirm=}' (expected: replay)" ;;
+    --count=*)
+      COUNT="${arg#--count=}"
+      [[ "$COUNT" =~ ^[0-9]+$ ]] || fail "--count must be a number"
+      (( COUNT <= 50 )) || fail "Replay is capped at 50 per invocation (got $COUNT)"
+      ;;
+    -*) fail "Unknown option '$arg'" ;;
+    *)
+      KEY="$arg"
+      [[ "$KEY" =~ ^tg-dlq:[A-Za-z0-9_-]+$ ]] || fail "Key must match tg-dlq:{botId} (got: $KEY)"
+      ;;
+  esac
+done
+
+[[ -n "$KEY" ]] || fail "Usage: cmd/ops/replay <tg-dlq:{botId}> [--count=N] [--confirm=replay]"
+
+php_artisan_tinker() {
+  php artisan tinker --execute="$1" 2>/dev/null
+}
+
+DEPTH="$(php_artisan_tinker 'echo Illuminate\Support\Facades\Redis::connection()->llen("'"$KEY"'");')" \
+  || { err "Redis unreachable or key unreadable"; exit "$EX_ENV"; }
+[[ "$DEPTH" =~ ^[0-9]+$ ]] || { err "Unexpected redis reply"; exit "$EX_ENV"; }
+
+say "DLQ $KEY depth: $DEPTH"
+(( DEPTH > 0 )) || { ok "Nothing to replay"; exit "$EX_OK"; }
+
+if [[ "$CONFIRM" != "replay" ]]; then
+  say "Preview (oldest message, truncated):"
+  php_artisan_tinker '
+$msg = Illuminate\Support\Facades\Redis::connection()->lindex("'"$KEY"'", 0);
+echo substr((string)$msg, 0, 300);
+' | cut -c1-300
+  echo ""
+  say "Dry run. To move up to 50 oldest messages back into tg-outbound:"
+  echo "    cmd/ops/replay $KEY --count=N --confirm=replay"
+  exit "$EX_OK"
+fi
+
+[[ "$COUNT" -gt 0 ]] || fail "Actual replay needs --count=N (1..50)"
+(( COUNT <= DEPTH )) || COUNT="$DEPTH"
+
+say "Replaying $COUNT message(s) from $KEY"
+RESULT="$(php_artisan_tinker '
+$r = Illuminate\Support\Facades\Redis::connection();
+$n = 0;
+for ($i = 0; $i < '"$COUNT"'; $i++) {
+    $msg = $r->lmove("'"$KEY"'", "tg-outbound", Illuminate\Redis\Connections\Connection::LEFT, Illuminate\Redis\Connections\Connection::LEFT);
+    if ($msg === false || $msg === null) { break; }
+    $n++;
+}
+echo $n;
+')" || { err "Replay failed mid-flight — remaining messages stay in the DLQ, re-run safely"; exit "$EX_ENV"; }
+
+ok "Replayed ${RESULT:-0} message(s) into tg-outbound"
+warn "Watch processing error rate before replaying more (retry-storm guard, 09 §56)"
+exit "$EX_OK"

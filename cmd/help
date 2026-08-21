@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Command discovery (02-developer-tooling.md §41): one place to see the surface.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/root.sh"
+
+cat <<'TREE'
+Development
+  dev/setup        bootstrap repository (deps, env, hooks)
+  dev/doctor       diagnose environment
+  dev/check        baseline validation gate [--quick|--full|--ci] [--format=json]
+  dev/fix          safe auto-fixes (formatting, line endings)
+  dev/test         run test suites [unit|integration|async|telegram|basic|management|libs|e2e]
+  dev/lint         linters + syntax checks
+  dev/security     security checks (secrets, audits, SAST when available)
+  dev/bench        benchmarks [quick|full] — never part of check gates
+
+Git
+  git/commit       plain commit wrapper
+  git/quick-commit staged-scope commit with fast gates
+
+Dependencies
+  deps/audit       vulnerability audit
+  deps/outdated    outdated report
+  deps/update      update dependencies
+
+Docker
+  docker/up|down|ps|logs|build|restart|scan
+
+CI
+  ci/check         CI-equivalent gate (= dev/check --ci)
+  ci/validate      repository integration & drift checks
+
+Operations
+  ops/status       runtime overview
+  ops/health       probe health endpoints
+  ops/diagnose     doctor + security + validate
+  ops/backup       PostgreSQL backup (+checksum, retention)
+  ops/backup-verify verify backup integrity
+  ops/restore      restore backup (--confirm=database required)
+  ops/dr-test      isolated restore test into a throwaway database
+  ops/queue        queue depth inspection
+  ops/restart      restart services (explicit target required)
+
+Release
+  release/lib      gated tag-release for misc/BAGArt libraries
+TREE

@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Probe the platform health endpoints (06-runtime-operations.md §39).
+#
+# Checks /health/live and /health/ready on APP_URL. Non-200 ready means the
+# service cannot accept work — this is an operational failure signal.
+#
+# Usage:
+#   cmd/ops/health [base-url]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v curl >/dev/null 2>&1 || { err "curl is required"; exit "$EX_DEP"; }
+
+BASE_URL="${1:-$(grep -E '^APP_URL=' .env 2>/dev/null | cut -d= -f2)}"
+[[ -n "$BASE_URL" ]] || fail "No base URL given and APP_URL is not set in .env"
+
+FAILS=0
+
+probe() {
+  local name="$1" url="$2"
+  local code
+  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$url" || echo 000)"
+  if [[ "$code" == "200" ]]; then
+    ok "$name: $url -> $code"
+  else
+    err "$name: $url -> $code"
+    FAILS=$((FAILS+1))
+  fi
+}
+
+say "Probing $BASE_URL"
+probe "live" "$BASE_URL/health/live"
+probe "ready" "$BASE_URL/health/ready"
+
+if [[ "$FAILS" -gt 0 ]]; then
+  exit "$EX_CHECK"
+fi
+ok "service is live and ready"
+exit "$EX_OK"

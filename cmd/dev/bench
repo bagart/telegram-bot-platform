@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Benchmark interface (02-developer-tooling.md, 08-developer-experience-and-ai.md §55).
+#
+# Profiles:
+#   quick    — transport micro-benches (localhost), seconds
+#   full     — full xhprof benchmark suite (dns + localhost + transport)
+#
+# Benchmarks never run inside check gates (08 §54: expensive, explicit only).
+#
+# Usage:
+#   cmd/dev/bench [quick|full]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+PROFILE="${1:-quick}"
+
+command -v php >/dev/null 2>&1 || { err "php is required (ext-xhprof for full)"; exit "$EX_DEP"; }
+
+case "$PROFILE" in
+  quick)
+    if [[ -f cmd/xhprof_bench_localhost_transport ]]; then
+      say "bench: localhost transport (quick)"
+      bash cmd/xhprof_bench_localhost_transport
+    else
+      fail "cmd/xhprof_bench_localhost_transport not found"
+    fi
+    ;;
+  full)
+    php -m | grep -q xhprof || { err "ext-xhprof not loaded — full bench unavailable"; exit "$EX_DEP"; }
+    for bench in xhprof_bench_dns xhprof_bench_localhost_transport xhprof_bench_transport; do
+      if [[ -f "cmd/$bench" ]]; then
+        say "bench: $bench"
+        bash "cmd/$bench" || warn "$bench reported issues"
+      fi
+    done
+    ;;
+  *)
+    fail "Unknown profile '$PROFILE' (expected: quick|full)"
+    ;;
+esac
+
+ok "Benchmark complete ($PROFILE)"

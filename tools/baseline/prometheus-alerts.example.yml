@@ -1,0 +1,37 @@
+# Prometheus alert rules example (09-observability-and-performance.md §45-§51).
+# Alert classes: CRITICAL = immediate human action; WARNING = degrading, self-healing may hold.
+# Every rule must link a runbook — alerts without runbooks are forbidden by the SDD.
+#
+# Install into your Prometheus rules directory and point scrape config at
+# /health/metrics (authenticated) or pipe cmd/ops/metrics through your collector.
+groups:
+  - name: tg-platform-critical
+    rules:
+      - alert: PlatformDependencyDown
+        expr: tg_db_up == 0 or tg_redis_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database or Redis unreachable"
+          runbook: "runbooks/_TEMPLATE.md"
+
+      - alert: DeadLettersPresent
+        expr: tg_dlq_depth_total > 0
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Dead letters are accumulating — inspect before replay"
+          runbook: "runbooks/_TEMPLATE.md (cmd/ops/replay is capped at 50/invocation)"
+
+  - name: tg-platform-warning
+    rules:
+      - alert: OutboundQueueGrowing
+        expr: tg_outbound_queue_depth > 500
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbound queue depth sustained high (depth alone is not age — add queue-age metric before paging)"
+          runbook: "runbooks/_TEMPLATE.md"

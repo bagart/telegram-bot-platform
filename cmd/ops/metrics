@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Local metrics snapshot in Prometheus text format (09-observability-and-performance.md).
+# Same series as GET /health/metrics, read directly from Redis/DB.
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+command -v php >/dev/null 2>&1 || { err "php is required"; exit "$EX_DEP"; }
+
+php artisan tinker --execute='
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+$dbUp = 0; $redisUp = 0; $queue = 0; $dlq = 0;
+try { DB::select("select 1"); $dbUp = 1; } catch (Throwable) {}
+try {
+    $r = Redis::connection(); $r->ping(); $redisUp = 1;
+    $queue = (int)$r->llen("tg-outbound");
+    $it = null;
+    do {
+        $b = $r->scan($it, ["MATCH" => "tg-dlq:*", "COUNT" => 100]);
+        if ($b !== false) { foreach ($b as $k) { $dlq += (int)$r->llen($k); } }
+    } while ($it > 0);
+} catch (Throwable) {}
+
+$tg = ["sent" => 0, "retry_rate_limit" => 0, "retry_circuit_breaker" => 0, "failed_network" => 0, "failed_fatal" => 0, "business_error" => 0, "dlq_pushed" => 0, "dlq_retried" => 0];
+try {
+    $map = ["sent" => "sent", "retry:rate_limit" => "retry_rate_limit", "retry:circuit_breaker" => "retry_circuit_breaker", "failed:network" => "failed_network", "failed:fatal" => "failed_fatal", "business_error" => "business_error", "dlq_pushed" => "dlq_pushed", "dlq_retried" => "dlq_retried"];
+    foreach (app(BAGArt\TelegramBot\Outbound\TgOutboundStats::class)->getGlobalMetrics(now()->subHours(23)->format("YmdH"), now()->format("YmdH")) as $k => $v) {
+        $suffix = substr((string)$k, strpos((string)$k, ":") + 1);
+        if (isset($map[$suffix])) { $tg[$map[$suffix]] += (int)$v; }
+    }
+} catch (Throwable) {}
+
+echo "# HELP tg_db_up Database reachability.\n# TYPE tg_db_up gauge\ntg_db_up {$dbUp}\n";
+echo "# HELP tg_redis_up Redis reachability.\n# TYPE tg_redis_up gauge\ntg_redis_up {$redisUp}\n";
+echo "# HELP tg_outbound_queue_depth Outbound queue depth.\n# TYPE tg_outbound_queue_depth gauge\ntg_outbound_queue_depth {$queue}\n";
+echo "# HELP tg_dlq_depth_total Dead-letter entries across all bots.\n# TYPE tg_dlq_depth_total gauge\ntg_dlq_depth_total {$dlq}\n";
+foreach ($tg as $name => $v) {
+    echo "# TYPE tg_{$name}_last24h gauge\ntg_{$name}_last24h {$v}\n";
+}
+' 2>/dev/null || { err "metrics collection failed"; exit "$EX_ENV"; }
+
+exit "$EX_OK"

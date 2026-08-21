@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Queue depth inspection (06-runtime-operations.md §16-§19).
+#
+# Read-only view of outbound queue and dead-letter channels. Queue age is the
+# real health signal — depth alone is not (09 §16); this is the quick depth slice.
+#
+# Usage:
+#   cmd/ops/queue
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v php >/dev/null 2>&1 || { err "php is required"; exit "$EX_DEP"; }
+
+php artisan tinker --execute='
+$redis = Illuminate\Support\Facades\Redis::connection();
+try {
+    $redis->ping();
+} catch (Throwable $e) {
+    fwrite(STDERR, "Redis unreachable: ".$e->getMessage()."\n");
+    exit(4);
+}
+$main = $redis->llen("tg-outbound");
+echo "tg-outbound: ".$main."\n";
+$dlqKeys = [];
+$iterator = null;
+do {
+    $batch = $redis->scan($iterator, ["MATCH" => "tg-dlq:*", "COUNT" => 100]);
+    if ($batch !== false) { $dlqKeys = array_merge($dlqKeys, $batch); }
+} while ($iterator > 0);
+sort($dlqKeys);
+$totalDlq = 0;
+foreach ($dlqKeys as $key) {
+    $len = $redis->llen($key);
+    $totalDlq += $len;
+    echo $key.": ".$len."\n";
+}
+echo "dlq total: ".$totalDlq."\n";
+echo ($totalDlq > 0 ? "ATTENTION: dead letters present — inspect before replay" : "no dead letters")."\n";
+' 2>/dev/null || { err "queue inspection failed (is Redis configured?)"; exit "$EX_ENV"; }
+
+exit "$EX_OK"

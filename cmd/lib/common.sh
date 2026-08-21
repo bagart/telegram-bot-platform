@@ -3,17 +3,19 @@
 #
 # Source after root.sh; requires REPO_ROOT.
 
-# --- Exit codes (global convention) ---
+# --- Exit codes (global convention, 02-developer-tooling.md §3) ---
 # 0 = success
 # 1 = check/gate failure
 # 2 = usage / configuration error
 # 3 = required dependency unavailable
 # 4 = environment / bootstrap failure
+# 5 = baseline/policy failure (e.g. expired exception allowlist entry)
 readonly EX_OK=0
 readonly EX_CHECK=1
 readonly EX_USAGE=2
 readonly EX_DEP=3
 readonly EX_ENV=4
+readonly EX_POLICY=5
 
 set -Eeuo pipefail
 

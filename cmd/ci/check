@@ -1,70 +1,15 @@
 #!/usr/bin/env bash
-# Run CI-equivalent repository checks locally.
+# CI-equivalent local gate.
 #
-# The GitHub workflow remains authoritative even when this command passes.
+# Thin delegation to the primary gate in --ci mode (02-developer-tooling.md §4:
+# commands must not duplicate orchestration logic).
 #
 # Usage:
-#   cmd/ci/check
+#   cmd/ci/check [flags accepted by cmd/dev/check]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
-source "$REPO_ROOT/cmd/lib/common.sh"
-source "$REPO_ROOT/cmd/lib/output.sh"
 
-require_root_dir
-cd "$REPO_ROOT"
-
-FAILS=0
-
-run_check() {
-  local label="$1"; shift
-  say "$label"
-  if "$@" >/dev/null 2>&1; then
-    ok "$label passed"
-  else
-    err "$label failed"
-    ((FAILS++))
-  fi
-}
-
-# PHP formatting
-if command -v vendor/bin/pint >/dev/null 2>&1; then
-  run_check "PHP formatting (Pint)" vendor/bin/pint --test
-fi
-
-# PHPStan
-if command -v vendor/bin/phpstan >/dev/null 2>&1; then
-  run_check "PHPStan" vendor/bin/phpstan analyse --no-progress
-fi
-
-# ESLint
-if command -v npx >/dev/null 2>&1 && [[ -f eslint.config.js ]]; then
-  run_check "ESLint" npx eslint .
-fi
-
-# Tests
-if command -v php >/dev/null 2>&1 && [[ -f vendor/bin/pest ]]; then
-  run_check "Tests (Pest)" php artisan test --compact
-fi
-
-# Compose validation
-if command -v docker >/dev/null 2>&1; then
-  run_check "Compose dev" docker compose -f docker-compose.dev.yaml config --quiet
-  run_check "Compose prod" docker compose -f docker-compose.prod.yaml config --quiet
-fi
-
-# Security
-if command -v composer >/dev/null 2>&1; then
-  run_check "Composer audit" composer audit --no-dev
-fi
-
-echo ""
-if [[ $FAILS -gt 0 ]]; then
-  err "$FAILS CI check(s) failed"
-  exit "$EX_CHECK"
-else
-  ok "All CI checks passed"
-  exit "$EX_OK"
-fi
+exec bash "$REPO_ROOT/cmd/dev/check" --ci "$@"

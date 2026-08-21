@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Audit dependencies for known vulnerabilities.
-#
-# Runs Composer audit and npm audit where available.
+# Audit dependencies for known vulnerabilities (02-developer-tooling.md §27).
 #
 # Usage:
-#   cmd/deps/audit
+#   cmd/deps/audit [--format=text|json|github] [--offline] [--verbose] [--quiet]
 
 set -euo pipefail
 
@@ -12,43 +10,56 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/deps/audit [--format=text|json|github] [--offline] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 FAILS=0
 
-# Composer audit
-if command -v composer >/dev/null 2>&1; then
-  say "Composer audit..."
-  if composer audit --no-dev 2>&1; then
-    ok "Composer audit passed"
-  else
-    err "Composer audit found issues"
-    ((FAILS++))
+run_tool() {
+  local control="$1"; shift
+  if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+    say "$control"
   fi
+  local tmp
+  tmp="$(mktemp)"
+  if contract_exec "$control" "$@" >"$tmp" 2>&1; then
+    report_result "$control" passed ""
+    rm -f "$tmp"
+    return 0
+  fi
+  report_result "$control" failed "$(tail -n 3 "$tmp" | tr '\n' ' ' | cut -c1-200)"
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    cat "$tmp" >&2
+  fi
+  rm -f "$tmp"
+  return 1
+}
+
+if [[ "$OFFLINE" -eq 1 ]]; then
+  report_result "composer-audit" skipped "offline mode"
+  report_result "npm-audit" skipped "offline mode"
 else
-  warn "Composer not found — skipping"
+  if command -v composer >/dev/null 2>&1; then
+    if ! run_tool "composer-audit" composer audit --no-dev; then FAILS=$((FAILS+1)); fi
+  else
+    report_result "composer-audit" skipped "composer not found"
+  fi
+
+  if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
+    if ! run_tool "npm-audit" npm audit --audit-level=high; then FAILS=$((FAILS+1)); fi
+  else
+    report_result "npm-audit" skipped "npm or package-lock.json not found"
+  fi
 fi
 
-# npm audit
-if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
-  say "npm audit..."
-  if npm audit --audit-level=high 2>&1; then
-    ok "npm audit passed"
-  else
-    err "npm audit found issues"
-    ((FAILS++))
-  fi
-else
-  warn "npm or package-lock.json not found — skipping"
-fi
-
-echo ""
-if [[ $FAILS -gt 0 ]]; then
-  err "$FAILS audit(s) failed"
-  exit "$EX_CHECK"
-else
-  ok "All audits passed"
-  exit "$EX_OK"
-fi
+report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"

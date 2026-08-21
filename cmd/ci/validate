@@ -25,7 +25,7 @@ check_present() {
     ok "$label"
   else
     err "$label missing: $path"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
 }
 
@@ -47,19 +47,19 @@ if command -v docker >/dev/null 2>&1; then
     ok "docker-compose.dev.yaml valid"
   else
     err "docker-compose.dev.yaml invalid"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
   if docker compose -f docker-compose.dev.yaml --profile ai config --quiet >/dev/null 2>&1; then
     ok "docker-compose.dev.yaml (ai profile) valid"
   else
     err "docker-compose.dev.yaml (ai profile) invalid"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
   if docker compose -f docker-compose.prod.yaml config --quiet >/dev/null 2>&1; then
     ok "docker-compose.prod.yaml valid"
   else
     err "docker-compose.prod.yaml invalid"
-    ((FAILS++))
+    FAILS=$((FAILS+1))
   fi
 else
   warn "Docker not found — skipping compose validation"
@@ -77,11 +77,26 @@ check_present "cmd/lib/root.sh" "cmd/lib/root.sh"
 check_present "cmd/lib/common.sh" "cmd/lib/common.sh"
 check_present "cmd/lib/docker.sh" "cmd/lib/docker.sh"
 
+# --- Baseline tooling self-check ---
+say "Baseline tooling"
+if php tools/baseline/yaml-lint.php >/dev/null 2>&1; then
+  ok "CI workflow YAML valid"
+else
+  err "CI workflow YAML invalid"
+  FAILS=$((FAILS+1))
+fi
+if bash tools/baseline/shell-lint.sh >/dev/null 2>&1; then
+  ok "baseline shell scripts: syntax OK"
+else
+  err "baseline shell script syntax error"
+  FAILS=$((FAILS+1))
+fi
+
 # --- Stale references ---
 say "Stale references"
 if grep -r "docker-compose\.yaml" --include='*.sh' --include='*.yaml' --include='*.md' -l . 2>/dev/null | grep -v node_modules | grep -v vendor | grep -v .git | head -5; then
   err "Stale docker-compose.yaml references found"
-  ((FAILS++))
+  FAILS=$((FAILS+1))
 else
   ok "No stale docker-compose.yaml references"
 fi
@@ -90,7 +105,7 @@ fi
 say "Git tracking"
 if git ls-files .env 2>/dev/null | grep -q .; then
   err ".env is tracked"
-  ((FAILS++))
+  FAILS=$((FAILS+1))
 else
   ok ".env not tracked"
 fi

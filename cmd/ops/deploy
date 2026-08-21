@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Deploy with health gate and automatic rollback (05 §34-36, 06 §34, §62).
+#
+# Compose-hosted platform: images are built from the checked-out source, so a
+# deploy is reproducible only from a clean tree at a known commit. On failed
+# post-deploy verification the previous commit is rebuilt and redeployed
+# automatically; the failure is reported loudly either way.
+#
+# Usage:
+#   cmd/ops/deploy --confirm=deploy
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+[[ "${1:-}" == "--confirm=deploy" ]] || fail "Usage: cmd/ops/deploy --confirm=deploy"
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+COMPOSE="docker compose -f docker-compose.prod.yaml"
+SERVICES="php-fpm web"
+LAST_DEPLOY_FILE=".last-deploy"
+PREV="$(cat "$LAST_DEPLOY_FILE" 2>/dev/null || git rev-parse HEAD)"
+NEW="$(git rev-parse HEAD)"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  err "Working tree is dirty — deploys must come from a clean, reproducible checkout (05 §23)"
+  exit "$EX_CHECK"
+fi
+
+health_gate() {
+  local base_url
+  base_url="$(grep -E '^APP_URL=' .env 2>/dev/null | cut -d= -f2 || true)"
+  [[ -n "$base_url" ]] || base_url="http://localhost"
+  local attempt code
+  for attempt in 1 2 3 4 5; do
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$base_url/health/ready" 2>/dev/null || echo 000)"
+    [[ "$code" == "200" ]] && { ok "health/ready -> 200 (attempt $attempt)"; return 0; }
+    say "health/ready -> $code, retry in 5s (attempt $attempt/5)"
+    sleep 5
+  done
+  return 1
+}
+
+build_and_up() {
+  $COMPOSE build $SERVICES >/dev/null
+  $COMPOSE up -d >/dev/null
+}
+
+deploy_at() {
+  local commit="$1"
+  say "Deploying ${commit:0:8}"
+  git checkout -q "$commit"
+  if ! build_and_up; then
+    err "build/up failed at ${commit:0:8}"
+    return 1
+  fi
+  health_gate
+}
+
+say "Deploy $PREV → $NEW"
+if deploy_at "$NEW"; then
+  echo "$NEW" > "$LAST_DEPLOY_FILE"
+  ok "Deploy verified. Previous artifact kept in $LAST_DEPLOY_FILE ($PREV)"
+  exit "$EX_OK"
+fi
+
+err "Post-deploy verification FAILED — rolling back to ${PREV:0:8}"
+if deploy_at "$PREV"; then
+  err "Rolled back to ${PREV:0:8}. New artifact $NEW is bad — investigate before retrying"
+else
+  err "ROLLBACK ALSO FAILED at ${PREV:0:8} — manual intervention required (cmd/ops/status, cmd/ops/diagnose)"
+fi
+exit "$EX_CHECK"

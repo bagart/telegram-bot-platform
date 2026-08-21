@@ -102,17 +102,68 @@ CI remains authoritative.
 ### Other Commands
 
 ```bash
-./cmd/dev/setup        # bootstrap repository
+./cmd/dev/setup        # bootstrap repository (installs Git hooks via core.hooksPath)
 ./cmd/dev/doctor       # diagnose environment
 ./cmd/dev/check        # run baseline checks
-./cmd/dev/fix          # auto-fix formatting
+./cmd/dev/fix          # auto-fix formatting + line endings
 ./cmd/dev/test         # run tests
 ./cmd/dev/lint         # run linters
-./cmd/dev/security     # run security checks
+./cmd/dev/security     # run security checks (secret scan incl. Telegram token pattern)
 ./cmd/deps/audit       # audit dependencies
 ./cmd/deps/outdated    # check for updates
 ./cmd/ci/validate      # validate repository integration
+./cmd/ops/status       # runtime status overview
+./cmd/ops/health       # probe /health/live and /health/ready
+./cmd/ops/diagnose     # doctor + security + validate in one run
+./cmd/ops/backup       # PostgreSQL backup (checksummed, retention keep-7)
+./cmd/ops/dr-test      # isolated restore test into a throwaway database
+./cmd/ops/queue        # outbound queue + DLQ depth inspection
+./cmd/ops/replay       # DLQ replay (preview-first, capped at 50)
+./cmd/ops/drain        # graceful worker drain
+./cmd/ops/restart      # restart a service (--confirm=restart required)
+./cmd/ops/deploy       # clean-tree deploy with health gate + auto-rollback
+./cmd/ops/rollback     # roll back to the previous verified artifact
+./cmd/ops/metrics      # Prometheus-format metrics snapshot
+./cmd/release/lib      # gated tag-release for misc/BAGArt libraries
 ```
+
+### GitHub repository settings (enable manually)
+
+Code cannot toggle these — check them once per repository:
+
+- Settings → Code security → **Secret scanning** + **Push protection**: ON
+- Settings → Branches → rulesets for `main`: PR required, required CI checks, no force push
+- Settings → Actions → workflow permissions: default to **read-only**
+
+### Metrics
+
+`GET /health/metrics` (authenticated) and `cmd/ops/metrics` expose
+Prometheus-format series (`tg_db_up`, `tg_redis_up`, `tg_outbound_queue_depth`,
+`tg_dlq_depth_total`). Example alert rules:
+`tools/baseline/prometheus-alerts.example.yml`. Host-side backup/DR schedule:
+`tools/baseline/crontab.example`.
+
+### Check Levels & Output Contract
+
+```bash
+./cmd/dev/check --quick              # seconds: line endings + secrets (staged)
+./cmd/dev/check --full               # complete local validation
+./cmd/dev/check --ci                 # CI-equivalent + dependency audits
+./cmd/dev/check --format=json        # machine-readable (alias: --json)
+```
+
+Without a level flag, `check` detects changed surfaces and runs only applicable
+controls. Exit codes: `0` success · `1` validation failure · `2` invalid
+usage/configuration · `3` missing tool · `4` infrastructure failure ·
+`5` baseline/policy failure (e.g. expired exception allowlist entry).
+
+### Git Hooks
+
+`./cmd/dev/setup` activates version-controlled hooks from `tools/git-hooks/`
+(`core.hooksPath`): `pre-commit` (LF + secrets + Pint on staged files),
+`commit-msg` (conventional prefixes: `feat fix refactor perf test docs build ci
+chore security`), `pre-push` (delegates to `cmd/git/prepush`).
+Never bypass with `--no-verify`; CI remains authoritative.
 
 ## Test of Work
 

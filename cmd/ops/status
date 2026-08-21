@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Runtime status overview (06-runtime-operations.md §58).
+#
+# Aggregates environment, artifact identity and container state into one view.
+# Read-only.
+#
+# Usage:
+#   cmd/ops/status
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+say "Application"
+APP_ENV="$(grep -E '^APP_ENV=' .env 2>/dev/null | cut -d= -f2 || true)"
+APP_URL="$(grep -E '^APP_URL=' .env 2>/dev/null | cut -d= -f2 || true)"
+ok "environment: ${APP_ENV:-unknown}, url: ${APP_URL:-unknown}"
+
+GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || true)"
+[[ -n "$GIT_COMMIT" ]] && ok "artifact: git ${GIT_COMMIT}"
+
+MAINTENANCE_FILE="storage/framework/down"
+if [[ -f "$MAINTENANCE_FILE" ]]; then
+  err "maintenance mode: ON"
+else
+  ok "maintenance mode: off"
+fi
+
+if docker compose version >/dev/null 2>&1; then
+  say "Containers"
+  docker compose -f docker-compose.dev.yaml ps --format "table {{.Service}}\t{{.Status}}" 2>/dev/null || warn "compose ps failed"
+else
+  warn "docker unavailable — container status skipped"
+fi
+
+exit "$EX_OK"

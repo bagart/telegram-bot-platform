@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Roll back to the previous verified artifact (05 §36, 06 §62).
+#
+# Reads the commit recorded by the last successful deploy and redeploys it.
+# Refuses without explicit confirmation.
+#
+# Usage:
+#   cmd/ops/rollback --confirm=rollback
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+[[ "${1:-}" == "--confirm=rollback" ]] || fail "Usage: cmd/ops/rollback --confirm=rollback"
+command -v docker >/dev/null 2>&1 || { err "docker is required"; exit "$EX_DEP"; }
+
+LAST_DEPLOY_FILE=".last-deploy"
+[[ -f "$LAST_DEPLOY_FILE" ]] || fail "No previous deploy recorded ($LAST_DEPLOY_FILE missing)"
+PREV="$(cat "$LAST_DEPLOY_FILE")"
+CURRENT="$(git rev-parse HEAD)"
+[[ "$PREV" != "$CURRENT" ]] || { warn "Already at the recorded artifact ($PREV) — nothing to roll back"; exit "$EX_OK"; }
+
+say "Rolling back ${CURRENT:0:8} → ${PREV:0:8}"
+git checkout -q "$PREV"
+if docker compose -f docker-compose.prod.yaml build php-fpm web >/dev/null 2>&1 \
+  && docker compose -f docker-compose.prod.yaml up -d >/dev/null 2>&1; then
+  ok "Rolled back to ${PREV:0:8}"
+  say "Verify: cmd/ops/health"
+  exit "$EX_OK"
+fi
+
+err "Rollback failed — manual intervention required (cmd/ops/diagnose)"
+exit "$EX_ENV"

@@ -1,8 +1,15 @@
 <?php
 
+use App\Http\Controllers\HealthController;
 use BAGArt\TelegramBot\Http\Laravel;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+
+// Health endpoints (06-runtime-operations.md §39): /health/live, /health/ready, /health.
+Route::get('/health/live', [HealthController::class, 'live'])->name('health.live');
+Route::get('/health/ready', [HealthController::class, 'ready'])->name('health.ready');
+Route::get('/health', [HealthController::class, 'health'])->name('health.diagnostics');
+Route::get('/health/metrics', [HealthController::class, 'metrics'])->name('health.metrics');
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),

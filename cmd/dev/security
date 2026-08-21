@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Aggregate applicable local security checks.
+# Security-only validation gate (02-developer-tooling.md §13).
 #
-# Tool selection is governed by the Security SDD.
-# This command is a stable interface — no policy is hardcoded.
+# Scanner selection follows the security SDD: approved external scanner when
+# available, otherwise the built-in baseline scanner (Telegram token pattern
+# included). Findings are never silently converted to warnings.
 #
 # Usage:
-#   cmd/dev/security
+#   cmd/dev/security [--format=text|json|github] [--verbose] [--quiet]
 
 set -euo pipefail
 
@@ -13,54 +14,73 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/dev/security [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 FAILS=0
 
-run_check() {
-  local label="$1"; shift
-  say "$label"
-  if "$@" >/dev/null 2>&1; then
-    ok "$label passed"
-  else
-    err "$label failed"
-    ((FAILS++))
+run_tool() {
+  local control="$1"; shift
+  if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+    say "$control"
   fi
+  local tmp
+  tmp="$(mktemp)"
+  if contract_exec "$control" "$@" >"$tmp" 2>&1; then
+    report_result "$control" passed ""
+    rm -f "$tmp"
+    return 0
+  fi
+  report_result "$control" failed "$(tail -n 3 "$tmp" | tr '\n' ' ' | cut -c1-200)"
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    echo "--- $control output ---" >&2
+    cat "$tmp" >&2
+  fi
+  rm -f "$tmp"
+  return 1
 }
 
-# Composer audit
-if command -v composer >/dev/null 2>&1; then
-  run_check "Composer audit" composer audit --no-dev
+if [[ "$OFFLINE" -eq 1 ]]; then
+  report_result "composer-audit" skipped "offline mode"
+  report_result "npm-audit" skipped "offline mode"
+else
+  if command -v composer >/dev/null 2>&1; then
+    if ! run_tool "composer-audit" composer audit --no-dev; then FAILS=$((FAILS+1)); fi
+  fi
+
+  if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
+    if ! run_tool "npm-audit" npm audit --audit-level=high; then FAILS=$((FAILS+1)); fi
+  fi
 fi
 
-# npm audit
-if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
-  run_check "npm audit" npm audit --audit-level=high
+if command -v semgrep >/dev/null 2>&1; then
+  if ! run_tool "sast (semgrep)" semgrep scan --config=p/php --config=p/security --error --quiet app misc/BAGArt; then FAILS=$((FAILS+1)); fi
 fi
 
-# Secret scanning (git secrets or gitleaks)
 if command -v gitleaks >/dev/null 2>&1; then
-  run_check "Secret scanning (gitleaks)" gitleaks detect --no-banner
+  if ! run_tool "secret-scan (gitleaks)" gitleaks detect --no-banner; then FAILS=$((FAILS+1)); fi
 elif command -v git-secrets >/dev/null 2>&1; then
-  run_check "Secret scanning (git-secrets)" git-secrets --scan
+  if ! run_tool "secret-scan (git-secrets)" git-secrets --scan; then FAILS=$((FAILS+1)); fi
+else
+  if ! run_tool "secret-scan (built-in)" php tools/baseline/secret-scan.php --all; then FAILS=$((FAILS+1)); fi
 fi
 
-# .env not tracked
-say "Checking .env is not tracked..."
-if git ls-files .env 2>/dev/null | grep -q .; then
-  err ".env is tracked by Git — remove it with: git rm --cached .env"
-  ((FAILS++))
+if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then say ".env not tracked"; fi
+if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+  report_result "env-not-tracked" failed ".env is tracked by Git — remove with: git rm --cached .env"
+  FAILS=$((FAILS+1))
 else
-  ok ".env is not tracked"
+  report_result "env-not-tracked" passed ""
 fi
 
-echo ""
-if [[ $FAILS -gt 0 ]]; then
-  err "$FAILS security check(s) failed"
-  exit "$EX_CHECK"
-else
-  ok "All security checks passed"
-  exit "$EX_OK"
-fi
+report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"
