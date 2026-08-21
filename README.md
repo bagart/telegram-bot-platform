@@ -7,25 +7,44 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Setup](#Setup)
-    - [Run Laravel](#run-laravel)
-        - [Development Environment](#development-environment)
-        - [Production Environment](#production-environment)
-    - [Init bot](#init-bot)
+- [Quick Start](#quick-start)
+- [Development](#development)
+- [Docker](#docker)
+- [Quick Commit](#quick-commit)
 - [Technical Details](#technical-details)
-- [Test Coverage](#test-coverage)
 - [Structure](#structure)
 - [Contributing](#contributing)
-    - [How to Contribute](#how-to-contribute)
 - [License](#license)
 
 ## Overview
 
-**Telegram Bot Manager** is a useful platform for hosting TG bots and managing their modules.
+**Telegram Bot Manager** is a platform for hosting Telegram bots and managing their modules.
 
-## Setup
+## Quick Start
 
-### For Library Developers (you)
+```bash
+# Setup (installs deps, builds assets, generates key, runs migrations)
+./cmd/dev/setup
+
+# Start development environment
+./cmd/docker/up
+
+# Check environment health
+./cmd/dev/doctor
+
+# Run checks
+./cmd/dev/check
+
+# Fix formatting
+./cmd/dev/fix
+
+# Commit
+./cmd/git/quick-commit "fix: description"
+```
+
+## Development
+
+### Library Developers
 
 Libraries live in `misc/BAGArt/`. Clone them first:
 
@@ -43,46 +62,56 @@ git clone git@github.com:bagart/telegram-bot-management-lib.git
 Then run setup — it auto-detects local libs and configures Composer path repositories:
 
 ```bash
-./scripts/setup
+./cmd/dev/setup
 ```
 
-This lets you edit library code in `misc/BAGArt/` and have changes reflected instantly without re-installing.
-
-### For Colleagues
+### Colleagues
 
 No need to clone libraries manually. Just:
 
 ```bash
-cp .env.example .env
-# Edit .env with your settings
-docker compose up -d
-docker compose exec workspace bash
-composer install
-npm install && npm run build
+./cmd/dev/setup
 ```
 
 Libraries install from published [Packagist](https://packagist.org/packages/bagart/) packages automatically.
 
-### Run Laravel
+## Docker
 
-Docker env: https://docs.docker.com/guides/frameworks/laravel/development-setup/
-
-#### Development Environment
 ```bash
-docker compose up -d
-docker compose exec workspace bash
-```
-inside container
-```bash
-composer install
-npm install
-npm run dev
+./cmd/docker/up              # start dev stack
+./cmd/docker/up ai           # start with OmniRoute AI profile
+./cmd/docker/down            # stop (keeps volumes)
+./cmd/docker/logs            # tail logs
+./cmd/docker/ps              # container status
+./cmd/docker/build           # rebuild images
 ```
 
-#### Production Environment
+See [docs/docker/README.md](docs/docker/README.md) for full Docker documentation.
+
+## Quick Commit
+
+Run fast local validation and create a commit:
 
 ```bash
-docker compose -f docker-compose.prod.yaml up --build -d
+./cmd/git/quick-commit "fix: description"
+```
+
+The command does not bypass Git hooks or security checks.
+CI remains authoritative.
+
+### Other Commands
+
+```bash
+./cmd/dev/setup        # bootstrap repository
+./cmd/dev/doctor       # diagnose environment
+./cmd/dev/check        # run baseline checks
+./cmd/dev/fix          # auto-fix formatting
+./cmd/dev/test         # run tests
+./cmd/dev/lint         # run linters
+./cmd/dev/security     # run security checks
+./cmd/deps/audit       # audit dependencies
+./cmd/deps/outdated    # check for updates
+./cmd/ci/validate      # validate repository integration
 ```
 
 ## Test of Work
@@ -122,15 +151,22 @@ php misc/BAGArt/TelegramBotBasic/RawExamples/GetUpdateDTOWithPollerExample.php -
 
 ## Structure
 
-- **root**: Laravel
-- **./docker**: Docker Files https://docs.docker.com/guides/frameworks/laravel/development-setup/
-  - common
-  - dev
-  - production
-- **./app/Services**: DDD Services
-  - **TelegramBot**: TelegramBot core (RAD. It will probably be allocated to the library)
-  - **TelegramBotManagement**: TelegramBot Management with DB (@todo: UI)
-- **./modules**: TelegramBot Modules (RAD. It will probably be allocated to the library)
+- **root**: Laravel application
+- **cmd/**: Developer CLI
+  - `cmd/dev/` — developer lifecycle (setup, doctor, check, fix, test, lint, security)
+  - `cmd/docker/` — Docker operations (up, down, build, logs, ps, scan)
+  - `cmd/git/` — Git workflow (commit, quick-commit, prepush)
+  - `cmd/deps/` — dependency operations (audit, outdated, update)
+  - `cmd/ci/` — CI validation (check, validate)
+  - `cmd/lib/` — shared shell infrastructure
+- **docker/**: Dockerfiles and configuration
+  - `docker/caddy/` — Caddy web server config
+  - `docker/common/` — shared PHP-FPM
+  - `docker/production/` — production nginx
+- **docs/**: Documentation
+- **misc/BAGArt/**: BAGArt libraries (path repositories)
+- **app/Services**: DDD Services
+- **modules**: Telegram Bot Modules
 
 ## Contributing
 
