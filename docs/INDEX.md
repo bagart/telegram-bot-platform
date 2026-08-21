@@ -55,6 +55,7 @@ Large design docs. **Not** checkbox-tracked — treat as specifications.
 | `tasks/todo.mafia.md` | Active | Telegram Mafia Bot development plan |
 | `tasks/todo.fn.md` | Audit | Russian callback/closure audit — drives the "extract callbacks to readonly classes" rule |
 | `tasks/todo.dns-resolver-adapter.md` | Planned (v2) | DNS resolver — configurable adapter via registry + factory + DI, FQCN auto-register, validation |
+| `tasks/devops-safe/` | Implemented (SDD v0.2 finalized — see `00-remediation-plan.md`) | DevSecOps baseline SDD set — 12 docs (00 orchestrator, 01–10 specs, 11 implementation), English. Implementation in repo: `cmd/{dev,git,deps,ci,ops,release}/`, `tools/baseline/`, `tools/git-hooks/`, health/metrics endpoints, hardened CI workflows |
 
 ## Notes & drift tracking
 
