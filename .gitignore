@@ -3,6 +3,7 @@
 /_ide_helper_models.php
 /.phpstorm.meta.php
 /coverage
+/.cache/
 /bootstrap/ssr
 /node_modules
 /public/build

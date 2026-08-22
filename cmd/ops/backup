@@ -50,8 +50,27 @@ ok "Checksum recorded"
 
 bash cmd/ops/backup-verify "$TARGET" || { err "New backup failed verification"; exit "$EX_CHECK"; }
 
+# Freshness signal for the monitoring stack (07 §41–§44): the
+# BackupStale alert rule evaluates against this timestamp.
+TEXTFILE="deploy/monitoring/textfile"
+mkdir -p "$TEXTFILE"
+printf '# TYPE tg_backup_last_success_timestamp_seconds gauge\n# HELP tg_backup_last_success_timestamp_seconds Unix time of the last verified backup.\ntg_backup_last_success_timestamp_seconds %s\n' "$(date +%s)" > "$TEXTFILE/tg-backup.prom"
+
+# Encryption at rest for untrusted targets (07 §10–§11): set AGE_RECIPIENT
+# ("age1...") to also produce an encrypted copy. The identity file lives ONLY
+# in the platform vault — never next to the backups.
+if [[ -n "${AGE_RECIPIENT:-}" ]]; then
+  if command -v age >/dev/null 2>&1; then
+    age -r "$AGE_RECIPIENT" -o "$TARGET.age" "$TARGET"
+    sha256sum "$TARGET.age" > "$TARGET.age.sha256"
+    ok "Encrypted copy: $(basename "$TARGET").age"
+  else
+    warn "AGE_RECIPIENT set but 'age' is not installed — encrypted copy skipped"
+  fi
+fi
+
 # Retention: keep the newest KEEP backups.
-mapfile -t OLD < <(ls -1t "$BACKUP_DIR"/*.sql.gz 2>/dev/null | tail -n +"$((KEEP + 1))")
+mapfile -t OLD < <(ls -1t "$BACKUP_DIR"/*.sql.gz* 2>/dev/null | tail -n +"$((KEEP + 1))")
 for f in "${OLD[@]:-}"; do
   [[ -z "$f" ]] && continue
   rm -f "$f" "$f.sha256"

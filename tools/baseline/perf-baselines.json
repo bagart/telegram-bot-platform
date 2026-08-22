@@ -1,0 +1,32 @@
+{
+    "json_roundtrip_ops_per_s": {
+        "value": 570577,
+        "direction": "higher",
+        "php": "8.5.5",
+        "recorded_at": "2026-08-22T17:20:00+00:00"
+    },
+    "sha256_mb_per_s": {
+        "value": 350802,
+        "direction": "higher",
+        "php": "8.5.5",
+        "recorded_at": "2026-08-22T17:20:00+00:00"
+    },
+    "string_concat_ops_per_s": {
+        "value": 12930591,
+        "direction": "higher",
+        "php": "8.5.5",
+        "recorded_at": "2026-08-22T17:20:00+00:00"
+    },
+    "array_map_ops_per_s": {
+        "value": 3343659,
+        "direction": "higher",
+        "php": "8.5.5",
+        "recorded_at": "2026-08-22T17:20:00+00:00"
+    },
+    "memory_drift_bytes": {
+        "value": 0,
+        "direction": "lower",
+        "php": "8.5.5",
+        "recorded_at": "2026-08-22T17:20:00+00:00"
+    }
+}

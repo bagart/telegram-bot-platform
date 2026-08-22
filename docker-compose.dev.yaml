@@ -115,8 +115,27 @@ services:
     networks:
       - laravel-development
 
+  omniroute:
+    image: diegosouzapw/omniroute:latest
+    restart: unless-stopped
+    profiles:
+      - ai
+    environment:
+      DATA_DIR: /app/data
+      JWT_SECRET: ${OMNIROUTE_JWT_SECRET:-}
+      API_KEY_SECRET: ${OMNIROUTE_API_KEY_SECRET:-}
+      INITIAL_PASSWORD: ${OMNIROUTE_PASSWORD:-}
+    volumes:
+      - omniroute-data:/app/data
+    ports:
+      - "${OMNIROUTE_PORT:-20128}:20128"
+      - "${OMNIROUTE_API_PORT:-20129}:20129"
+    networks:
+      - laravel-development
+
 networks:
   laravel-development:
 
 volumes:
   postgres-data-development:
+  omniroute-data:

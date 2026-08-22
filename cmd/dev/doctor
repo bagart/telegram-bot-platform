@@ -190,6 +190,34 @@ if [[ -f tools/baseline/profiles.sh ]]; then
   fi
 fi
 
+# --- Tool version pins (02 §30) ---
+say "Tool pins"
+if command -v php >/dev/null 2>&1 && [[ -f tools/baseline/tool-versions.json ]]; then
+  while IFS=$'\t' read -r tool kind want have; do
+    case "$kind" in
+      pinned) [[ "$have" == "$want"* ]] && check_ok "$tool $have (pinned $want)" \
+                || check_fail "$tool $have != pinned $want — see tools/baseline/tool-versions.json" ;;
+      min)    [[ "$(printf '%s\n%s\n' "$want" "$have" | sort -V | head -1)" == "$want" ]] \
+                && check_ok "$tool $have (min $want)" \
+                || check_fail "$tool $have < required $want — see tools/baseline/tool-versions.json" ;;
+    esac
+  done < <(php -r '
+    $pins = json_decode((string) file_get_contents("tools/baseline/tool-versions.json"), true) ?: [];
+    foreach ($pins as $tool => $cfg) {
+      if (!is_array($cfg)) continue;
+      $want = $cfg["pinned"] ?? $cfg["min"] ?? null;
+      if ($want === null) continue;
+      $kind = isset($cfg["pinned"]) ? "pinned" : "min";
+      $have = ["php" => "php -r \"echo PHP_VERSION;\"", "composer" => "composer --version 2>/dev/null | grep -oP \"\\d+\\.\\d+\\.\\d+\" | head -1",
+               "node" => "node -v 2>/dev/null | tr -d v", "gh" => "gh --version 2>/dev/null | grep -oP \"\\d+\\.\\d+\\.\\d+\" | head -1",
+               "semgrep" => "semgrep --version 2>/dev/null"]["$tool"] ?? null;
+      if ($have === null) { continue; }
+      $got = trim((string) shell_exec($have) ?? "");
+      echo $got === "" ? "" : implode("\t", [$tool, $kind, ltrim($want, "v"), ltrim($got, "v")]), "\n";
+    }
+  ' 2>/dev/null)
+fi
+
 # --- OmniRoute (AI profile) ---
 say "OmniRoute / AI"
 if [[ -n "${OMNIROUTE_JWT_SECRET:-}" && -n "${OMNIROUTE_API_KEY_SECRET:-}" && -n "${OMNIROUTE_PASSWORD:-}" ]]; then

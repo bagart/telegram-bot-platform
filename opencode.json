@@ -1,5 +1,56 @@
 {
     "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "omniroute": {
+            "name": "OmniRoute",
+            "options": {
+                "baseURL": "http://localhost:20128/v1",
+                "apiKey": "omniroute"
+            },
+            "models": {
+                "auto": {
+                    "id": "auto",
+                    "name": "OmniRoute Auto",
+                    "tool_call": true,
+                    "reasoning": false,
+                    "limit": {
+                        "context": 200000,
+                        "output": 16384
+                    }
+                },
+                "auto/best-coding": {
+                    "id": "auto/best-coding",
+                    "name": "OmniRoute Best Coding",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1048576,
+                        "output": 384000
+                    }
+                },
+                "auto/best-free": {
+                    "id": "auto/best-free",
+                    "name": "OmniRoute Best Free",
+                    "tool_call": true,
+                    "reasoning": true,
+                    "limit": {
+                        "context": 1048576,
+                        "output": 384000
+                    }
+                },
+                "auto/fast": {
+                    "id": "auto/fast",
+                    "name": "OmniRoute Fast",
+                    "tool_call": true,
+                    "reasoning": false,
+                    "limit": {
+                        "context": 1048576,
+                        "output": 384000
+                    }
+                }
+            }
+        }
+    },
     "mcp": {
         "laravel-boost": {
             "type": "local",

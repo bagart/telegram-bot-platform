@@ -11,3 +11,10 @@
 #
 # Optional: push newest verified backup off-site daily (07 §7 independent storage).
 # 30 3 * * * rsync -a ~/code/telegram-bot-platform/storage/backups/ backup-host:/srv/backups/tg-bot-manager/
+#
+# App metrics into the monitoring stack textfile collector, every minute
+# (deploy/monitoring/README.md).
+# * * * * * cd ~/code/telegram-bot-platform && deploy/monitoring/export-app-metrics.sh >> storage/logs/cron.log 2>&1
+#
+# Synthetic Telegram round-trip every 5 minutes (09 §80–§82; INFRA at runtime).
+# */5 * * * * cd ~/code/telegram-bot-platform && cmd/ops/probe --budget-ms=3000 >> storage/logs/cron.log 2>&1

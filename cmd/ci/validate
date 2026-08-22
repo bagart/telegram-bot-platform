@@ -92,6 +92,23 @@ else
   FAILS=$((FAILS+1))
 fi
 
+# --- Image tag immutability (03 §38) ---
+if bash tools/baseline/image-policy.sh >/dev/null 2>&1; then
+  ok "image tag policy: no mutable tags"
+else
+  err "image tag policy violation (mutable :latest/branch tags)"
+  FAILS=$((FAILS+1))
+fi
+
+# --- Baseline manifest drift (report-only here; gate via ops/readiness) ---
+if [[ -f tools/baseline/MANIFEST.json ]]; then
+  if php tools/baseline/manifest.php --verify >/dev/null 2>&1; then
+    ok "baseline manifest in sync"
+  else
+    warn "baseline drift detected — run cmd/baseline/drift-report"
+  fi
+fi
+
 # --- Stale references ---
 say "Stale references"
 if grep -r "docker-compose\.yaml" --include='*.sh' --include='*.yaml' --include='*.md' -l . 2>/dev/null | grep -v node_modules | grep -v vendor | grep -v .git | head -5; then

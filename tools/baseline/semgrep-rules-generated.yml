@@ -1,0 +1,30 @@
+# Tuned rules for generated code trees (03-security-and-supply-chain.md §10).
+#
+# The Telegram DTO trees (misc/BAGArt/telegram-bot-lib/src/TgApi/**) are
+# generated and excluded from the general rule packs (noise). This pack runs
+# against them at WARNING severity: real vulnerability classes only, no
+# style findings. Findings here report but never block (03 §50).
+rules:
+  - id: generated-no-eval
+    patterns:
+      - pattern: eval($X)
+    message: eval() in generated DTO code — generator bug, do not ship
+    languages: [php]
+    severity: WARNING
+
+  - id: generated-no-remote-file-read
+    pattern-either:
+      - pattern: file_get_contents("http://$URL")
+      - pattern: file_get_contents("https://$URL")
+    message: remote fetch in generated DTO code — transport belongs to the API client
+    languages: [php]
+    severity: WARNING
+
+  - id: generated-no-shell-exec
+    pattern-either:
+      - pattern: shell_exec($X)
+      - pattern: system($X)
+      - pattern: exec($X)
+    message: process execution in generated DTO code — generator bug
+    languages: [php]
+    severity: WARNING

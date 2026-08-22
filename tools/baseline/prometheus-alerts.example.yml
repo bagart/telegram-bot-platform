@@ -35,3 +35,14 @@ groups:
         annotations:
           summary: "Outbound queue depth sustained high (depth alone is not age — add queue-age metric before paging)"
           runbook: "runbooks/_TEMPLATE.md"
+
+      # Source series comes from cmd/ops/backup via the node_exporter textfile
+      # collector (deploy/monitoring/export-app-metrics.sh / tg-backup.prom).
+      - alert: BackupStale
+        expr: time() - tg_backup_last_success_timestamp_seconds > 26 * 3600
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Last verified PostgreSQL backup is older than 26h (RPO target breached)"
+          runbook: "docs/dr.md §2 (cmd/ops/backup, then cmd/ops/backup-verify)"

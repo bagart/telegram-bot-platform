@@ -1,22 +1,17 @@
 #!/usr/bin/env bash
+# Syntax-check every bash entry point (02-developer-tooling.md §12).
+# Auto-discovers bash scripts under cmd/, tools/ and deploy/ so new
+# commands are covered without editing this list.
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 status=0
-for f in \
-  cmd/dev/check cmd/dev/security cmd/dev/fix cmd/dev/doctor cmd/dev/setup cmd/dev/lint cmd/dev/bench \
-  cmd/lib/common.sh cmd/lib/contract.sh \
-  tools/git-hooks/pre-commit tools/git-hooks/commit-msg tools/git-hooks/pre-push \
-  cmd/git/prepush cmd/git/quick-commit cmd/ci/check cmd/deps/audit \
-  cmd/ops/status cmd/ops/health cmd/ops/diagnose \
-  cmd/ops/backup cmd/ops/backup-verify cmd/ops/restore cmd/ops/dr-test \
-  cmd/ops/queue cmd/ops/restart cmd/ops/replay cmd/ops/drain \
-  cmd/ops/deploy cmd/ops/rollback cmd/ops/metrics \
-  cmd/release/lib cmd/help; do
+while IFS= read -r -d '' f; do
+  head -n 1 "$f" | grep -q '^#!.*bash' || continue
   if bash -n "$f"; then
     echo "OK   $f"
   else
     echo "FAIL $f"
     status=1
   fi
-done
+done < <(find cmd tools deploy -type f -print0 2>/dev/null)
 exit "$status"

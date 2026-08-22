@@ -22,7 +22,32 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Changed-surface detection (05 §6): linters only run when their surface
+  # changed. Unknown/diff-failure defaults to running everything.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          BASE="${BASE_SHA:-HEAD~1}"
+          PHP="$(git diff --name-only "${BASE}...HEAD" -- '*.php' 'composer.json' 'composer.lock' 'pint.json' 2>/dev/null | head -1 || true)"
+          FE="$(git diff --name-only "${BASE}...HEAD" -- 'resources/js' 'resources/css' 'resources/views' 'package.json' 'package-lock.json' 'eslint.config.js' 2>/dev/null | head -1 || true)"
+          {
+            echo "php=$([[ -n "$PHP" ]] && echo true || echo false)"
+            echo "frontend=$([[ -n "$FE" ]] && echo true || echo false)"
+          } >>"$GITHUB_OUTPUT"
+
   quality:
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -37,16 +62,22 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Dependencies
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+      - name: Install PHP Dependencies
+        if: needs.changes.outputs.php == 'true'
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Install Node Dependencies
+        if: needs.changes.outputs.frontend == 'true'
+        run: npm install
 
       - name: Pint (check only)
+        if: needs.changes.outputs.php == 'true'
         run: composer lint:check
 
       - name: Prettier (check only)
+        if: needs.changes.outputs.frontend == 'true'
         run: npm run format:check
 
       - name: ESLint (check only)
+        if: needs.changes.outputs.frontend == 'true'
         run: npm run lint:check

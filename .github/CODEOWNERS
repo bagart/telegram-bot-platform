@@ -1,0 +1,48 @@
+# Code owners (05-ci-cd-and-release.md §13).
+#
+# Critical components must have mandatory owner review. Sections mirror the
+# platform decomposition: core, async kernel, telegram libraries, security,
+# CI, Docker, deployment, dependencies.
+
+*                                       @bagart
+
+# Core application
+/app/                                   @bagart
+/config/                                @bagart
+/routes/                                @bagart
+
+# Async kernel libraries
+/misc/BAGArt/php-async-kernel-lib/      @bagart
+/misc/BAGArt/php-async-kernel-client/   @bagart
+
+# Telegram libraries
+/misc/BAGArt/telegram-bot-lib/          @bagart
+/misc/BAGArt/telegram-bot-basic-lib/    @bagart
+/misc/BAGArt/telegram-bot-management-lib/ @bagart
+
+# Security baseline
+/tools/baseline/secret-scan.php         @bagart
+/tools/baseline/secret-allowlist.json   @bagart
+/tools/baseline/semgrep-rules.yml       @bagart
+/.env.example                           @bagart
+
+# CI & workflows
+/.github/                               @bagart
+
+# Docker
+/docker/                                @bagart
+/Dockerfile*                            @bagart
+/docker-compose*.yaml                   @bagart
+/.dockerignore                          @bagart
+
+# Deployment / runtime operations
+/cmd/ops/                               @bagart
+/runbooks/                              @bagart
+/deploy/                                @bagart
+/cmd/baseline/                          @bagart
+
+# Dependencies
+/composer.json                          @bagart
+/composer.lock                          @bagart
+/package.json                           @bagart
+/package-lock.json                      @bagart

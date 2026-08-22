@@ -13,10 +13,12 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/ops.sh"
 
 require_root_dir
 cd "$REPO_ROOT"
 
+ops_correlation_begin "diagnose"
 FAILS=0
 
 run_stage() {
@@ -36,8 +38,10 @@ run_stage "security"    bash cmd/dev/security
 run_stage "integration" bash cmd/ci/validate
 
 if [[ "$FAILS" -gt 0 ]]; then
-  err "$FAILS diagnostic stage(s) failed"
+  err "$FAILS diagnostic stage(s) failed (correlation: $CORRELATION_ID)"
+  ops_correlation_end 1
   exit "$EX_CHECK"
 fi
-ok "all diagnostic stages passed"
+ok "all diagnostic stages passed (correlation: $CORRELATION_ID)"
+ops_correlation_end 0
 exit "$EX_OK"

@@ -4,11 +4,14 @@
 # Profiles:
 #   quick    — transport micro-benches (localhost), seconds
 #   full     — full xhprof benchmark suite (dns + localhost + transport)
+#   record   — store perf-suite reference values (tools/baseline/perf-baselines.json)
+#   compare  — fresh run vs stored baselines, fails beyond regression threshold
+#   soak     — repeated rounds with memory-drift leak detection
 #
 # Benchmarks never run inside check gates (08 §54: expensive, explicit only).
 #
 # Usage:
-#   cmd/dev/bench [quick|full]
+#   cmd/dev/bench [quick|full|record|compare|soak]
 
 set -euo pipefail
 
@@ -42,8 +45,16 @@ case "$PROFILE" in
       fi
     done
     ;;
+  record|compare|soak)
+    EXTRA=()
+    [[ -n "${2:-}" ]] && EXTRA+=("$2")
+    if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+      say "perf-baseline: $PROFILE ${EXTRA[*]:-}"
+    fi
+    php tools/baseline/perf-baseline.php "$PROFILE" ${EXTRA[@]+"${EXTRA[@]}"}
+    ;;
   *)
-    fail "Unknown profile '$PROFILE' (expected: quick|full)"
+    fail "Unknown profile '$PROFILE' (expected: quick|full|record|compare|soak)"
     ;;
 esac
 

@@ -1,5 +1,4 @@
 # Task plans are opt-in: only finalized sets are tracked.
 *
 !.gitignore
-!devops-safe/
-!devops-safe/**
+!devops2.md

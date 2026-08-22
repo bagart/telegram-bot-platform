@@ -13,9 +13,12 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/ops.sh"
 
 require_root_dir
 cd "$REPO_ROOT"
+
+ops_correlation_begin "status"
 
 say "Application"
 APP_ENV="$(grep -E '^APP_ENV=' .env 2>/dev/null | cut -d= -f2 || true)"
@@ -39,4 +42,5 @@ else
   warn "docker unavailable — container status skipped"
 fi
 
+ops_correlation_end 0
 exit "$EX_OK"

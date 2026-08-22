@@ -1,7 +1,10 @@
+# syntax=docker/dockerfile:1
 # Stage 1: Build environment and Composer dependencies
 FROM php:8.5-fpm AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     unzip \
@@ -41,7 +44,8 @@ RUN rm -f /usr/bin/composer /usr/local/bin/composer \
     && rm composer-setup.php
 
 
-RUN composer install \
+RUN --mount=type=cache,target=/root/.composer/cache \
+    composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
@@ -104,6 +108,9 @@ USER www-data
 
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+    CMD ["php-fpm-healthcheck"]
 
 EXPOSE 9000
 

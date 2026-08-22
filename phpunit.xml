@@ -22,6 +22,9 @@
         <testsuite name="TelegramBotBasicLib">
             <directory>misc/BAGArt/telegram-bot-basic-lib/tests</directory>
         </testsuite>
+        <testsuite name="AntispamModule">
+            <directory>misc/BAGArt/telegram-bot-antispam-module/tests</directory>
+        </testsuite>
         <testsuite name="TelegramBotManagementLib">
             <directory>misc/BAGArt/telegram-bot-management-lib/tests</directory>
         </testsuite>

@@ -36,6 +36,8 @@ Operations
   ops/status       runtime overview
   ops/health       probe health endpoints
   ops/diagnose     doctor + security + validate
+  ops/readiness    production readiness gate (11 §74–§76)
+  ops/probe        synthetic getMe round-trip per active bot
   ops/backup       PostgreSQL backup (+checksum, retention)
   ops/backup-verify verify backup integrity
   ops/restore      restore backup (--confirm=database required)
@@ -43,6 +45,12 @@ Operations
   ops/queue        queue depth inspection
   ops/restart      restart services (explicit target required)
 
+Baseline management
+  baseline/drift-report working tree vs MANIFEST.json (08 §59–§63)
+  baseline/apply       scaffold/migrate baseline into another repo (11 §28–§32)
+  baseline/pack        distributable security-baseline tarball (11 §6–§7)
+
 Release
   release/lib      gated tag-release for misc/BAGArt libraries
+  release/promote  artifact promotion ledger (--confirm=production)
 TREE

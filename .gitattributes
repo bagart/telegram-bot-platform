@@ -1,5 +1,7 @@
 # Line-ending control (02-developer-tooling.md §37): LF everywhere, never CRLF.
 * text=auto eol=lf
+# CRLF fixture must keep its carriage returns verbatim:
+tests/fixtures/baseline/must-fail/crlf.txt -text
 
 # Binary assets — never normalize.
 *.png binary

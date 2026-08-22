@@ -73,6 +73,36 @@ jobs:
           php tools/baseline/yaml-lint.php
           bash tools/baseline/shell-lint.sh
 
+  coverage:
+    # Coverage collection + threshold gate (04-qa-and-testing.md §15).
+    # Report-only until a stable baseline accumulates; promote to blocking by
+    # setting BASELINE_COVERAGE_MIN in repo variables and dropping
+    # continue-on-error.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      BASELINE_COVERAGE_MIN: '55'
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup PHP (pcov)
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: pcov
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Coverage-gated suite (app)
+        run: vendor/bin/pest --coverage --min=${BASELINE_COVERAGE_MIN}
+
   mutation:
     # Mutation testing for the async kernel core (04-qa-and-testing.md §14).
     # Report-only until MSI baselines stabilize; dependency is installed

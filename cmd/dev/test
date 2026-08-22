@@ -4,8 +4,18 @@
 # Selects the applicable test suite by argument. Suite names mirror
 # phpunit.xml testsuites; library suites run through the same entrypoint.
 #
+# Post-run analytics (04-qa-and-testing.md §23–§25):
+#   junit log          -> storage/app/baseline/junit.xml (always)
+#   time budgets       -> tools/baseline/test-budgets.php  (report-only;
+#                         BASELINE_TEST_BUDGETS=enforce to gate)
+#   flaky metrics      -> tools/baseline/flaky-metrics.php record
+#   failure classification: env / tool / code heuristic printed on failure
+#
+# Coverage (04 §15): cmd/dev/test --coverage [suite] runs Pest with the
+# coverage driver and optional minimum via BASELINE_COVERAGE_MIN.
+#
 # Usage:
-#   cmd/dev/test [suite] [--format=text|json]
+#   cmd/dev/test [suite] [--coverage] [--format=text|json]
 #   suites: (none)|unit|integration|feature|e2e|async|telegram|basic|management|libs
 
 set -euo pipefail
@@ -17,7 +27,7 @@ source "$REPO_ROOT/cmd/lib/output.sh"
 source "$REPO_ROOT/cmd/lib/contract.sh"
 
 usage() {
-  echo "Usage: cmd/dev/test [suite] [--format=text|json]"
+  echo "Usage: cmd/dev/test [suite] [--coverage] [--format=text|json]"
   echo "Suites: (none)|unit|integration|feature|e2e|async|telegram|basic|management|libs"
   contract_usage
 }
@@ -31,22 +41,60 @@ cd "$REPO_ROOT"
 [[ -f vendor/bin/pest ]] || { err "Pest not found — run composer install"; exit "$EX_DEP"; }
 
 SUITE="${POSITIONAL[0]:-}"
+WANT_COVERAGE=0
+FAILURES=0
+for arg in "${POSITIONAL[@]:1}"; do
+  [[ "$arg" == "--coverage" ]] && WANT_COVERAGE=1
+done
+
+JUNIT_DIR="storage/app/baseline"
+JUNIT="$JUNIT_DIR/junit.xml"
+
+classify_failure() {
+  local junit="$1"
+  local errors tests
+  errors="$(grep -c '<error' "$junit" 2>/dev/null || echo 0)"
+  tests="$(grep -c '<testcase' "$junit" 2>/dev/null || echo 0)"
+  if [[ "$tests" == "0" ]]; then
+    echo "classification: tool/environment — no tests executed (runner or bootstrap failure)"
+  elif [[ "$errors" -gt 0 ]]; then
+    echo "classification: code — ${errors} error(s) (exceptions/fatals) among ${tests} tests"
+  else
+    echo "classification: code — assertion failures only"
+  fi
+}
 
 run_pest() {
   local label="$1"; shift
+  mkdir -p "$JUNIT_DIR"
   if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
     say "$label"
   fi
-  local tmp
+  local tmp rc
   tmp="$(mktemp)"
-  if contract_exec "$label" php artisan test "$@" >"$tmp" 2>&1; then
-    report_result "$label" passed ""
+  set +e
+  contract_exec "$label" php artisan test "$@" --log-junit="$JUNIT" >"$tmp" 2>&1
+  rc=$?
+  set -e
+  if [[ "$rc" -eq 0 ]]; then
+    report_result "$label" passed "" ""
     [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]] && tail -5 "$tmp"
   else
-    report_result "$label" failed ""
+    report_result "$label" failed "" ""
     cat "$tmp" >&2
+    classify_failure "$JUNIT" >&2 || true
+    FAILURES=$((FAILURES + 1))
   fi
   rm -f "$tmp"
+
+  # Analytics are advisory; never fail the suite on their account.
+  php tools/baseline/flaky-metrics.php record "$JUNIT" >/dev/null 2>&1 || true
+  if [[ -f tools/baseline/test-budgets.json ]]; then
+    OUT="$(php tools/baseline/test-budgets.php "$JUNIT" 2>&1)" || true
+    if [[ -n "$OUT" && "$OUT" != *"no suite matched"* && "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
+      echo "$OUT"
+    fi
+  fi
 }
 
 case "$SUITE" in
@@ -61,7 +109,7 @@ case "$SUITE" in
   e2e)
     if command -v npx >/dev/null 2>&1 && grep -q "playwright" package.json 2>/dev/null; then
       if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then say "e2e"; fi
-      local_disabled=""
+      FAILS=0
       if contract_exec "e2e" npx playwright test; then
         report_result "e2e" passed ""
       else
@@ -80,5 +128,18 @@ case "$SUITE" in
     ;;
 esac
 
-run_pest "tests:${SUITE:-all}" "${ARGS[@]}"
-report_finish "$EX_OK"
+if [[ "$WANT_COVERAGE" -eq 1 ]]; then
+  # Coverage driver check (04 §15): pcov or xdebug required.
+  if ! php -m | grep -Eqi '^(pcov|xdebug)$'; then
+    err "Coverage driver missing — install pcov (recommended) or enable xdebug"
+    exit "$EX_DEP"
+  fi
+  COVERAGE_ARGS=(--coverage)
+  if [[ -n "${BASELINE_COVERAGE_MIN:-}" ]]; then
+    COVERAGE_ARGS+=(--min="${BASELINE_COVERAGE_MIN}")
+  fi
+  run_pest "tests:${SUITE:-all}+coverage" "${ARGS[@]}" ${COVERAGE_ARGS[@]+"${COVERAGE_ARGS[@]}"}
+else
+  run_pest "tests:${SUITE:-all}" "${ARGS[@]}"
+fi
+report_finish "$(( FAILURES > 0 ? EX_CHECK : EX_OK ))"

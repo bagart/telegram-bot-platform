@@ -52,8 +52,10 @@
             "BAGArt\\ASKClient\\": "misc/BAGArt/php-async-kernel-client/src/",
             "BAGArt\\AsyncKernel\\": "misc/BAGArt/php-async-kernel-lib/src/",
             "BAGArt\\TelegramBotBasic\\": "misc/BAGArt/telegram-bot-basic-lib/src/",
+            "BAGArt\\TelegramBotAntispam\\": "misc/BAGArt/telegram-bot-antispam-module/src/",
             "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-bot-management-lib/src/",
             "BAGArt\\TelegramBot\\": "misc/BAGArt/telegram-bot-lib/src/",
+            "BAGArt\\TelegramBotMafia\\": "../telegram-bot-module-mafia/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -64,6 +66,7 @@
             "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/",
             "BAGArt\\AsyncKernel\\Tests\\": "misc/BAGArt/php-async-kernel-lib/tests/",
             "BAGArt\\TelegramBotBasic\\Tests\\": "misc/BAGArt/telegram-bot-basic-lib/tests/",
+            "BAGArt\\TelegramBotAntispam\\Tests\\": "misc/BAGArt/telegram-bot-antispam-module/tests/",
             "BAGArt\\TelegramBotManagement\\Tests\\": "misc/BAGArt/telegram-bot-management-lib/tests/",
             "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
             "Tests\\": "tests/"
@@ -107,6 +110,7 @@
             "@php artisan test",
             "cd misc/BAGArt/telegram-bot-lib && composer test",
             "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
+            "cd misc/BAGArt/telegram-bot-antispam-module && composer test",
             "cd misc/BAGArt/telegram-bot-management-lib && composer test"
         ],
         "post-autoload-dump": [
@@ -161,6 +165,10 @@
         {
             "type": "path",
             "url": "misc/BAGArt/telegram-bot-basic-lib"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-bot-antispam-module"
         },
         {
             "type": "path",

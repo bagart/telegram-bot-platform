@@ -37,12 +37,19 @@ Canonical location: **`.agents/skills/`** (this is where you edit). The other di
 |---|---|
 | `AGENTS.md` §"Daemon Shutdown & State Management" | Outbound architecture, shutdown strategy, Redis state rules, lazy connections |
 | `docs/INDEX.md` | (this file) the map |
+| `docs/dr.md` | RPO/RTO per data class, backup/offsite/immutability policy, Redis persistence semantics, recovery scenarios |
+| `docs/redis-degraded.md` | Behavior matrix when Redis is slow/restarting/down + operator actions |
+| `docs/deps-policy.md` | Dependency update cadence, owners and gates |
+| `docs/slo.md` | SLI/SLO values |
+| `docs/capacity-model.md` | Load units, scaling rules, singleton leases, saturation signals |
 | `docs/benchmarks.md` | All benchmark scripts: localhost-transport, DNS, transport, stress, outbound-pipeline |
 | `docs/glossary.md` | Decodes overloaded terms (ASK, DLQ, tickable, lease, etc.) |
 | `docs/_lang/ru/processing.md` | Russian processing-flow doc (update pipeline, at-least-once) |
 | `docs/flow-architecture.html` + `docs/data/flow-architecture.json` | Visual architecture diagram (hand-authored) |
 | `docs/workflow-visualizer.html` + `docs/data/workflow-visualizer.json` | Workflow visualization (hand-authored) |
 | `docs/integration.html`, `docs/poller-schema.html` | More hand-written visual docs |
+| `deploy/monitoring/README.md` | Prometheus/Grafana stack artifact + app-metrics textfile flow |
+| `runbooks/upgrade.md` | Zero-downtime upgrade + rollback procedure |
 
 ## RFC / feature plans (`todo.*.md`)
 
@@ -53,9 +60,11 @@ Large design docs. **Not** checkbox-tracked — treat as specifications.
 | `tasks/socket.md` | Active | ASK-Socket transport optimization plan (keep-alive correctness, reactor efficiency, parser micro-opts) |
 | `tasks/todo.antispam.md` | Active (RFC v5.2, baseline for implementation) | Anti-Spam module (`modules/Antispam/`) — deterministic anti-abuse engine (policy precedence, group caps, sliding windows, strike serialization + UNIQUE, enforcement state machine), AI-free core, MVP ~70h |
 | `tasks/todo.mafia.md` | Active | Telegram Mafia Bot development plan |
+| `tasks/mafia_persons.md` | Active | Mafia persona portrait cards — unified-style art direction + workflow; prompt decks per setting in `tasks/mafia/personas/<setting>/` (1 folder = 1 era cast, 1 file = 1 generation prompt, images land next to prompts as `<name>.png`) |
+| `tasks/todo.nettools.md` | Planned (RFC v1.1) | Nettools module (`telegram-bot-nettools-lib`) — auditor/admin toolkit: whois/RDAP, DNS, geo/ASN, ping/trace, OS heuristics, subdomain enum, TLS/mail/security audits, `/report` + `/reco`; card mockups, per-probe specs, threat model |
 | `tasks/todo.fn.md` | Audit | Russian callback/closure audit — drives the "extract callbacks to readonly classes" rule |
 | `tasks/todo.dns-resolver-adapter.md` | Planned (v2) | DNS resolver — configurable adapter via registry + factory + DI, FQCN auto-register, validation |
-| `tasks/devops-safe/` | Implemented (SDD v0.2 finalized — see `00-remediation-plan.md`) | DevSecOps baseline SDD set — 12 docs (00 orchestrator, 01–10 specs, 11 implementation), English. Implementation in repo: `cmd/{dev,git,deps,ci,ops,release}/`, `tools/baseline/`, `tools/git-hooks/`, health/metrics endpoints, hardened CI workflows |
+| `tasks/devops2.md` | Remaining DevOps work only (undone items; `§N` = sections of the removed SDD set, recover via git history) | Successor of the implemented devops-safe SDD set (11 specs) and its tracker. Implementation in repo: `cmd/{dev,git,deps,ci,ops,release}/`, `tools/baseline/`, `tools/git-hooks/`, health/metrics endpoints, hardened CI workflows |
 
 ## Notes & drift tracking
 

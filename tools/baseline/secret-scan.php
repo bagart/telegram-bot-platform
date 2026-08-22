@@ -40,6 +40,7 @@ const PATTERNS = [
 $format = 'text';
 $mode = null;
 $explicitPaths = [];
+$ignoreAllowlist = false;
 
 foreach (array_slice($argv, 1) as $arg) {
     if ($arg === '--staged' || $arg === '--all') {
@@ -47,6 +48,10 @@ foreach (array_slice($argv, 1) as $arg) {
     } elseif (str_starts_with($arg, '--paths=')) {
         $mode = 'paths';
         $explicitPaths = array_filter(explode(',', substr($arg, 8)));
+    } elseif ($arg === '--ignore-allowlist') {
+        // Scanner self-test mode (11 §84 negative fixtures): planted secrets
+        // must be reported even where the repo-wide allowlist exempts them.
+        $ignoreAllowlist = true;
     } elseif ($arg === '--format=json') {
         $format = 'json';
     } elseif ($arg === '--format=text') {
@@ -54,7 +59,7 @@ foreach (array_slice($argv, 1) as $arg) {
     } elseif ($arg === '--json') {
         $format = 'json';
     } else {
-        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/secret-scan.php --staged|--all|--paths=a,b [--format=text|json]\n");
+        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/secret-scan.php --staged|--all|--paths=a,b [--ignore-allowlist] [--format=text|json]\n");
         exit(EXIT_USAGE);
     }
 }
@@ -95,7 +100,7 @@ foreach ($files as $relative) {
         }
         foreach ($matches[0] as $match) {
             $path = str_replace('\\', '/', $relative);
-            if (isAllowlisted($allowlist, $rule, $path)) {
+            if (! $ignoreAllowlist && isAllowlisted($allowlist, $rule, $path)) {
                 continue;
             }
             $line = substr_count(substr($contents, 0, $match[1]), "\n") + 1;

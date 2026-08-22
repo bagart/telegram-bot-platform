@@ -16,6 +16,7 @@ VERBOSE=0
 QUIET=0
 HELP=0
 OFFLINE=0
+RESUME=0
 POSITIONAL=()
 
 __CONTRACT_RESULTS=()
@@ -37,6 +38,7 @@ contract_parse_args() {
         shift
         ;;
       --offline) OFFLINE=1; shift ;;
+      --resume) RESUME=1; shift ;;
       --verbose) VERBOSE=1; shift ;;
       --quiet) QUIET=1; shift ;;
       --help|-h) HELP=1; shift ;;
@@ -48,8 +50,14 @@ contract_parse_args() {
 
 # contract_exec <control> <command...> — run a tool under the baseline timeout.
 # A timeout is a failure, not success (02-developer-tooling.md §36).
+# Shell functions are executed directly; the external timeout binary cannot
+# wrap them.
 contract_exec() {
   local control="$1"; shift
+  if declare -F "$1" >/dev/null 2>&1; then
+    "$@"
+    return
+  fi
   if command -v timeout >/dev/null 2>&1; then
     timeout "${BASELINE_TOOL_TIMEOUT:-600}" "$@"
   else
@@ -65,19 +73,26 @@ Options:
   --full                      Complete local validation
   --ci                        CI-equivalent mode (full + dependency audits)
   --offline                   Skip controls that require network access
+  --resume                    Reuse controls that passed in the previous run (02 §38)
   --verbose                   Show tool output and details
   --quiet                     Only errors and the final verdict
   --help                      Show this help
 
 Environment:
   BASELINE_TOOL_TIMEOUT       Per-tool timeout in seconds (default: 600)
+  BASELINE_MAX_JOBS           Max controls running in parallel (default: nproc, 1-16)
+  BASELINE_CACHE              Set to 1 to cache passing control results (02 §34)
+  BASELINE_CONTROL_BUDGET     Default wall-clock budget per control, seconds (02 §45)
+  BASELINE_BUDGET_<ID>        Per-control budget override (e.g. BASELINE_BUDGET_TESTS=300)
 USAGE
 }
 
-# report_result <control> <passed|failed|skipped> <message>
+# report_result <control> <passed|failed|skipped> <message> [duration_ms]
 report_result() {
-  local control="$1" status="$2" message="${3:-}"
-  __CONTRACT_RESULTS+=("$(printf '%s' "{\"control\":\"${control//\"/\\\"}\",\"status\":\"${status}\",\"message\":\"${message//\"/\\\"}\"}")")
+  local control="$1" status="$2" message="${3:-}" duration="${4:-}"
+  local extra=""
+  [[ "$duration" =~ ^[0-9]+$ ]] && extra=",\"duration_ms\":$duration"
+  __CONTRACT_RESULTS+=("$(printf '%s' "{\"control\":\"${control//\"/\\\"}\",\"status\":\"${status}\",\"message\":\"${message//\"/\\\"}\"${extra}}")")
   if [[ "$FORMAT" == "text" ]]; then
     case "$status" in
       passed)  (( QUIET )) || ok "$control passed" ;;

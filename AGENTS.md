@@ -294,10 +294,12 @@ Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). C
 - Libraries are connected via `path` repositories — run `composer update` from WSL shell (not Git Bash).
 - Symlinks in `vendor/bagart/` point to `misc/BAGArt/` — changes in libs are immediately visible.
 
-## Baseline Tooling (devops-safe)
+## Baseline Tooling
 
-- Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/lib`, `cmd/help`. Prefer them over raw tool invocations; specs are `docs/tasks/devops-safe/01–11`.
-- CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--verbose`, `--quiet`. Defined in `cmd/lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `tools/baseline/commit-msg.php`, health paths → `routes/web.php`.
+- Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/{lib,promote}`, `cmd/baseline/*`, `cmd/help`. Prefer them over raw tool invocations. The devops-safe SDD set (`docs/tasks/devops-safe/01–11`) was implemented and then removed from the tree — recover it from git history when a `§N` reference needs context; the only live tracker is `docs/tasks/devops2.md` (undone items only).
+- CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--resume`, `--verbose`, `--quiet`. Defined in `cmd/lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `tools/baseline/commit-msg.php`, health paths → `routes/web.php`, SAST targets/rules → `tools/baseline/semgrep-scan.sh`.
+- Controls in `cmd/dev/check` and `cmd/dev/security` run through `cmd/lib/engine.sh` — declared dependencies + parallel waves (02 §15–§16). Register controls there; do not hand-roll sequential loops. Engine extras: `BASELINE_MAX_JOBS`, opt-in `BASELINE_CACHE=1`, per-control budgets `BASELINE_BUDGET_<ID>` / `BASELINE_CONTROL_BUDGET`.
+- Baseline-owned files are manifest-tracked (`tools/baseline/MANIFEST.json`, regenerate with `php tools/baseline/manifest.php --generate`); drift via `cmd/baseline/drift-report`; production gate is `cmd/ops/readiness`.
 - Git hooks are version-controlled in `tools/git-hooks/` and activated via `core.hooksPath` (`cmd/dev/setup`). Never bypass with `--no-verify`; never disable a failing control — fix the cause or use the narrow allowlist (`tools/baseline/secret-allowlist.json`, requires reason + expiry; expired entries fail with exit 5).
 - Line endings are LF-only, enforced by `.gitattributes` plus `tools/baseline/lf-check.php`; auto-fix via `cmd/dev/fix`.
 - Dangerous ops require explicit confirmation flags: `ops/restore --confirm=database`, `ops/restart --confirm=restart`, `ops/replay --confirm=replay --count≤50`, `ops/deploy --confirm=deploy`, `ops/rollback --confirm=rollback`.
