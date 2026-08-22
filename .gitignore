@@ -32,3 +32,6 @@ yarn-error.log
 /.zed
 .composer.json.bak
 storage/backups/
+
+# OmniRoute runtime data (sqlite, logs, env) — never in git
+docker/omniroute/data/

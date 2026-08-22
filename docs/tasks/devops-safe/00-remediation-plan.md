@@ -1,8 +1,9 @@
 # 00 — Remediation Plan & Parallel Execution Orchestrator
 
-**Status:** Active
-**Updated:** 2026-08-21
+**Status:** Implemented
+**Updated:** 2026-08-22
 **Scope:** all documents in `docs/tasks/devops-safe/`
+**Implementation state:** docs remediation complete (all waves below done); baseline implemented in repo — see commits `9caa2ef` (SDD set) and `696fd7f` (tooling, hooks, security, health/metrics, CI, ops/DR). Live entry points are documented in `AGENTS.md` § Baseline Tooling and `cmd/help`.
 **Role:** coordination only. All executable work is described in self-contained briefs under `tasks/`. This file defines the execution model, canonical contracts, and status. An agent dispatched to a brief needs **only that brief + the files it lists** — never the whole set.
 
 ---
