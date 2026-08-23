@@ -71,6 +71,9 @@ class HealthController extends Controller
         $redisUp = $this->checkRedis() ? 1 : 0;
         [$queueDepth, $dlqDepth] = $this->queueDepths();
         $tg = $this->telegramCountersLast24h();
+        // Saturation probes (09 §38–§43): dependency latency + process memory.
+        $dbLatency = $this->measureLatency(fn (): bool => $this->checkDatabase());
+        $redisLatency = $this->measureLatency(fn (): bool => $this->checkRedis());
 
         $commit = (string) $this->gitCommit();
         $lines = [
@@ -110,11 +113,41 @@ class HealthController extends Controller
             '# HELP tg_dlq_retried_last24h DLQ messages replayed in the last 24h.',
             '# TYPE tg_dlq_retried_last24h gauge',
             "tg_dlq_retried_last24h {$tg['dlq_retried']}",
+            '# HELP tg_db_latency_ms Database probe round-trip in milliseconds.',
+            '# TYPE tg_db_latency_ms gauge',
+            "tg_db_latency_ms {$dbLatency}",
+            '# HELP tg_redis_latency_ms Redis probe round-trip in milliseconds.',
+            '# TYPE tg_redis_latency_ms gauge',
+            "tg_redis_latency_ms {$redisLatency}",
+            '# HELP tg_php_memory_bytes Current PHP process memory usage.',
+            '# TYPE tg_php_memory_bytes gauge',
+            'tg_php_memory_bytes '.memory_get_usage(true),
+            '# HELP tg_php_memory_peak_bytes Peak PHP process memory usage.',
+            '# TYPE tg_php_memory_peak_bytes gauge',
+            'tg_php_memory_peak_bytes '.memory_get_peak_usage(true),
         ];
+
+        // Module-contributed series (additive; empty when Redis is down).
+        try {
+            /** @var \BAGArt\TelegramBotTts\Observability\TtsMetricsExporter $ttsExporter */
+            $ttsExporter = app(\BAGArt\TelegramBotTts\Observability\TtsMetricsExporter::class);
+            array_push($lines, ...$ttsExporter->prometheusLines());
+        } catch (\Throwable) {
+        }
+
         if ($commit !== '') {
             $lines[] = '# HELP tg_artifact_commit Deployed artifact.';
             $lines[] = '# TYPE tg_artifact_commit gauge';
             $lines[] = "tg_artifact_commit{commit=\"{$commit}\"} 1";
+        }
+
+        // Module-local series (stt_*); additive and failure-tolerant (todo.stt.md §12).
+        try {
+            if (class_exists(\BAGArt\TelegramBotStt\Support\SttStats::class)
+                && ($stt = \BAGArt\TelegramBotStt\Support\SttStats::forCurrentStore()) !== null) {
+                $lines = [...$lines, ...$stt->prometheusLines()];
+            }
+        } catch (\Throwable) {
         }
 
         return response(implode("\n", $lines)."\n", 200)
@@ -179,6 +212,24 @@ class HealthController extends Controller
         } catch (\Throwable) {
             return [0, 0];
         }
+    }
+
+    /**
+     * @template T
+     *
+     * @param  callable(): T  $probe
+     * @return float milliseconds elapsed (9999.0 signals an unavailable probe)
+     */
+    protected function measureLatency(callable $probe): float
+    {
+        $start = hrtime(true);
+        try {
+            $probe();
+        } catch (\Throwable) {
+            return 9999.0;
+        }
+
+        return round((hrtime(true) - $start) / 1e6, 2);
     }
 
     protected function checkDatabase(): bool

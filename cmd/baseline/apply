@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Baseline bootstrap/migration for other repositories (11 §28–§32).
+#
+# Copies baseline-owned files into a target repository without silently
+# overwriting project-specific configuration:
+#   absent in target        -> planned/created
+#   identical in target     -> kept (no-op)
+#   different in target     -> CONFLICT, manual merge required unless --force
+#
+# Dry run is the default; nothing is written without --write.
+#
+# Usage:
+#   cmd/baseline/apply <target-dir> [--write] [--force]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+
+TARGET="${1:-}"
+[[ -z "$TARGET" ]] && fail "Usage: cmd/baseline/apply <target-dir> [--write] [--force]"
+TARGET="$(cd "$TARGET" 2>/dev/null && pwd)" || fail "Target directory not found: ${1}"
+[[ "$TARGET" == "$REPO_ROOT" ]] && fail "Refusing to apply baseline onto itself"
+
+WRITE=0
+FORCE=0
+for arg in "${@:2}"; do
+  case "$arg" in
+    --write) WRITE=1 ;;
+    --force) FORCE=1 ;;
+    *) fail "Unknown argument: $arg" ;;
+  esac
+done
+
+mapfile -t OWNED < <(
+  cd "$REPO_ROOT" &&
+  printf '%s\n' cmd/lib/* cmd/dev/* cmd/git/* cmd/deps/* cmd/ci/* cmd/ops/* cmd/release/* cmd/docker/* cmd/baseline/* \
+                tools/baseline/* tools/git-hooks/* .github/workflows/*.yml deploy/systemd/* deploy/monitoring/* |
+  grep -v -E 'MANIFEST\.json|perf-baselines\.json|~$|\.bak$'
+)
+
+CREATED=() KEPT=() CONFLICTS=()
+for rel in "${OWNED[@]}"; do
+  [[ -f "$REPO_ROOT/$rel" ]] || continue
+  if [[ ! -f "$TARGET/$rel" ]]; then
+    CREATED+=("$rel")
+    (( WRITE )) && { mkdir -p "$TARGET/$(dirname "$rel")"; cp "$REPO_ROOT/$rel" "$TARGET/$rel"; }
+  elif cmp -s "$REPO_ROOT/$rel" "$TARGET/$rel"; then
+    KEPT+=("$rel")
+  else
+    CONFLICTS+=("$rel")
+    (( FORCE && WRITE )) && cp "$REPO_ROOT/$rel" "$TARGET/$rel"
+  fi
+done
+
+say "Baseline apply -> $TARGET $( ((WRITE)) || echo -n '(dry run)' )"
+printf '  create : %d\n' "${#CREATED[@]}"
+printf '  keep   : %d\n' "${#KEPT[@]}"
+printf '  conflict: %d\n' "${#CONFLICTS[@]}"
+if (( ${#CONFLICTS[@]} > 0 )); then
+  warn "manual merge required:"
+  for rel in "${CONFLICTS[@]}"; do
+    echo "    $rel"
+  done
+fi
+
+(( ${#CONFLICTS[@]} > 0 && ! FORCE )) && exit "$EX_POLICY"
+ok "Apply complete$( ((FORCE)) && echo ' (forced)' )"

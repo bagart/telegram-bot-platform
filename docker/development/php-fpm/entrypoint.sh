@@ -3,8 +3,10 @@ set -e
 
 cd /var/www
 
-# Auto-setup: detect local libs, configure path repos if present
-if [ -f "cmd/setup" ]; then
+# Auto-setup: detect local libs, configure path repos if present.
+# Skipped when vendor/ is already prepared (bind-mounted dev checkout):
+# the image does not ship dev PHP extensions required by composer.json.
+if [ ! -d "vendor" ] && [ -f "cmd/setup" ]; then
     echo "Running BAGArt setup..."
     ./cmd/setup --docker 2>/dev/null || composer install --no-interaction --no-progress
 fi

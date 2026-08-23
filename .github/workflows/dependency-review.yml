@@ -1,4 +1,4 @@
-name: dependency-review
+name: Platform CI / Dependencies
 
 on:
   pull_request:

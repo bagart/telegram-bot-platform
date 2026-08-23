@@ -1,0 +1,41 @@
+{
+    "_comment": "Baseline fixture corpus (11 §81-§85). Each case runs one baseline tool against fixture files and asserts the exit code. Add a case here for every scanner regression.",
+    "cases": [
+        {
+            "name": "clean-php-passes-secret-scan",
+            "tool": "secret-scan.php",
+            "args": "--paths=tests/fixtures/baseline/good-php/clean.php",
+            "expect_exit": 0
+        },
+        {
+            "name": "clean-php-passes-lf-check",
+            "tool": "lf-check.php",
+            "args": "--paths=tests/fixtures/baseline/good-php/clean.php",
+            "expect_exit": 0
+        },
+        {
+            "name": "planted-aws-key-detected",
+            "tool": "secret-scan.php",
+            "args": "--paths=tests/fixtures/baseline/must-fail/aws-secret.php --ignore-allowlist",
+            "expect_exit": 1
+        },
+        {
+            "name": "crlf-detected",
+            "tool": "lf-check.php",
+            "args": "--paths=tests/fixtures/baseline/must-fail/crlf.txt --ignore-attributes",
+            "expect_exit": 1
+        },
+        {
+            "name": "conventional-commit-accepted",
+            "tool": "commit-msg.php",
+            "file": "tests/fixtures/baseline/good-php/commit-msg.txt",
+            "expect_exit": 0
+        },
+        {
+            "name": "non-conventional-commit-rejected",
+            "tool": "commit-msg.php",
+            "file": "tests/fixtures/baseline/must-fail/commit-msg.txt",
+            "expect_exit": 1
+        }
+    ]
+}

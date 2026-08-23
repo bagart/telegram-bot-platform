@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Install dependencies for the selected mode (todo.module-dual-mode.md §5).
+#
+# Usage:
+#   cmd/deps/install [--mode=dev|prod] [--format=text|json|github] [--offline] [--verbose] [--quiet]
+#
+# dev  — composer install against composer.json (+ path repos, misc/ present)
+# prod — COMPOSER=composer.prod.json install; the lock must resolve without
+#        path sources; misc/ is not consulted.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+source "$SCRIPT_DIR/lib.sh"
+
+usage() {
+  echo "Usage: cmd/deps/install [--mode=dev|prod] [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+deps_parse_mode dev "$@"
+contract_parse_args "${POSITIONAL[@]+"${POSITIONAL[@]}"}"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v composer >/dev/null 2>&1 || { err "composer not found"; exit "$EX_DEP"; }
+
+case "$MODE" in
+  dev)
+    report_result "install-dev" passed "starting"
+    if contract_exec "install-dev" composer install --no-interaction --no-progress > /tmp/deps-install-dev.log 2>&1; then
+      report_result "install-dev" passed ""
+      report_finish "$EX_OK"
+    else
+      report_result "install-dev" failed "$(tail -n 3 /tmp/deps-install-dev.log | tr '\n' ' ' | cut -c1-200)"
+      [[ "$VERBOSE" -eq 1 ]] && cat /tmp/deps-install-dev.log >&2
+      report_finish "$EX_CHECK"
+    fi
+    ;;
+  prod)
+    require_prod_manifest
+    [[ -f "$PROD_LOCK" ]] || { err "$PROD_LOCK missing — run cmd/deps/update --mode=prod first"; exit "$EX_DEP"; }
+    if ! prod_lock_is_pure "$PROD_LOCK"; then
+      report_result "install-prod" failed "lock purity violation"
+      report_finish "$EX_POLICY"
+    fi
+    if COMPOSER="$PROD_MANIFEST" contract_exec "install-prod" composer install --no-interaction --no-progress > /tmp/deps-install-prod.log 2>&1; then
+      report_result "install-prod" passed ""
+      report_finish "$EX_OK"
+    else
+      report_result "install-prod" failed "$(tail -n 3 /tmp/deps-install-prod.log | tr '\n' ' ' | cut -c1-200)"
+      [[ "$VERBOSE" -eq 1 ]] && cat /tmp/deps-install-prod.log >&2
+      report_finish "$EX_CHECK"
+    fi
+    ;;
+  *)
+    err "--mode=both is not valid for install (pick dev or prod)"
+    exit "$EX_USAGE"
+    ;;
+esac

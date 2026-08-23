@@ -1,0 +1,60 @@
+# Live observability stack artifact (09-observability-and-performance.md §44–§54, §70–§79).
+#
+# Prometheus scrapes the node-exporter (host + app textfile metrics) and
+# evaluates the baseline alert rules; Grafana ships provisioned with the
+# datasource and baseline dashboard. Starting the stack is an INFRA decision:
+#   docker compose -f deploy/monitoring/docker-compose.yml up -d
+name: monitoring
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.7.2
+    container_name: tg-prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+      # Baseline alert rules live in one place (single definition site):
+      - ../../tools/baseline/prometheus-alerts.example.yml:/etc/prometheus/rules/tg-alerts.yml:ro
+      - prom-data:/prometheus
+    ports:
+      - '127.0.0.1:9090:9090'
+    restart: unless-stopped
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.9.1
+    container_name: tg-node-exporter
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+      # App metrics pushed by export-app-metrics.sh land here:
+      - ./textfile:/textfile:ro
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.textfile.directory=/textfile'
+    ports:
+      - '127.0.0.1:9100:9100'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.2.0
+    container_name: tg-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    secrets:
+      - grafana_admin_password
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # Baseline dashboard artifact (single definition site):
+      - ../../tools/baseline/grafana-dashboard.example.json:/var/lib/grafana/dashboards/tg-platform.json:ro
+      - graf-data:/var/lib/grafana
+    ports:
+      - '127.0.0.1:3000:3000'
+    restart: unless-stopped
+
+volumes:
+  prom-data:
+  graf-data:
+
+secrets:
+  grafana_admin_password:
+    file: ./grafana/admin-password.txt

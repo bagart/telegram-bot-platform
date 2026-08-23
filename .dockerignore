@@ -45,3 +45,12 @@ README.md
 tests/
 phpunit.xml
 phpunit.xml.dist
+
+# Agent tooling dirs (contain unreadable symlinks; never belong in images)
+.antigravitycli
+.agents
+.claude
+.cursor
+.junie
+.opencode
+.serena

@@ -1,5 +1,5 @@
 #todo
--telegram-bot-management-lib - Postamt
+-telegram-bot-management - Postamt
 -telegram-bot-lib - Postbote
 -telegram-bot-basic lib - PostboteLaravel
 # Telegram Bot Manager
@@ -56,7 +56,7 @@ git clone git@github.com:bagart/ask-client.git php-async-kernel-client
 git clone git@github.com:bagart/ask-client-redis.git php-async-kernel-client-redis
 git clone git@github.com:bagart/telegram-bot-lib.git
 git clone git@github.com:bagart/telegram-bot-basic-lib.git
-git clone git@github.com:bagart/telegram-bot-management-lib.git
+git clone git@github.com:bagart/telegram-bot-management.git
 ```
 
 Then run setup — it auto-detects local libs and configures Composer path repositories:

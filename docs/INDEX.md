@@ -50,6 +50,8 @@ Canonical location: **`.agents/skills/`** (this is where you edit). The other di
 | `docs/integration.html`, `docs/poller-schema.html` | More hand-written visual docs |
 | `deploy/monitoring/README.md` | Prometheus/Grafana stack artifact + app-metrics textfile flow |
 | `runbooks/upgrade.md` | Zero-downtime upgrade + rollback procedure |
+| `runbooks/token-rotation.md` | Bot token compromise/routine rotation flow |
+| `runbooks/alert-*.md` | Runbooks for the four Prometheus alerts (BackupStale, DeadLettersPresent, OutboundQueueGrowing, PlatformDependencyDown) |
 
 ## RFC / feature plans (`todo.*.md`)
 
@@ -59,12 +61,16 @@ Large design docs. **Not** checkbox-tracked — treat as specifications.
 |---|---|---|
 | `tasks/socket.md` | Active | ASK-Socket transport optimization plan (keep-alive correctness, reactor efficiency, parser micro-opts) |
 | `tasks/todo.antispam.md` | Active (RFC v5.2, baseline for implementation) | Anti-Spam module (`modules/Antispam/`) — deterministic anti-abuse engine (policy precedence, group caps, sliding windows, strike serialization + UNIQUE, enforcement state machine), AI-free core, MVP ~70h |
-| `tasks/todo.mafia.md` | Active | Telegram Mafia Bot development plan |
-| `tasks/mafia_persons.md` | Active | Mafia persona portrait cards — unified-style art direction + workflow; prompt decks per setting in `tasks/mafia/personas/<setting>/` (1 folder = 1 era cast, 1 file = 1 generation prompt, images land next to prompts as `<name>.png`) |
-| `tasks/todo.nettools.md` | Planned (RFC v1.1) | Nettools module (`telegram-bot-nettools-lib`) — auditor/admin toolkit: whois/RDAP, DNS, geo/ASN, ping/trace, OS heuristics, subdomain enum, TLS/mail/security audits, `/report` + `/reco`; card mockups, per-probe specs, threat model |
-| `tasks/todo.fn.md` | Audit | Russian callback/closure audit — drives the "extract callbacks to readonly classes" rule |
+| `tasks/mafia/index.md` | Active (refactor in progress) | Mafia game service plan — API-first/OpenAPI multi-client refactor: `index.md` is the task hub (F/API/G/R/TG/C/M/S/P/MEDIA/OPS/D phases); legacy docs (`todo.mafia.md`, `interface-ux.md`, `ui-patterns.md`, `competitive-analysis.md`, `playability.md`, `mafia_persons.md`) are FROZEN migration sources, deletion gated by `tasks/mafia/99-delivery/D-05-cleanup.md`; matrix in `tasks/mafia/_refactor/` |
+| `tasks/mafia/personas/` + `roles.json` + `lang/` | Data (canonical) | Persona portrait-card prompt decks per setting (`personas/<setting>/`, tooling `build.php` → `index.json`+gallery), role catalog `roles.json`, phrase packs `lang/<locale>/` — data assets referenced by the mafia tasks; migrate into the module package at packaging time |
+| `tasks/todo.nettools.md` | Active (RFC v1.4; Phase 0 implemented — skeleton, safety rails, `#[TgCommand]` spike, `/nt` + `/quota`) | Nettools module (`telegram-bot-nettools`) — auditor/admin toolkit: whois/RDAP, DNS, geo/ASN, ping/trace, OS heuristics, subdomain enum, TLS/mail/security audits, `/report` + `/reco`; card mockups, per-probe specs, threat model |
+| `tasks/todo.stt.md` | Planned (RFC v1.0) | STT module (`telegram-bot-stt-module`) — voice → text: `/text` reply-command + auto-transcription; streamed downloads, Groq free tier / self-hosted Whisper, per-chat settings |
+| `tasks/todo.tts.md` | Done (RFC v1.0 implemented; plan trimmed to remaining work §16) | TTS module (`telegram-bot-tts-module`) — text → voice: `/voice` command + auto-speak (private); provider presets (edge-tts, OpenAI-compatible) + custom JSON with SSRF guard; voice picker, guards, metrics, `tts:prune`/`tts:doctor`/`tts:bench`; Track B multipart upload shipped |
+| `tasks/menu/menu.md` | Planned (RFC v2.1) | Web Menu module (`telegram-bot-menu-module`) — Plugin UI Host: games/chats/skills launcher; initData→bearer auth, per-chat roles (`tg_chats`, grants), schema forms vs chunk bridge protocol, passive chat registry, ETag version-vector; v2.1 adds TgUiContext (D36), Action surface (§8.9), Resource Query/Selection + context scoping (D39), ownership-stamped registration (D38), Contract Freeze phase (D40); failure drills F1–F10, acceptance A1–A13; executable prompt-tasks `tasks/menu/01–23` + README; clickable prototype `tasks/menu/menu-mockup.html` + implementation checklist `tasks/menu/menu-impl-checklist.md` |
 | `tasks/todo.dns-resolver-adapter.md` | Planned (v2) | DNS resolver — configurable adapter via registry + factory + DI, FQCN auto-register, validation |
-| `tasks/devops2.md` | Remaining DevOps work only (undone items; `§N` = sections of the removed SDD set, recover via git history) | Successor of the implemented devops-safe SDD set (11 specs) and its tracker. Implementation in repo: `cmd/{dev,git,deps,ci,ops,release}/`, `tools/baseline/`, `tools/git-hooks/`, health/metrics endpoints, hardened CI workflows |
+| `tasks/devops3.md` | Consolidated live tracker (undone work only; `§N` = sections of the removed SDD set, recover via git history) | Merges the retired `devops2.md` with the actionable deltas of the two RFCs below; carries status-verified module/baseline-package phases, unblocked code work and blocker-tagged items. Implementation in repo: `cmd/{dev,git,deps,ci,ops,release}/`, `tools/baseline/`, `tools/git-hooks/`, health/metrics endpoints, hardened CI workflows |
+| `tasks/todo.baseline-package.md` | Planned (RFC v1.0) | Extract DevOps baseline into composer package `bagart/devops-baseline` — engine vs policy split, reusable workflows repo, phased migration of all lib/bot repos |
+| `tasks/todo.module-dual-mode.md` | Largely implemented (P0+P1+P3 landed 2026-08-24; see `devops3.md` §B) | Dual-mode module consumption — dev (`misc/` PSR-4, editable) vs prod (`composer.prod.json`, no `misc/` on server); mode-aware `cmd/deps/*`; uniform in-repo testing standard for all modules (self-testable + root-launchable). Remaining: prod lock generation (blocked on pushing `stt`/`tts` remotes + reachable VCS), P4 CI job folded into baseline-package Phase 5 |
 
 ## Notes & drift tracking
 
@@ -81,10 +87,17 @@ misc/BAGArt/
 ├── php-async-kernel-client-redis/ → Redis fiber client, locks, queues, DLQ (BAGArt\ASKClientRedis)
 ├── telegram-bot-lib/              → core: ~450 DTOs, API client, outbound pipeline (BAGArt\TelegramBot)
 ├── telegram-bot-basic-lib/        → CLI commands: poller, chatting, webhook (BAGArt\TelegramBotBasic)
-└── telegram-bot-management-lib/   → multi-bot DB models, daemon commands (BAGArt\TelegramBotManagement)
+├── telegram-bot-management/   → multi-bot DB models, daemon commands (BAGArt\TelegramBotManagement)
+├── telegram-bot-antispam-module/  → anti-spam module (BAGArt\TelegramBotAntispam, TgModuleContract plugin)
+├── telegram-bot-summarizer-module/ → chat summarizer/digest module (BAGArt\TelegramBotSummarizer, TgModuleContract plugin)
+├── telegram-bot-nettools/       → nettools auditor module (BAGArt\TelegramBotNettools, TgModuleContract plugin; Phase 0)
+├── telegram-bot-mafia-module/     → Mafia game module (BAGArt\TelegramBotMafia, TgModuleContract plugin)
+├── telegram-bot-stt-module/       → STT module, planned (BAGArt\TelegramBotStt) — voice→text
+├── telegram-bot-tts-module/       → TTS module (BAGArt\TelegramBotTts, TgModuleContract plugin) — text→voice
+├── telegram-bot-menu-module/      → Web Menu hub module (Plugin UI Host), planned (BAGArt\TelegramBotMenu) — tasks/menu/menu.md + tasks/menu/01–23 prompt-tasks
 ```
 
-`vendor/bagart/` symlinks to `misc/BAGArt/` — library edits are immediately visible to the host app.
+In dev mode `vendor/bagart/` symlinks into `misc/BAGArt/` — library edits are immediately visible to the host app. Servers use the prod overlay instead: `cmd/deps/install --mode=prod` resolves `bagart/*` as versioned packages via `composer.prod.json` (no `misc/`).
 
 ## What lives where (quick lookup)
 

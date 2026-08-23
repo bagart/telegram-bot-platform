@@ -49,6 +49,11 @@ jobs:
       - name: Full test suite (app + libraries)
         run: vendor/bin/pest --compact
 
+      # Artifact scan layer (03 §10): bundles can leak secrets that are safe
+      # at source level; public/build only exists after the asset build.
+      - name: Artifact secret scan (built frontend bundles)
+        run: bash tools/baseline/artifact-scan.sh
+
       - name: Frontend checks
         run: |
           npx prettier --check resources/
@@ -56,11 +61,14 @@ jobs:
 
       - name: Dependency audits (composer + npm, all deps)
         run: |
-          composer audit
+          composer audit --abandoned=report
           npm audit --audit-level=high
 
       - name: Secret scan (full git history via gitleaks)
-        continue-on-error: true
+        # Blocking since 2026-08-24 decision: this is the only git-history
+        # secret layer in CI; report-only mode let findings rot silently.
+        # Flagged entries must be fixed or added to tools/baseline/secret-allowlist.json
+        # (reason + expiry required).
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0

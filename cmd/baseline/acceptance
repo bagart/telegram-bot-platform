@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Final acceptance runner (11 §90, plus per-spec acceptance: 02 §46, 04 §26,
+# 05 §60, 06 §70, 07 §58, 09 §90, 10 §9).
+#
+# Registers every machine-verifiable gate as an engine control and runs them
+# through the standard dependency/wave machinery — the same gate CI and a
+# release use. Out of scope here by construction: human-only criteria
+# (drills, host day, kernel telemetry), `GH` toggles and `INFRA`-dependent
+# criteria — they are tracked in docs/tasks/devops3.md with blocker tags.
+#
+# Usage:
+#   cmd/baseline/acceptance [--format=text|json] [--verbose]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+source "$REPO_ROOT/cmd/lib/engine.sh"
+
+usage() {
+  echo "Usage: cmd/baseline/acceptance [--format=text|json] [--verbose]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+[[ "$HELP" -eq 1 ]] && { usage; exit "$EX_OK"; }
+
+require_root_dir
+cd "$REPO_ROOT"
+
+ctl_lint_config()   { php tools/baseline/yaml-lint.php; }
+ctl_shell_syntax()  { bash tools/baseline/shell-lint.sh; }
+ctl_manifest()      { php tools/baseline/manifest.php --verify; }
+ctl_image_policy()  { bash tools/baseline/image-policy.sh; }
+ctl_quarantine()    { php tools/baseline/quarantine-check.php; }
+ctl_github_policy() { php tools/baseline/github-policy.php; }
+ctl_artifact_scan() { bash tools/baseline/artifact-scan.sh; }
+ctl_selfcheck()     { bash tools/baseline/selfcheck-engine.sh; }
+ctl_quick_gate()    { bash cmd/dev/check --quick --quiet; }
+ctl_readiness()     { bash cmd/ops/readiness; }
+
+# NOTE: perf-baselines compare deliberately absent (08 §54: benchmarks are
+# explicit-only, never gates — parallel control load makes them noisy).
+# Run `cmd/dev/bench compare` manually before releases.
+
+engine_register "lint-config"    ""            ctl_lint_config
+engine_register "shell-syntax"   ""            ctl_shell_syntax
+engine_register "manifest-sync"  ""            ctl_manifest
+engine_register "image-policy"   ""            ctl_image_policy
+engine_register "quarantine"     ""            ctl_quarantine
+engine_register "github-policy"  ""            ctl_github_policy
+engine_register "artifact-scan"  ""            ctl_artifact_scan
+engine_register "engine-selfcheck" "lint-config" ctl_selfcheck
+engine_register "quick-gate"     "manifest-sync" ctl_quick_gate
+engine_register "readiness"      "quick-gate"  ctl_readiness
+
+SUMMARY="platform acceptance"
+if engine_execute; then
+  report_finish "$EX_OK" "$SUMMARY passed"
+else
+  report_finish "$EX_CHECK" "$SUMMARY failed ($ENGINE_FAILED_COUNT control(s))"
+fi

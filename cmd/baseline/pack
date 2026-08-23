@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Pack the security baseline into a distributable artifact (11 §6–§7).
+#
+# Produces dist/security-baseline-v<VERSION>.tar.gz (+ .sha256) containing
+# every manifest-tracked file, ready to be attached to a release or pulled
+# by other repositories.
+#
+# Usage:
+#   cmd/baseline/pack [--out <dir>]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v tar >/dev/null 2>&1 || { err "tar is required"; exit "$EX_DEP"; }
+
+OUT_DIR="dist"
+if [[ "${1:-}" == "--out" && -n "${2:-}" ]]; then OUT_DIR="$2"; fi
+
+php tools/baseline/manifest.php --verify >/dev/null 2>&1 \
+  || warn "working tree drifted from MANIFEST.json — packing current state anyway"
+
+VERSION="$(cat tools/baseline/VERSION)"
+STAGE="$(mktemp -d)"
+NAME="security-baseline-v${VERSION}"
+mkdir -p "$OUT_DIR" "$STAGE/$NAME"
+
+# Copy exactly the manifest-tracked set.
+php -r '
+$m = json_decode(file_get_contents("tools/baseline/MANIFEST.json"), true);
+[$stage] = [$argv[1]];
+foreach (array_keys($m["files"]) as $rel) {
+  if (!is_file($rel)) continue;
+  @mkdir(dirname("$stage/$rel"), 0777, true);
+  copy($rel, "$stage/$rel");
+}
+echo "packed " . count($m["files"]) . " files\n";
+' "$STAGE/$NAME"
+
+cp tools/baseline/VERSION "$STAGE/$NAME/VERSION"
+cp tools/baseline/MANIFEST.json "$STAGE/$NAME/MANIFEST.json"
+
+TARBALL="$OUT_DIR/${NAME}.tar.gz"
+tar -czf "$TARBALL" -C "$STAGE" "$NAME"
+rm -rf "$STAGE"
+
+sha256sum "$TARBALL" >"$TARBALL.sha256"
+ok "Packed $TARBALL ($(du -h "$TARBALL" | cut -f1))"
+ok "Checksum $TARBALL.sha256"

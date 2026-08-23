@@ -25,8 +25,23 @@
         <testsuite name="AntispamModule">
             <directory>misc/BAGArt/telegram-bot-antispam-module/tests</directory>
         </testsuite>
-        <testsuite name="TelegramBotManagementLib">
-            <directory>misc/BAGArt/telegram-bot-management-lib/tests</directory>
+        <testsuite name="SummarizerModule">
+            <directory>misc/BAGArt/telegram-bot-summarizer-module/tests</directory>
+        </testsuite>
+        <testsuite name="NettoolsModule">
+            <directory>misc/BAGArt/telegram-bot-nettools/tests</directory>
+        </testsuite>
+        <testsuite name="SttModule">
+            <directory>misc/BAGArt/telegram-bot-stt-module/tests</directory>
+        </testsuite>
+        <testsuite name="TtsModule">
+            <directory>misc/BAGArt/telegram-bot-tts-module/tests</directory>
+        </testsuite>
+        <testsuite name="MafiaModule">
+            <directory>misc/BAGArt/telegram-bot-mafia-module/tests</directory>
+        </testsuite>
+        <testsuite name="TelegramBotManagement">
+            <directory>misc/BAGArt/telegram-bot-management/tests</directory>
         </testsuite>
         <testsuite name="AsyncKernelLib">
             <directory>misc/BAGArt/php-async-kernel-lib/tests</directory>

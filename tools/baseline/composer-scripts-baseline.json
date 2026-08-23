@@ -37,7 +37,13 @@
             "@php artisan test",
             "cd misc/BAGArt/telegram-bot-lib && composer test",
             "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
-            "cd misc/BAGArt/telegram-bot-management-lib && composer test"
+            "cd misc/BAGArt/telegram-bot-antispam-module && composer test",
+            "cd misc/BAGArt/telegram-bot-nettools && composer test",
+            "cd misc/BAGArt/telegram-bot-management && composer test",
+            "cd misc/BAGArt/telegram-bot-tts-module && composer test",
+            "cd misc/BAGArt/telegram-bot-stt-module && composer test",
+            "cd misc/BAGArt/telegram-bot-summarizer-module && composer test",
+            "cd misc/BAGArt/telegram-bot-mafia-module && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -59,5 +65,5 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ]
     },
-    "generated": "2026-08-22"
+    "generated": "2026-08-24"
 }

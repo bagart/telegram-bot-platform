@@ -11,20 +11,21 @@ source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
 source "$REPO_ROOT/cmd/lib/contract.sh"
+source "$SCRIPT_DIR/lib.sh"
 
 usage() {
-  echo "Usage: cmd/deps/audit [--format=text|json|github] [--offline] [--verbose] [--quiet]"
+  echo "Usage: cmd/deps/audit [--mode=dev|prod|both] [--format=text|json|github] [--offline] [--verbose] [--quiet]"
   contract_usage
 }
 
-contract_parse_args "$@"
+deps_parse_mode both "$@"
+contract_parse_args "${POSITIONAL[@]+"${POSITIONAL[@]}"}"
 if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 FAILS=0
-
 run_tool() {
   local control="$1"; shift
   if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then
@@ -50,15 +51,26 @@ if [[ "$OFFLINE" -eq 1 ]]; then
   report_result "npm-audit" skipped "offline mode"
 else
   if command -v composer >/dev/null 2>&1; then
-    if ! run_tool "composer-audit" composer audit --no-dev; then FAILS=$((FAILS+1)); fi
+    if [[ "$MODE" != "prod" ]]; then
+      if ! run_tool "composer-audit" composer audit --no-dev; then FAILS=$((FAILS+1)); fi
+    fi
+    if [[ "$MODE" != "dev" ]]; then
+      if [[ -f "$PROD_LOCK" ]]; then
+        if ! run_tool "composer-audit-prod" env COMPOSER="$PROD_MANIFEST" composer audit --no-dev; then FAILS=$((FAILS+1)); fi
+      else
+        report_result "composer-audit-prod" skipped "$PROD_LOCK not generated yet"
+      fi
+    fi
   else
     report_result "composer-audit" skipped "composer not found"
   fi
 
-  if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
-    if ! run_tool "npm-audit" npm audit --audit-level=high; then FAILS=$((FAILS+1)); fi
-  else
-    report_result "npm-audit" skipped "npm or package-lock.json not found"
+  if [[ "$MODE" == "dev" || "$MODE" == "both" ]]; then
+    if command -v npm >/dev/null 2>&1 && [[ -f package-lock.json ]]; then
+      if ! run_tool "npm-audit" npm audit --audit-level=high; then FAILS=$((FAILS+1)); fi
+    else
+      report_result "npm-audit" skipped "npm or package-lock.json not found"
+    fi
   fi
 fi
 

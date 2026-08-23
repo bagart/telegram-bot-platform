@@ -1,0 +1,83 @@
+# PR review-trigger labeling (03-security-and-supply-chain.md §45–§47).
+#
+# Security-sensitive changes are automatically flagged for elevated review by
+# applying category labels plus the aggregate `security-sensitive` label when
+# any sensitive surface is touched. Labels compose with CODEOWNERS (mandatory
+# owner review); branch-protection review rules keyed on these labels are a
+# GitHub UI setting (devops3.md 03 toggle).
+#
+# Consumed by .github/workflows/pr-triage.yml (actions/labeler).
+
+ci-workflows:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+security-tooling:
+  - changed-files:
+      - any-glob-to-any-file: 'tools/baseline/**'
+      - any-glob-to-any-file: 'tools/git-hooks/**'
+      - any-glob-to-any-file: 'cmd/lib/engine.sh'
+      - any-glob-to-any-file: 'cmd/dev/security'
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file: 'docker/**'
+      - any-glob-to-any-file: 'Dockerfile*'
+      - any-glob-to-any-file: 'docker-compose*'
+      - any-glob-to-any-file: '.dockerignore'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: 'composer.json'
+      - any-glob-to-any-file: 'composer.lock'
+      - any-glob-to-any-file: 'package.json'
+      - any-glob-to-any-file: 'package-lock.json'
+
+deployment:
+  - changed-files:
+      - any-glob-to-any-file: 'deploy/**'
+      - any-glob-to-any-file: 'cmd/ops/**'
+      - any-glob-to-any-file: 'runbooks/**'
+
+database:
+  - changed-files:
+      - any-glob-to-any-file: 'database/migrations/**'
+
+auth:
+  - changed-files:
+      - any-glob-to-any-file: 'app/Actions/Fortify/**'
+      - any-glob-to-any-file: 'app/Http/Middleware/**'
+      - any-glob-to-any-file: 'config/fortify.php'
+
+telegram-platform:
+  - changed-files:
+      - any-glob-to-any-file: 'misc/BAGArt/**'
+      - any-glob-to-any-file: 'modules/**'
+      - any-glob-to-any-file: 'config/telegram.php'
+      - any-glob-to-any-file: 'routes/web.php'
+
+# Aggregate flag: any of the surfaces from §45/§47 that require elevated
+# security review.
+security-sensitive:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+      - any-glob-to-any-file: 'tools/baseline/**'
+      - any-glob-to-any-file: 'tools/git-hooks/**'
+      - any-glob-to-any-file: 'cmd/lib/engine.sh'
+      - any-glob-to-any-file: 'cmd/dev/security'
+      - any-glob-to-any-file: 'docker/**'
+      - any-glob-to-any-file: 'Dockerfile*'
+      - any-glob-to-any-file: 'docker-compose*'
+      - any-glob-to-any-file: '.dockerignore'
+      - any-glob-to-any-file: 'composer.json'
+      - any-glob-to-any-file: 'composer.lock'
+      - any-glob-to-any-file: 'package.json'
+      - any-glob-to-any-file: 'package-lock.json'
+      - any-glob-to-any-file: 'deploy/**'
+      - any-glob-to-any-file: 'cmd/ops/**'
+      - any-glob-to-any-file: 'runbooks/**'
+      - any-glob-to-any-file: 'database/migrations/**'
+      - any-glob-to-any-file: 'app/Actions/Fortify/**'
+      - any-glob-to-any-file: 'app/Http/Middleware/**'
+      - any-glob-to-any-file: 'config/fortify.php'
+      - any-glob-to-any-file: 'config/telegram.php'

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Unified command dispatcher (01-architecture-and-baseline.md: single entry).
+#
+# One executable front door over the cmd/ tree:
+#   ./cmd/engine dev/check --quick     ==  ./cmd/dev/check --quick
+#   ./cmd/engine ops/readiness         ==  ./cmd/ops/readiness
+#   ./cmd/engine list                  ->  full command surface (cmd/help)
+#
+# Exit codes and flags pass through untouched (single CLI contract).
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -P "$SCRIPT_DIR/.." && pwd)"
+
+if [[ $# -eq 0 || "$1" == "list" || "$1" == "--help" || "$1" == "-h" ]]; then
+  exec bash "$REPO_ROOT/cmd/help"
+fi
+
+TARGET="$REPO_ROOT/cmd/$1"
+if [[ ! -f "$TARGET" ]]; then
+  echo "ERROR: unknown command '$1' (see: ./cmd/engine list)" >&2
+  exit 2
+fi
+shift
+
+exec bash "$TARGET" "$@"

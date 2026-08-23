@@ -56,8 +56,8 @@
             "modes": ["webhook"]
         },
         {
-            "name": "telegram-bot-management-lib",
-            "path": "misc/BAGArt/telegram-bot-management-lib",
+            "name": "telegram-bot-management",
+            "path": "misc/BAGArt/telegram-bot-management",
             "php": ["8.5"],
             "ext": [],
             "optionalExt": [],

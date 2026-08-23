@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Scope:** Telegram bot platform — critical components
-**Origin:** SDD spec 09 §3 (file removed post-implementation — see git history / `docs/tasks/devops2.md` header)
+**Origin:** SDD spec 09 §3 (file removed post-implementation — see git history / `docs/tasks/devops3.md` header)
 **Metrics source:** `/health/metrics` (`tg_*` series, see `app/Http/Controllers/HealthController.php`)
 **Alert wiring:** `tools/baseline/prometheus-alerts.example.yml`
 **Review cadence:** quarterly, or after any capacity-affecting change

@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# Dual-mode dependency layout control (todo.module-dual-mode.md §5).
+#
+# Validates, without network access:
+#   (a) composer.prod.json exists; non-bagart require deps are identical
+#       across dev/prod manifests;
+#   (b) every misc/BAGArt/* repo that ships tests follows the module layout
+#       standard: composer name matches dir, "test" script, phpunit(.dist).xml,
+#       src/ + tests/;
+#   (c) every module is wired into the root `composer test` chain and has a
+#       host phpunit.xml testsuite;
+#   (d) locks are present and fresh vs their manifests;
+#   (e) packages that are PSR-4-mapped from misc/ are not also composer
+#       required in the dev manifest (mode purity).
+#
+# Usage:
+#   cmd/deps/check [--format=text|json|github] [--verbose] [--quiet]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+source "$SCRIPT_DIR/lib.sh"
+
+usage() {
+  echo "Usage: cmd/deps/check [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+pass_or_fail() {
+  local control="$1" ok_flag="$2" message="${3:-}"
+  if [[ "$ok_flag" -eq 1 ]]; then
+    report_result "$control" passed ""
+  else
+    report_result "$control" failed "$message"
+    FAILS=$((FAILS + 1))
+  fi
+}
+
+# --- (a) manifests + non-bagart parity --------------------------------------
+PARITY_OUT="$(php -r '
+$dev = json_decode(file_get_contents("composer.json"), true);
+$prod = json_decode(file_get_contents("composer.prod.json"), true);
+$strip = static function (array $require): array {
+    ksort($require);
+    return array_filter($require, static fn ($k) => !str_starts_with($k, "bagart/"), ARRAY_FILTER_USE_KEY);
+};
+$d = $strip($dev["require"] ?? []);
+$p = $strip($prod["require"] ?? []);
+echo ($d === $p)
+    ? "ok"
+    : "drift:\n-dev=" . json_encode($d) . "\n-prod=" . json_encode($p);
+' 2>/dev/null)"
+if [[ "$PARITY_OUT" == "ok" ]]; then
+  pass_or_fail "deps-parity" 1
+elif [[ -z "$PARITY_OUT" ]]; then
+  pass_or_fail "deps-parity" 0 "manifests unreadable (composer.prod.json missing or invalid PHP)"
+else
+  pass_or_fail "deps-parity" 0 "$(echo "$PARITY_OUT" | tr '\n' ' ' | cut -c1-200)"
+fi
+
+# --- (b)+(c) module layout + wiring -----------------------------------------
+# A "module" = misc/BAGArt dir shipping tests whose src implements the
+# TgModuleContract plugin interface (matches *-module dirs and nettools-lib).
+MODULE_DIRS="$(find misc/BAGArt -mindepth 1 -maxdepth 1 -type d |
+  while read -r d; do
+    [[ -f "$d/composer.json" && -d "$d/tests" ]] || continue
+    if [[ "$d" == *-module ]] ||
+       grep -rqE 'implements[[:space:]]+\\?[A-Za-z\\]*TgModuleContract' "$d/src" 2>/dev/null; then
+      echo "$d"
+    fi
+  done | sort)"
+
+ROOT_TEST_CHAIN="$(php -r '$t = json_decode(file_get_contents("composer.json"), true)["scripts"]["test"] ?? []; echo implode(PHP_EOL, array_map("strval", $t));' 2>/dev/null)"
+HOST_SUITES="$(grep -oE '<directory>[^<]+</directory>' phpunit.xml || true)"
+
+for m in $MODULE_DIRS; do
+  name="$(basename "$m")"
+  issues=""
+
+  pkg="$(php -r '$c = json_decode(file_get_contents($argv[1]), true); echo $c["name"] ?? "";' "$m/composer.json" 2>/dev/null)"
+  case "$pkg" in
+    "bagart/$name"|"bagart/${name%-lib}") ;;
+    *) issues+="composer name '$pkg' != bagart/$name; " ;;
+  esac
+
+  grep -q '"test"' "$m/composer.json" || issues+="no test script; "
+  { [[ -f "$m/phpunit.xml" ]] || [[ -f "$m/phpunit.xml.dist" ]]; } || issues+="no own phpunit(.dist).xml; "
+  [[ -d "$m/src" ]] || issues+="no src/; "
+
+  grep -qF "cd $m && composer test" <<<"$ROOT_TEST_CHAIN" ||
+    issues+="not chained in root composer test; "
+
+  # Host suite: a testsuite directory pointing into this module's tests.
+  grep -qE "<directory>$m/tests" <<<"$HOST_SUITES" || issues+="no host phpunit.xml suite; "
+
+  if [[ -z "$issues" ]]; then
+    report_result "module-layout:$name" passed ""
+  else
+    report_result "module-layout:$name" failed "${issues%; }"
+    FAILS=$((FAILS + 1))
+  fi
+done
+
+# --- (e) mode purity: PSR-4-mapped bagart packages must not be required -----
+PURITY_OUT="$(php -r '
+$c = json_decode(file_get_contents("composer.json"), true);
+$require = $c["require"] ?? [];
+$mapped = [];
+foreach (($c["autoload"]["psr-4"] ?? []) as $ns => $path) {
+    if (str_starts_with($path, "misc/BAGArt/")) {
+        $cj = rtrim($path, "/") . "/composer.json";
+        if (is_file($cj)) {
+            $name = json_decode(file_get_contents($cj), true)["name"] ?? "";
+            if ($name !== "") { $mapped[$name] = true; }
+        }
+    }
+}
+$bad = array_keys(array_filter($mapped, static fn ($n) => isset($require[$n]), ARRAY_FILTER_USE_KEY));
+sort($bad);
+echo $bad ? implode(",", $bad) : "ok";
+' 2>/dev/null)"
+if [[ "$PURITY_OUT" == "ok" ]]; then
+  pass_or_fail "deps-mode-purity" 1
+else
+  pass_or_fail "deps-mode-purity" 0 "PSR-4-mapped packages still required: ${PURITY_OUT:-unreadable composer.json}"
+fi
+
+# --- (d) lock freshness ------------------------------------------------------
+DEV_LOCK_FRESH=1 DEV_LOCK_MSG=""
+if ! command -v composer >/dev/null 2>&1; then
+  DEV_LOCK_FRESH=0
+  DEV_LOCK_MSG="composer not found"
+elif ! composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
+  DEV_LOCK_FRESH=0
+  DEV_LOCK_MSG="composer.lock stale vs composer.json (run cmd/deps/update)"
+fi
+pass_or_fail "lock-fresh:dev" "$DEV_LOCK_FRESH" "$DEV_LOCK_MSG"
+
+if [[ -f "$PROD_MANIFEST" ]]; then
+  if [[ -f "$PROD_LOCK" ]]; then
+    PROD_OK=1 PROD_MSG=""
+    if ! COMPOSER="$PROD_MANIFEST" composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
+      PROD_OK=0
+      PROD_MSG="prod lock stale or invalid vs $PROD_MANIFEST"
+    fi
+    prod_lock_is_pure "$PROD_LOCK" || { PROD_OK=0; PROD_MSG+=" ; purity violation"; }
+    pass_or_fail "lock-fresh:prod" "$PROD_OK" "$PROD_MSG"
+  else
+    report_result "lock-fresh:prod" skipped "$PROD_LOCK not generated yet (needs published VCS sources)"
+  fi
+else
+  report_result "lock-fresh:prod" skipped "$PROD_MANIFEST missing"
+fi
+
+report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"

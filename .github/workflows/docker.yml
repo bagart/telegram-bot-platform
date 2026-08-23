@@ -1,4 +1,4 @@
-name: docker
+name: Platform CI / Build
 
 on:
   push:
@@ -7,6 +7,18 @@ on:
       - master
     tags:
       - 'v*'
+  # Build validation on PRs touching image surfaces (05-ci-cd-and-release.md
+  # §9); push/sign steps stay gated to push events.
+  pull_request:
+    paths:
+      - 'docker/**'
+      - 'Dockerfile*'
+      - 'docker-compose*'
+      - '.dockerignore'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:

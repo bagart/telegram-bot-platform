@@ -1,4 +1,4 @@
-name: security
+name: Platform CI / Security
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
           coverage: none
 
       - name: Composer audit
-        run: composer audit --no-dev
+        run: composer audit --no-dev --abandoned=report
 
       - name: SAST (Semgrep, report mode — enforce after tuning, 11 §47)
         continue-on-error: true

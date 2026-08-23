@@ -61,6 +61,7 @@ FROM php:8.5-fpm AS production
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    ffmpeg \
     libpq-dev \
     libicu-dev \
     libzip-dev \
@@ -87,6 +88,7 @@ COPY ./storage /var/www/storage-init
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
+COPY --from=builder /usr/local/bin/composer /usr/local/bin/composer
 
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

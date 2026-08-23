@@ -62,3 +62,25 @@ it('passes on LF files', function () {
 
     expect(runLfCheck('lf-check.php', ['--paths='.$file])['code'])->toBe(0);
 });
+
+it('skips files exempted via .gitattributes -text', function () {
+    $result = runLfCheck('lf-check.php', [
+        '--paths=tests/fixtures/baseline/must-fail/crlf.txt',
+        '--format=json',
+    ]);
+
+    expect($result['code'])->toBe(0)
+        ->and(json_decode($result['output'], true)['violations'])->toBe([]);
+});
+
+it('reports attribute-exempted files when attributes are ignored', function () {
+    $result = runLfCheck('lf-check.php', [
+        '--paths=tests/fixtures/baseline/must-fail/crlf.txt',
+        '--ignore-attributes',
+        '--format=json',
+    ]);
+
+    expect($result['code'])->toBe(1)
+        ->and(json_decode($result['output'], true)['violations'])
+        ->toBe(['tests/fixtures/baseline/must-fail/crlf.txt']);
+});

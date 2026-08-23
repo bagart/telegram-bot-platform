@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Synthetic Telegram round-trip probe (09-observability-and-performance.md §80–§82).
+#
+# Calls getMe for every active bot in tg_bots and reports per-bot latency.
+# A failure or latency above the budget exits non-zero so cron/alerting can
+# pick it up. Requires network access to api.telegram.org (INFRA at runtime).
+#
+# Usage:
+#   cmd/ops/probe [--budget-ms=3000] [--format=text|json]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+command -v php >/dev/null 2>&1 || { err "php is required"; exit "$EX_DEP"; }
+
+BUDGET_MS=3000
+JSON=0
+for arg in "$@"; do
+  case "$arg" in
+    --budget-ms=*) BUDGET_MS="${arg#--budget-ms=}" ;;
+    --format=json|--json) JSON=1 ;;
+    *) fail "Unknown argument: $arg (see cmd/ops/probe --help)" ;;
+  esac
+done
+
+RESULT="$(php -r '
+$budget = (int) $argv[1];
+$out = [];
+try {
+    $bots = BAGArt\TelegramBotManagement\Models\TgBot::query()->where("is_active", true)->get(["id", "name", "token"]);
+} catch (Throwable $e) {
+    fwrite(STDERR, "cannot read bots: " . $e->getMessage() . "\n");
+    exit(4);
+}
+foreach ($bots as $bot) {
+    $start = hrtime(true);
+    $ok = 0; $code = 0;
+    try {
+        $res = Illuminate\Support\Facades\Http::timeout(5)
+            ->get("https://api.telegram.org/bot{$bot->token}/getMe");
+        $code = $res->status();
+        $ok = $res->json("ok") ? 1 : 0;
+    } catch (Throwable) {
+        $code = 0;
+    }
+    $ms = (int) round((hrtime(true) - $start) / 1e6);
+    $out[] = ["id" => $bot->id, "name" => $bot->name, "ok" => $ok, "http" => $code, "ms" => $ms,
+              "over_budget" => ($ms > $budget || !$ok) ? 1 : 0];
+}
+echo json_encode($out);
+' "$BUDGET_MS" 2>/dev/null)" || { err "probe bootstrap failed"; exit "$EX_ENV"; }
+
+FAILS=0
+if [[ "$JSON" -eq 1 ]]; then
+  echo "$RESULT"
+else
+  for row in $(echo "$RESULT" | php -r 'foreach (json_decode(stream_get_contents(STDIN), true) as $r) printf("%s\n", json_encode($r));'); do
+    ID="$(php -r '$r=json_decode($argv[1],true); echo $r["id"];' "$row")"
+    NAME="$(php -r '$r=json_decode($argv[1],true); echo $r["name"];' "$row")"
+    MS="$(php -r '$r=json_decode($argv[1],true); echo $r["ms"];' "$row")"
+    OKV="$(php -r '$r=json_decode($argv[1],true); echo $r["ok"];' "$row")"
+    OVER="$(php -r '$r=json_decode($argv[1],true); echo $r["over_budget"];' "$row")"
+    if [[ "$OVER" == "1" ]]; then
+      err "probe bot#$ID ($NAME): FAIL ok=$OKV ${MS}ms > ${BUDGET_MS}ms"
+      FAILS=$((FAILS + 1))
+    else
+      ok "probe bot#$ID ($NAME): getMe ${MS}ms"
+    fi
+  done
+fi
+
+[[ "$(echo "$RESULT" | php -r 'echo count(json_decode(stream_get_contents(STDIN), true));')" == "0" ]] \
+  && warn "no active bots registered — nothing to probe"
+
+exit "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"

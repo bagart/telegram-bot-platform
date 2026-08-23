@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Off-site copy of the newest verified backup (07-resilience-and-disaster-recovery.md §7–§9).
+#
+# Copies the newest dump (plain or age-encrypted) plus checksum sidecars to an
+# independent storage target via rclone. Independent infrastructure only — a
+# second disk on the same host does NOT satisfy §7. Immutability/object-lock
+# must be configured on the target bucket itself.
+#
+# Configuration:
+#   BACKUP_OFFSITE_TARGET  rclone remote:path  e.g. "s3offsite:tg-backups"
+#
+# Usage:
+#   cmd/ops/backup-offsite [--confirm=offsite]
+#     --confirm required on first run against a new target prefix? No: read-only
+#     copy is safe; the flag is accepted and ignored for scripting symmetry.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+command -v rclone >/dev/null 2>&1 || { err "rclone required (apt/brew install rclone)"; exit "$EX_DEP"; }
+[[ -n "${BACKUP_OFFSITE_TARGET:-}" ]] || {
+  err "BACKUP_OFFSITE_TARGET not configured (rclone remote:path)"
+  say "one-time setup:"
+  echo "  rclone config create s3offsite s3 provider=AWS access_key_id=... secret_access_key=..."
+  echo "  enable object-lock/versioning on the bucket (07 §8 immutability)"
+  exit "$EX_ENV"
+}
+
+NEWEST="$(ls -1t storage/backups/*.sql.gz 2>/dev/null | head -1 || true)"
+[[ -n "$NEWEST" ]] || { err "no local dumps found — run cmd/ops/backup first"; exit "$EX_CHECK"; }
+
+for f in "$NEWEST" "$NEWEST.sha256" "$NEWEST.age" "$NEWEST.age.sha256"; do
+  [[ -f "$f" ]] || continue
+  if rclone copy "$f" "$BACKUP_OFFSITE_TARGET/" --checksum; then
+    ok "offsite: $(basename "$f") -> $BACKUP_OFFSITE_TARGET"
+  else
+    err "offsite copy failed: $(basename "$f")"
+    exit "$EX_ENV"
+  fi
+done
+
+ok "Off-site copy complete ($(basename "$NEWEST"))"

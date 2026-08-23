@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Artifact promotion ledger (05-ci-cd-and-release.md §32–§33, 11 §55).
+#
+# Records stage promotions of an immutable artifact (digest or version tag)
+# into storage/app/baseline/promotions.jsonl so "build once, promote many"
+# is auditable. Production promotion requires an explicit confirmation flag
+# (project convention: dangerous ops need --confirm).
+#
+# Usage:
+#   cmd/release/promote <artifact-ref> <staging|production> [--confirm=production]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+REF="${1:-}"
+STAGE="${2:-}"
+[[ -z "$REF" || -z "$STAGE" ]] && fail "Usage: cmd/release/promote <artifact-ref> <staging|production> [--confirm=production]"
+case "$STAGE" in
+  staging|production) ;;
+  *) fail "Stage must be 'staging' or 'production' (got: $STAGE)" ;;
+esac
+
+if [[ "$STAGE" == "production" ]]; then
+  CONFIRMED=0
+  for arg in "${@:3}"; do
+    [[ "$arg" == "--confirm=production" ]] && CONFIRMED=1
+  done
+  (( CONFIRMED )) || fail "Production promotion requires explicit --confirm=production"
+fi
+
+case "$REF" in
+  *@sha256:*|sha256:*) ;;          # digest reference
+  v*) ;;                            # immutable version tag
+  ghcr.io/*) ;;                     # registry ref (must not end in :latest)
+  *) fail "Artifact ref must be a digest (@sha256:...), version tag (v...) or registry path" ;;
+esac
+[[ "$REF" == *:latest || "$REF" == *@latest ]] && fail "Mutable 'latest' references cannot be promoted"
+
+LEDGER_DIR="storage/app/baseline"
+mkdir -p "$LEDGER_DIR"
+ENTRY="$(printf '{"ref":"%s","stage":"%s","promoted_at":"%s","actor":"%s","commit":"%s"}' \
+  "$REF" "$STAGE" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${USER:-unknown}" \
+  "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)")"
+echo "$ENTRY" >>"$LEDGER_DIR/promotions.jsonl"
+
+ok "Promoted to $STAGE: $REF"

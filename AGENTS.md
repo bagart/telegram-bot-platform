@@ -15,6 +15,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/framework (LARAVEL) - v13
 - laravel/prompts (PROMPTS) - v0
 - laravel/wayfinder (WAYFINDER) - v0
+- larastan/larastan (LARASTAN) - v3
 - laravel/boost (BOOST) - v2
 - laravel/mcp (MCP) - v0
 - laravel/pail (PAIL) - v1
@@ -114,6 +115,13 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Deployment
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
+
+=== tests rules ===
+
+# Test Enforcement
+
+- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
 
 === inertia-laravel/core rules ===
 
@@ -222,7 +230,19 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 - `misc/BAGArt/telegram-bot-lib` — pure Telegram Bot API library (no Laravel)
 - `misc/BAGArt/telegram-bot-basic-lib` — basic webhook handlers, middleware, commands (works with pure PHP and Laravel)
-- `misc/BAGArt/telegram-bot-management-lib` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgBotModule`), DB migrations
+- `misc/BAGArt/telegram-bot-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
+- `misc/BAGArt/telegram-bot-antispam-module` — anti-spam module (`TgModuleContract` plugin)
+- `misc/BAGArt/telegram-bot-summarizer-module` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
+- `misc/BAGArt/telegram-bot-tts-module` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, fenced Track A multipart uploader, cron via `tts:prune`; RFC: `docs/tasks/todo.tts.md`)
+- `misc/BAGArt/telegram-bot-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit: SSRF guard, quotas, probe cache/semaphore, `/nt` + `/quota` via attributed commands; RFC: `docs/tasks/todo.nettools.md`)
+- `misc/BAGArt/telegram-bot-mafia-module` — Mafia game module (`TgModuleContract` plugin; plan: `docs/tasks/mafia/todo.mafia.md`)
+
+**Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:
+
+- **dev mode** (default for development): root `composer.json` maps the module namespace PSR-4 directly into `misc/BAGArt/<name>-module/src` (+ tests via autoload-dev), keeps a path repository entry, and does **not** composer-require the package. Edits are immediately visible, no version bumps mid-refactor.
+- **prod mode** (servers): `composer.prod.json` requires versioned `bagart/...-module` packages from VCS sources; install with `cmd/deps/install --mode=prod`. The prod lock must never reference path repositories or symlinked installs (servers ship without `misc/`).
+
+In both modes the module's Laravel provider is listed explicitly in `bootstrap/providers.php`; on boot it self-registers its `TgModuleContract` class into `config('telegram.modules_providers')`, which stays empty by default in `config/telegram.php` (no package auto-discovery). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
 
 ## Dependency Injection
 
@@ -291,12 +311,13 @@ Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). C
 
 ## Composer
 
-- Libraries are connected via `path` repositories — run `composer update` from WSL shell (not Git Bash).
-- Symlinks in `vendor/bagart/` point to `misc/BAGArt/` — changes in libs are immediately visible.
+- Libraries connect via `path` repositories — run composer operations from the WSL shell (not Git Bash). In dev mode vendor symlinks point into `misc/BAGArt/`, so lib changes are immediately visible.
+- Dual manifests: `composer.json` (dev, canonical) + `composer.prod.json` (prod overlay; lock `composer.prod.lock`). Non-bagart deps must be identical across manifests — enforced by `cmd/deps/check`.
+- All dependency operations go through `cmd/deps/{install,update,check,audit,outdated} --mode=dev|prod|both`. After any intentional composer change regenerate reviewed baselines (`tools/baseline/composer-policy.php --check=scripts --update`, then `tools/baseline/manifest.php --generate`).
 
 ## Baseline Tooling
 
-- Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/{lib,promote}`, `cmd/baseline/*`, `cmd/help`. Prefer them over raw tool invocations. The devops-safe SDD set (`docs/tasks/devops-safe/01–11`) was implemented and then removed from the tree — recover it from git history when a `§N` reference needs context; the only live tracker is `docs/tasks/devops2.md` (undone items only).
+- Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/{lib,promote}`, `cmd/baseline/*`, `cmd/help`. Prefer them over raw tool invocations. The devops-safe SDD set (`docs/tasks/devops-safe/01–11`) was implemented and then removed from the tree — recover it from git history when a `§N` reference needs context; the only live tracker is `docs/tasks/devops3.md` (consolidated undone work incl. module dual-mode and baseline-package RFCs).
 - CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--resume`, `--verbose`, `--quiet`. Defined in `cmd/lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `tools/baseline/commit-msg.php`, health paths → `routes/web.php`, SAST targets/rules → `tools/baseline/semgrep-scan.sh`.
 - Controls in `cmd/dev/check` and `cmd/dev/security` run through `cmd/lib/engine.sh` — declared dependencies + parallel waves (02 §15–§16). Register controls there; do not hand-roll sequential loops. Engine extras: `BASELINE_MAX_JOBS`, opt-in `BASELINE_CACHE=1`, per-control budgets `BASELINE_BUDGET_<ID>` / `BASELINE_CONTROL_BUDGET`.
 - Baseline-owned files are manifest-tracked (`tools/baseline/MANIFEST.json`, regenerate with `php tools/baseline/manifest.php --generate`); drift via `cmd/baseline/drift-report`; production gate is `cmd/ops/readiness`.

@@ -1,0 +1,65 @@
+name: Platform CI / Bootstrap
+
+# First-run CI bootstrap validation (05-ci-cd-and-release.md §2).
+# Proves the baseline tooling itself is intact on a clean runner before any
+# developer or CI flow depends on it.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'cmd/**'
+      - 'tools/baseline/**'
+      - 'tools/git-hooks/**'
+      - '.github/workflows/*.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bootstrap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Shell syntax (every cmd/ and tools/ script)
+        run: |
+          find cmd tools/baseline tools/git-hooks deploy -type f \( -name '*.sh' -o -perm -111 \) -print0 |
+            while IFS= read -r -d '' f; do
+              head -1 "$f" | grep -q '^#!.*bash' || continue
+              bash -n "$f" || { echo "::error::bash -n failed: $f"; exit 1; }
+            done
+
+      - name: PHP syntax (baseline tools)
+        run: |
+          for f in tools/baseline/*.php; do
+            php -l "$f" >/dev/null || { echo "::error::php -l failed: $f"; exit 1; }
+          done
+
+      - name: Workflow YAML lint
+        run: php tools/baseline/yaml-lint.php
+
+      - name: GitHub supply-chain policy (pinning, permissions, concurrency, CODEOWNERS)
+        run: php tools/baseline/github-policy.php
+
+      - name: Baseline shell lint
+        run: bash tools/baseline/shell-lint.sh
+
+      - name: Composer manifest valid
+        run: composer validate --no-check-all --no-check-publish
+
+      - name: Baseline manifest present
+        run: |
+          test -f tools/baseline/VERSION || { echo "::error::VERSION missing"; exit 1; }
+          test -f tools/baseline/MANIFEST.json || echo "::warning::MANIFEST.json not generated yet"

@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# Production readiness gate (11 §74–§76, 05 §60 acceptance).
+#
+# Verifies the release-critical baseline state and prints a pass/fail
+# checklist. Designed for pre-deploy runs (cmd/ops/deploy calls it first).
+#
+# Critical checks (exit 1 on failure):
+#   version        baseline VERSION file present
+#   manifest       working tree matches MANIFEST.json
+#   hooks          core.hooksPath points at tools/git-hooks
+#   allowlist      no expired secret-allowlist entries (policy exit 5)
+#   quarantine     test-quarantine.json valid and unexpired
+#   docs           docs/slo.md + docs/dr.md + runbooks present
+#
+# Advisory checks (warnings only):
+#   backups        newest storage/backups dump age < BASELINE_BACKUP_MAX_AGE_H (default 26h)
+#   health         GET {APP_URL}/health/ready returns 2xx when APP_URL is set
+#
+# Usage:
+#   cmd/ops/readiness [--format=text|json]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+cd "$REPO_ROOT"
+
+JSON=0
+[[ "${1:-}" == "--format=json" || "${1:-}" == "--json" ]] && JSON=1
+
+declare -a RESULTS=()
+CRIT_FAIL=0
+POLICY_FAIL=0
+
+record() {
+  local id="$1" status="$2" detail="${3:-}"
+  RESULTS+=("{\"id\":\"$id\",\"status\":\"$status\",\"detail\":\"${detail//\"/}\"}\"")
+  case "$status" in
+    passed) (( QUIET_OUT )) || ok "readiness.$id passed ${detail}" ;;
+    warning) warn "readiness.$id: $detail" ;;
+    failed)
+      err "readiness.$id failed ${detail}"
+      CRIT_FAIL=1
+      ;;
+    policy)
+      err "readiness.$id policy failure ${detail}"
+      POLICY_FAIL=5
+      ;;
+  esac
+}
+
+QUIET_OUT=$([[ "$JSON" -eq 1 ]] && echo 1 || echo 0)
+
+# --- version ---
+if [[ -s tools/baseline/VERSION ]]; then
+  record version passed "v$(cat tools/baseline/VERSION)"
+else
+  record version failed "(tools/baseline/VERSION missing)"
+fi
+
+# --- manifest ---
+if php tools/baseline/manifest.php --verify >/dev/null 2>&1; then
+  record manifest passed ""
+else
+  record manifest failed "(drift from MANIFEST.json — see cmd/baseline/drift-report)"
+fi
+
+# --- hooks ---
+HOOKS_PATH="$(git config core.hooksPath || true)"
+if [[ "$HOOKS_PATH" == "tools/git-hooks" ]]; then
+  record hooks passed ""
+else
+  record hooks failed "(core.hooksPath='$HOOKS_PATH' — run cmd/dev/setup)"
+fi
+
+# --- secret allowlist expiry ---
+ALLOW_EXPIRED="$(php -r '
+$a = json_decode((string)@file_get_contents("tools/baseline/secret-allowlist.json"), true) ?: [];
+$today = date("Y-m-d"); $n = 0;
+foreach ($a as $e) {
+  $exp = $e["expires"] ?? $e["review_at"] ?? null;
+  if (is_string($exp) && $exp !== "" && $exp < $today) $n++;
+}
+echo $n;' 2>/dev/null || echo 0)"
+if [[ "$ALLOW_EXPIRED" == "0" ]]; then
+  record allowlist passed ""
+else
+  record allowlist policy "($ALLOW_EXPIRED expired secret-allowlist entr(ies))"
+fi
+
+# --- quarantine registry ---
+if OUT="$(php tools/baseline/quarantine-check.php 2>&1)"; then
+  record quarantine passed ""
+else
+  rc=$?
+  if [[ "$rc" == "5" ]]; then
+    record quarantine policy "(expired quarantine entries)"
+  else
+    record quarantine failed "(malformed registry)"
+  fi
+fi
+
+# --- docs ---
+DOC_MISS=""
+[[ -f docs/slo.md ]] || DOC_MISS+="docs/slo.md "
+[[ -f docs/dr.md ]] || DOC_MISS+="docs/dr.md "
+find runbooks -name '*.md' ! -name '_TEMPLATE.md' 2>/dev/null | grep -q . || DOC_MISS+="runbooks/*.md "
+if [[ -z "$DOC_MISS" ]]; then
+  record docs passed ""
+else
+  record docs failed "(missing: $DOC_MISS)"
+fi
+
+# --- backups (advisory) ---
+MAX_AGE_H="${BASELINE_BACKUP_MAX_AGE_H:-26}"
+NEWEST="$(ls -1t storage/backups/*.sql.gz 2>/dev/null | head -1 || true)"
+if [[ -n "$NEWEST" ]]; then
+  AGE_H=$(( ($(date +%s) - $(stat -c %Y "$NEWEST")) / 3600 ))
+  if (( AGE_H <= MAX_AGE_H )); then
+    record backups passed "(newest ${AGE_H}h old)"
+  elif [[ "${BASELINE_REQUIRE_BACKUP:-0}" == "1" ]]; then
+    record backups failed "(newest dump ${AGE_H}h > ${MAX_AGE_H}h)"
+  else
+    record backups warning "newest dump is ${AGE_H}h old (max ${MAX_AGE_H}h)"
+  fi
+else
+  record backups warning "no dumps in storage/backups yet"
+fi
+
+# --- health endpoint (advisory) ---
+APP_URL_VAL="$(grep -E '^APP_URL=' .env 2>/dev/null | cut -d= -f2 || true)"
+if [[ -n "$APP_URL_VAL" ]] && command -v curl >/dev/null 2>&1; then
+  HTTP_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$APP_URL_VAL/health/ready" || echo 000)"
+  case "$HTTP_CODE" in
+    200|204) record health passed "($HTTP_CODE)" ;;
+    000)     record health warning "(app unreachable at $APP_URL_VAL)" ;;
+    *)       record health warning "(HTTP $HTTP_CODE from /health/ready)" ;;
+  esac
+else
+  record health skipped "(APP_URL not set)"
+fi
+
+CODE=$(( CRIT_FAIL > 0 ? EX_CHECK : (POLICY_FAIL > 0 ? EX_POLICY : EX_OK) ))
+if [[ "$JSON" -eq 1 ]]; then
+  printf '{"exit_code":%d,"results":[%s]}\n' "$CODE" "$(IFS=,; echo "${RESULTS[*]:-}")"
+elif [[ "$CODE" -eq 0 && "$QUIET_OUT" -eq 0 ]]; then
+  ok "Production readiness: PASS"
+fi
+exit "$CODE"

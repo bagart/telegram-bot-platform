@@ -5,7 +5,7 @@
     { "id":"frontend", "name":"Frontend SPA", "desc":"Inertia React · TypeScript · Tailwind v4", "cat":"frontend", "emoji":"⚛️", "x":300, "y":150, "w":180, "tags":["React 19","Inertia v2","shadcn/ui"] },
     { "id":"laravel-app", "name":"Laravel App", "desc":"Routes · Controllers · Fortify Auth", "cat":"backend", "emoji":"🧩", "x":300, "y":300, "w":180, "tags":["Laravel 13","Fortify"] },
     { "id":"basic-lib", "name":"Basic Lib", "desc":"Artisan commands · Webhook handlers", "cat":"library", "emoji":"📦", "x":50, "y":450, "w":160, "tags":["telegram-bot-basic-lib"] },
-    { "id":"mgmt-lib", "name":"Management Lib", "desc":"DB models · Multi-bot management", "cat":"library", "emoji":"🗄️", "x":300, "y":450, "w":180, "tags":["telegram-bot-management-lib"] },
+    { "id":"mgmt-lib", "name":"Management Lib", "desc":"DB models · Multi-bot management", "cat":"library", "emoji":"🗄️", "x":300, "y":450, "w":180, "tags":["telegram-bot-management"] },
     { "id":"core-lib", "name":"Core Lib", "desc":"DTOs · HTTP transport · Pipeline", "cat":"library", "emoji":"⚙️", "x":550, "y":450, "w":160, "tags":["telegram-bot-lib","Pure PHP"] },
     { "id":"database", "name":"Database", "desc":"PostgreSQL 17 · Migrations", "cat":"infra", "emoji":"🗃️", "x":150, "y":600, "w":140, "tags":["tg_bots","users","queues"] },
     { "id":"redis", "name":"Redis", "desc":"Cache · Session · Queue", "cat":"infra", "emoji":"⚡", "x":380, "y":600, "w":120, "tags":["PSR-16","Horizon"] },

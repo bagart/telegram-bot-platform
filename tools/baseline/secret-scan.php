@@ -10,7 +10,7 @@ declare(strict_types=1);
  * expired allowlist entries are a policy failure (exit 5).
  *
  * Usage:
- *   php tools/baseline/secret-scan.php --staged|--all|--paths=a,b [--format=text|json]
+ *   php tools/baseline/secret-scan.php --staged|--all|--paths=a,b|--dir=dir1,dir2 [--format=text|json]
  *
  * Exit codes: 0 clean, 1 secret found, 2 usage error, 5 expired allowlist entry.
  */
@@ -40,6 +40,7 @@ const PATTERNS = [
 $format = 'text';
 $mode = null;
 $explicitPaths = [];
+$explicitDirs = [];
 $ignoreAllowlist = false;
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -48,6 +49,12 @@ foreach (array_slice($argv, 1) as $arg) {
     } elseif (str_starts_with($arg, '--paths=')) {
         $mode = 'paths';
         $explicitPaths = array_filter(explode(',', substr($arg, 8)));
+    } elseif (str_starts_with($arg, '--dir=')) {
+        // Artifact scan layer (03 §10): on-disk recursive scan of build
+        // outputs regardless of git status — bundles can leak secrets that
+        // are safe at the source level.
+        $mode = 'dirs';
+        $explicitDirs = array_values(array_filter(explode(',', substr($arg, 6))));
     } elseif ($arg === '--ignore-allowlist') {
         // Scanner self-test mode (11 §84 negative fixtures): planted secrets
         // must be reported even where the repo-wide allowlist exempts them.
@@ -59,13 +66,13 @@ foreach (array_slice($argv, 1) as $arg) {
     } elseif ($arg === '--json') {
         $format = 'json';
     } else {
-        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/secret-scan.php --staged|--all|--paths=a,b [--ignore-allowlist] [--format=text|json]\n");
+        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/secret-scan.php --staged|--all|--paths=a,b|--dir=dir1,dir2 [--ignore-allowlist] [--format=text|json]\n");
         exit(EXIT_USAGE);
     }
 }
 
 if ($mode === null) {
-    fwrite(STDERR, "Mode required: --staged, --all or --paths=...\n");
+    fwrite(STDERR, "Mode required: --staged, --all, --paths=... or --dir=...\n");
     exit(EXIT_USAGE);
 }
 
@@ -79,6 +86,7 @@ $files = match ($mode) {
     'staged' => gitStagedFiles($repoRoot),
     'all' => gitTrackedFiles($repoRoot),
     'paths' => $explicitPaths,
+    'dirs' => onDiskDirFiles($repoRoot, $explicitDirs),
 };
 
 $allowlist = loadAllowlist("{$repoRoot}/tools/baseline/secret-allowlist.json");
@@ -189,6 +197,37 @@ function gitFileList(string $root, array $args): array
     pclose($pipe);
 
     return $out === false ? [] : array_filter(explode("\0", $out));
+}
+
+/**
+ * Recursive on-disk listing for artifact directories (untracked build
+ * outputs). Missing directories are skipped silently — the caller decides
+ * whether that is acceptable.
+ *
+ * @param string[] $dirs
+ * @return string[]
+ */
+function onDiskDirFiles(string $root, array $dirs): array
+{
+    $files = [];
+    foreach ($dirs as $dir) {
+        $absolute = "{$root}/".ltrim($dir, '/');
+        if (!is_dir($absolute)) {
+            continue;
+        }
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($absolute, FilesystemIterator::SKIP_DOTS)
+        );
+        foreach ($iterator as $item) {
+            if (!$item->isFile()) {
+                continue;
+            }
+            $path = str_replace('\\', '/', $item->getPathname());
+            $files[] = ltrim(substr($path, strlen($root)), '/');
+        }
+    }
+
+    return array_values(array_unique($files));
 }
 
 /**

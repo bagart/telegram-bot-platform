@@ -94,6 +94,36 @@ services:
       timeout: 5s
       retries: 3
 
+  whisper:
+    # Opt-in Local Whisper (OpenAI-compatible STT). Never pulled or started
+    # unless the 'stt' profile is activated (STT_WHISPER_ENABLED=true +
+    # `docker compose --profile stt up -d`), so default deploys download
+    # nothing for it.
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    restart: unless-stopped
+    profiles:
+      - stt
+    environment:
+      ENABLE_UI: "false"
+      WHISPER__INFERENCE_DEVICE: cpu
+      WHISPER__COMPUTE_TYPE: int8
+      PRELOAD_MODELS: '["${STT_WHISPER_MODEL:-Systran/faster-whisper-large-v3}"]'
+      API_KEY: "${STT_WHISPER_API_KEY:-}"
+    volumes:
+      - whisper-models-production:/home/ubuntu/.cache/huggingface/hub
+    ports:
+      - "${STT_WHISPER_PORT:-8000}:8000"
+    networks:
+      - laravel-production
+    healthcheck:
+      # The header is required because current speaches images answer 403 on
+      # every endpoint (health included) when API_KEY is set.
+      test: ["CMD", "curl", "-fsS", "-H", "Authorization: Bearer ${STT_WHISPER_API_KEY}", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10m
+
 networks:
   # Attach the service to the 'laravel' network.
   # -----------------------------------------------------------
@@ -106,3 +136,4 @@ volumes:
   postgres-data-production:
   laravel-storage-production:
   laravel-public-assets:
+  whisper-models-production:

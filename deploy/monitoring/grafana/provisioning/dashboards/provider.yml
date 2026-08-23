@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: tg-platform
+    orgId: 1
+    folder: Telegram Platform
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 60
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

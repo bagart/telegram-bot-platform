@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# GitHub repository-settings checklist (03 §12/§44/§53–§55, 05 §11/§14–§18).
+#
+# Reads the live repo state via `gh api` and reports which manual toggles are
+# still off. Converts the `GH`-blocked plan items into a one-sitting checklist.
+# Read-only; requires GH_TOKEN (or an authenticated `gh`).
+#
+# Usage:
+#   cmd/ops/gh-settings [--format=text|json] [--strict]
+#     --strict  exit 1 when anything is missing (default: advisory)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+
+command -v gh >/dev/null 2>&1 || { err "gh CLI required — https://cli.github.com/"; exit "$EX_DEP"; }
+gh auth status >/dev/null 2>&1 || { err "gh not authenticated — run: gh auth login"; exit "$EX_ENV"; }
+
+JSON=0 STRICT=0
+for arg in "$@"; do
+  case "$arg" in
+    --format=json|--json) JSON=1 ;;
+    --strict) STRICT=1 ;;
+    *) fail "Unknown argument: $arg" ;;
+  esac
+done
+
+REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+RESULTS=()
+MISSING=0
+
+record() {
+  local id="$1" ok="$2" hint="$3"
+  RESULTS+=("{\"id\":\"$id\",\"enabled\":$ok,\"hint\":\"$hint\"}")
+  if [[ "$ok" == "true" ]]; then
+    (( JSON )) || ok "gh.$id: enabled"
+  else
+    MISSING=$((MISSING + 1))
+    if (( JSON )); then :; else warn "gh.$id: MISSING — $hint"; fi
+  fi
+}
+
+# Secret scanning + push protection (03 §12)
+SS="$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning.status' 2>/dev/null || echo unknown)"
+[[ "$SS" == "enabled" ]] && record secret-scanning true "" || record secret-scanning false "Settings→Code security→Secret scanning→Enable"
+PP="$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning_push_protection.status' 2>/dev/null || echo unknown)"
+[[ "$PP" == "enabled" ]] && record push-protection true "" || record push-protection false "Settings→Code security→Push protection→Enable"
+
+# Code scanning has analyses (SARIF upload lands here) (03 §53–§55)
+CS_COUNT="$(gh api "repos/$REPO/code-scanning/analyses?per_page=1" --jq 'length' 2>/dev/null || echo 0)"
+[[ "${CS_COUNT:-0}" -gt 0 ]] && record code-scanning true "" || record code-scanning false "Enable Advanced Code Scanning so pushed SARIF renders (or push once after enabling)"
+
+# Vulnerability alerts / Dependabot (03 §20–§21)
+VA="$(gh api "repos/$REPO/vulnerability-alerts" -i 2>/dev/null | head -1 | grep -c 204 || true)"
+[[ "$VA" == "1" ]] && record vulnerability-alerts true "" || record vulnerability-alerts false "Settings→Code security→Dependabot alerts→Enable"
+
+# Branch protection on primary branches (05 §14)
+BRANCHES_OK=1
+for b in main develop; do
+  if ! gh api "repos/$REPO/branches/$b/protection" >/dev/null 2>&1; then
+    BRANCHES_OK=0
+    break
+  fi
+done
+[[ "$BRANCHES_OK" == "1" ]] && record branch-protection true "" || record branch-protection false "Settings→Branches→Add protection/ruleset for main+develop (required checks: tests, linter)"
+
+# Rulesets present (05 §15–§16)
+RS="$(gh api "repos/$REPO/rulesets" --jq 'length' 2>/dev/null || echo 0)"
+[[ "${RS:-0}" -gt 0 ]] && record rulesets true "" || record rulesets false "Settings→Rules→Rulesets→New ruleset (require PR + status checks)"
+
+if [[ "$JSON" -eq 1 ]]; then
+  printf '{"repo":"%s","missing":%d,"results":[%s]}\n' \
+    "$REPO" "$MISSING" "$(IFS=,; echo "${RESULTS[*]:-}")"
+else
+  echo ""
+  if [[ "$MISSING" -eq 0 ]]; then
+    ok "GitHub settings: all baseline toggles enabled"
+  else
+    say "$MISSING toggle(s) pending — one sitting in Settings covers all hints above"
+  fi
+fi
+
+(( STRICT && MISSING > 0 )) && exit "$EX_CHECK"
+exit "$EX_OK"

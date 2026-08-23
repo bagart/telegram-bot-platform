@@ -73,6 +73,11 @@ PINT_ID="" PHPSTAN_ID="" ESLINT_ID="" PRETTIER_ID=""
 engine_register "line-endings" "" php tools/baseline/lf-check.php "$LF_SCOPE"
 engine_register "secret-scan" "" php tools/baseline/secret-scan.php "$SECRET_SCOPE"
 
+# --- Dual-mode dependency layout (todo.module-dual-mode.md §5) ---
+if [[ -f cmd/deps/check ]]; then
+  engine_register "deps-check" "" bash cmd/deps/check
+fi
+
 # --- PHP formatting + static analysis ---
 if command -v vendor/bin/pint >/dev/null 2>&1; then
   if [[ "$HEAVY" -eq 1 ]]; then

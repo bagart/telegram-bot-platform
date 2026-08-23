@@ -51,7 +51,7 @@ interface OutboundCacheContract
 - `KernelCacheAdapter` — cache-backed queue + cache (non-atomic counters — see above).
 - `RedisOutboundCache` — production atomic cache.
 
-⚠️ **Code-quality note:** the file `RedisOutboundQueueContractContractContractContract.php` in this directory has a mangled class name (repeated suffix). This is a pre-existing issue — flag it to the maintainer; do not propagate the name.
+⚠️ **Code-quality note:** the file `RedisOutboundQueue.php` in this directory has a mangled class name (repeated suffix). This is a pre-existing issue — flag it to the maintainer; do not propagate the name.
 
 Other adapters live in `php-async-kernel-client/src/Queue/Adapters/` (`CacheQueueAdapter`, `InMemoryQueueAdapter`, `LaravelQueueAdapter`, `QueueLaravelJob`) and `php-async-kernel-client-redis/src/Queue/` (`QueueRedisAdapter`). Registries: `OutboundQueueRegistry`, `QueueAdapterRegistry`, `CacheDriverRegistry`.
 

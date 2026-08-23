@@ -104,8 +104,8 @@ case "$SUITE" in
   async)     ARGS=(--compact --testsuite=AsyncKernelLib) ;;
   telegram)  ARGS=(--compact --testsuite=TelegramBotLib) ;;
   basic)     ARGS=(--compact --testsuite=TelegramBotBasicLib) ;;
-  management) ARGS=(--compact --testsuite=TelegramBotManagementLib) ;;
-  libs)      ARGS=(--compact --testsuite=TelegramBotLib --testsuite=TelegramBotBasicLib --testsuite=TelegramBotManagementLib --testsuite=AsyncKernelLib) ;;
+  management) ARGS=(--compact --testsuite=TelegramBotManagement) ;;
+  libs)      ARGS=(--compact --testsuite=TelegramBotLib --testsuite=TelegramBotBasicLib --testsuite=TelegramBotManagement --testsuite=AsyncKernelLib) ;;
   e2e)
     if command -v npx >/dev/null 2>&1 && grep -q "playwright" package.json 2>/dev/null; then
       if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 ]]; then say "e2e"; fi

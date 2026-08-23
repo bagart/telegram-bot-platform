@@ -14,7 +14,7 @@ groups:
           severity: critical
         annotations:
           summary: "Database or Redis unreachable"
-          runbook: "runbooks/_TEMPLATE.md"
+          runbook: "runbooks/alert-platform-dependency-down.md"
 
       - alert: DeadLettersPresent
         expr: tg_dlq_depth_total > 0
@@ -23,7 +23,7 @@ groups:
           severity: critical
         annotations:
           summary: "Dead letters are accumulating — inspect before replay"
-          runbook: "runbooks/_TEMPLATE.md (cmd/ops/replay is capped at 50/invocation)"
+          runbook: "runbooks/alert-dead-letters-present.md (cmd/ops/replay is capped at 50/invocation)"
 
   - name: tg-platform-warning
     rules:
@@ -34,7 +34,7 @@ groups:
           severity: warning
         annotations:
           summary: "Outbound queue depth sustained high (depth alone is not age — add queue-age metric before paging)"
-          runbook: "runbooks/_TEMPLATE.md"
+          runbook: "runbooks/alert-outbound-queue-growing.md"
 
       # Source series comes from cmd/ops/backup via the node_exporter textfile
       # collector (deploy/monitoring/export-app-metrics.sh / tg-backup.prom).
@@ -45,4 +45,4 @@ groups:
           severity: warning
         annotations:
           summary: "Last verified PostgreSQL backup is older than 26h (RPO target breached)"
-          runbook: "docs/dr.md §2 (cmd/ops/backup, then cmd/ops/backup-verify)"
+          runbook: "runbooks/alert-backup-stale.md (see also docs/dr.md §2; cmd/ops/backup, then cmd/ops/backup-verify)"

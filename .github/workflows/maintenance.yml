@@ -1,0 +1,45 @@
+name: maintenance
+
+# Scheduled hygiene (05-ci-cd-and-release.md §41): prune stale caches and
+# artifacts so storage quota does not silently fill up.
+
+on:
+  schedule:
+    - cron: '43 3 * * 6' # weekly, Saturday
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+concurrency:
+  group: maintenance-${{ github.ref }}
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Delete caches older than 30 days
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cutoff=$(date -d '30 days ago' +%s)
+          gh cache list --repo "${{ github.repository }}" --json id,lastAccessedAt --limit 200 |
+            jq -r --argjson cutoff "$cutoff" \
+              '.[] | select((.lastAccessedAt | fromdateiso8601) < $cutoff) | .id' |
+            while read -r id; do
+              gh cache delete "$id" --repo "${{ github.repository }}" || true
+            done
+
+      - name: Delete artifacts older than 30 days
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cutoff=$(date -d '30 days ago' +%s)
+          gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" |
+            jq -r --argjson cutoff "$cutoff" \
+              '.artifacts[] | select((.created_at | fromdateiso8601) < $cutoff) | .id' |
+            while read -r id; do
+              gh api --method DELETE "repos/${{ github.repository }}/actions/artifacts/$id" || true
+            done

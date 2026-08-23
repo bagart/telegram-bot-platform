@@ -6,4 +6,8 @@ parameters:
     paths:
         - app
         - misc
+    excludePaths:
+        - misc/BAGArt/php-async-kernel-client/vendor
+        - misc/BAGArt/telegram-bot-mafia-module/vendor
+        - misc/BAGArt/telegram-bot-tts-module/vendor
     inferPrivatePropertyTypeFromConstructor: true

@@ -5,8 +5,12 @@ declare(strict_types=1);
 /**
  * Line-ending control (02-developer-tooling.md §37): LF everywhere, never CRLF.
  *
+ * Files opted out via `.gitattributes -text` (intentional non-LF content such
+ * as negative fixtures) are exempt; --ignore-attributes reports them anyway
+ * for scanner self-tests.
+ *
  * Usage:
- *   php tools/baseline/lf-check.php --staged|--all|--paths=a,b [--fix] [--format=text|json]
+ *   php tools/baseline/lf-check.php --staged|--all|--paths=a,b [--fix] [--ignore-attributes] [--format=text|json]
  *
  * Exit codes: 0 clean (or fixed), 1 CRLF found, 2 usage error.
  */
@@ -26,6 +30,7 @@ $format = 'text';
 $fix = false;
 $mode = null;
 $explicitPaths = [];
+$ignoreAttributes = false;
 
 foreach (array_slice($argv, 1) as $arg) {
     if ($arg === '--staged' || $arg === '--all') {
@@ -35,12 +40,16 @@ foreach (array_slice($argv, 1) as $arg) {
         $explicitPaths = array_filter(explode(',', substr($arg, 8)));
     } elseif ($arg === '--fix') {
         $fix = true;
+    } elseif ($arg === '--ignore-attributes') {
+        // Scanner self-test mode (11 §84 negative fixtures): planted CRLF
+        // must be reported even where .gitattributes exempts the file.
+        $ignoreAttributes = true;
     } elseif ($arg === '--format=json' || $arg === '--json') {
         $format = 'json';
     } elseif ($arg === '--format=text') {
         $format = 'text';
     } else {
-        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/lf-check.php --staged|--all|--paths=a,b [--fix]\n");
+        fwrite(STDERR, "Unknown argument: {$arg}\nUsage: php tools/baseline/lf-check.php --staged|--all|--paths=a,b [--fix] [--ignore-attributes]\n");
         exit(EXIT_USAGE);
     }
 }
@@ -62,9 +71,14 @@ $files = match ($mode) {
     'paths' => $explicitPaths,
 };
 
+$exempt = array_flip($ignoreAttributes ? [] : gitEolExemptFiles($repoRoot, $files));
+
 $violations = [];
 $fixed = [];
 foreach ($files as $relative) {
+    if (isset($exempt[$relative])) {
+        continue;
+    }
     $absolute = "{$repoRoot}/{$relative}";
     if (!is_file($absolute) || isBinary($absolute)) {
         continue;
@@ -126,6 +140,41 @@ function gitFileList(string $root, array $args): array
     pclose($pipe);
 
     return $out === false ? [] : array_filter(explode("\0", $out));
+}
+
+/**
+ * Paths where .gitattributes explicitly opts out of eol management (-text);
+ * these declare intentional non-LF content (e.g. negative fixtures).
+ *
+ * @param string[] $files
+ * @return string[]
+ */
+function gitEolExemptFiles(string $root, array $files): array
+{
+    if ($files === []) {
+        return [];
+    }
+    $cmd = array_merge(['git', '-C', $root, 'check-attr', 'text', '-z', '--'], array_values($files));
+    $pipe = popen(implode(' ', array_map('escapeshellarg', $cmd)), 'r');
+    $out = stream_get_contents($pipe);
+    pclose($pipe);
+
+    if ($out === false || $out === '') {
+        return [];
+    }
+
+    $exempt = [];
+    foreach (array_chunk(explode("\0", $out), 3) as $record) {
+        if (count($record) < 3) {
+            continue;
+        }
+        [$path, , $value] = $record;
+        if ($path !== '' && $value === 'unset') {
+            $exempt[$path] = true;
+        }
+    }
+
+    return array_keys($exempt);
 }
 
 function isBinary(string $absolute): bool

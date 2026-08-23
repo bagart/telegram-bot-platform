@@ -10,13 +10,31 @@ SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/root.sh"
 source "$REPO_ROOT/cmd/lib/common.sh"
 source "$REPO_ROOT/cmd/lib/output.sh"
+source "$SCRIPT_DIR/lib.sh"
+
+usage() {
+  echo "Usage: cmd/deps/outdated [--mode=dev|prod|both]"
+}
+
+deps_parse_mode both "$@"
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 if command -v composer >/dev/null 2>&1; then
-  say "Composer outdated..."
-  composer outdated --direct 2>&1 || true
+  if [[ "$MODE" != "prod" ]]; then
+    say "Composer outdated (dev)..."
+    composer outdated --direct 2>&1 || true
+  fi
+  if [[ "$MODE" != "dev" ]]; then
+    if [[ -f "$PROD_LOCK" ]]; then
+      say "Composer outdated (prod)..."
+      COMPOSER="$PROD_MANIFEST" composer outdated --direct 2>&1 || true
+    else
+      warn "$PROD_LOCK not generated yet — prod outdated skipped"
+    fi
+  fi
 else
   warn "Composer not found — skipping"
 fi

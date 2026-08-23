@@ -1,6 +1,6 @@
 # Models & Migrations
 
-All three models live in `telegram-bot-management-lib/src/Models/`. Migrations in `telegram-bot-management-lib/database/migrations/`.
+All three models live in `telegram-bot-management/src/Models/`. Migrations in `telegram-bot-management/database/migrations/`.
 
 ## TgBot — the central bot record
 
@@ -84,7 +84,7 @@ Both are `BelongsToMany` (many-to-many): a bot can have multiple owners, and an 
 
 ## Migrations
 
-Located in `telegram-bot-management-lib/database/migrations/`:
+Located in `telegram-bot-management/database/migrations/`:
 - `create_tg_bots_table` — `bot_id` (PK), `token`, `secret_token` (nullable), `timestampsTz()`
 - `create_tg_bot_modules_table`
 - `create_tg_bot_owners_table`

@@ -1,0 +1,29 @@
+# WAL-archiving override for PITR (07-resilience-and-disaster-recovery.md §4–§6).
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yaml \
+#     -f deploy/postgres/pitr-compose.example.yml up -d postgres
+#
+# The postgres service starts archiving finished WAL segments into the
+# `wal-archive` volume every 5 minutes at most (archive_timeout). Combined
+# with nightly base backups this yields point-in-time recovery within ~5min
+# RPO instead of 24h dump-only.
+#
+# Restore procedure (into a fresh cluster):
+#   1. restore the newest base backup (cmd/ops/restore --confirm=database)
+#   2. copy archived segments into pg_wal/
+#      docker compose cp <wal-volume>:/wal-archive/. <new-pg>:/var/lib/postgresql/data/pg_wal/
+#   3. create recovery.signal and start; PostgreSQL replays to the target time
+#      (recovery_target_time = 'YYYY-MM-DD HH:MM:SS' in postgresql.auto.conf)
+services:
+  postgres:
+    command: >
+      postgres -c archive_mode=on
+               -c archive_command=test ! -f /wal-archive/%f && cp %p /wal-archive/%f
+               -c archive_timeout=300
+               -c wal_level=replica
+    volumes:
+      - wal-archive:/wal-archive
+
+volumes:
+  wal-archive:

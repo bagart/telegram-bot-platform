@@ -1,0 +1,28 @@
+[Unit]
+# Host-side supervision for one Telegram bot daemon instance (06 §12–§15).
+# Installed by cmd/ops/supervise-install; %i is the daemon name
+# (e.g. systemctl start tg-daemon@outbound).
+Description=Telegram platform daemon: %i
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/telegram-bot-platform
+ExecStart=/usr/bin/php /opt/telegram-bot-platform/artisan tg:daemons --daemon=%i
+Restart=on-failure
+# Crash-loop backoff (06 §13): 1s, then doubling up to 5min.
+RestartSec=1s
+StartLimitBurst=8
+StartLimitIntervalSec=300
+# Hard resource ceilings complementing tools/ops/watchdog.sh soft alerts.
+MemoryMax=2G
+TasksMax=512
+LimitNOFILE=8192
+TimeoutStopSec=90
+KillSignal=SIGTERM
+# Graceful drain relies on the ASK shutdown phases; SIGTERM is forwarded.
+Environment=TG_DAEMON_NAME=%i
+
+[Install]
+WantedBy=multi-user.target

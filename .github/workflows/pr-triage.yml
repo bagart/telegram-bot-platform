@@ -1,0 +1,31 @@
+# PR review-trigger labeling (03-security-and-supply-chain.md §45–§47).
+#
+# Applies the labels defined in .github/labeler.yml so security-sensitive PRs
+# are automatically flagged for elevated review. Uses pull_request_target with
+# a least-privilege token: the action only reads changed-file globs from the
+# base branch and writes labels — it never executes PR code.
+#
+# Local validation: php tools/baseline/yaml-lint.php
+
+name: Platform CI / Triage
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: triage-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: Label review triggers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
+        with:
+          configuration-path: .github/labeler.yml

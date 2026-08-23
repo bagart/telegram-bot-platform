@@ -60,7 +60,7 @@ $map = [
     'php-async-kernel-client-redis' => ['bagart/ask-client-redis',   'BAGArt\\ASKClientRedis'],
     'telegram-bot-lib'           => ['bagart/telegram-bot-lib',       'BAGArt\\TelegramBot'],
     'telegram-bot-basic-lib'     => ['bagart/telegram-bot-basic-lib', 'BAGArt\\TelegramBotBasic'],
-    'telegram-bot-management-lib'=> ['bagart/telegram-bot-management-lib', 'BAGArt\\TelegramBotManagement'],
+    'telegram-bot-management'=> ['bagart/telegram-bot-management', 'BAGArt\\TelegramBotManagement'],
 ];
 
 // 1. Add path repositories

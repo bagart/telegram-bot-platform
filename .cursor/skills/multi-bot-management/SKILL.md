@@ -1,6 +1,6 @@
 ---
 name: multi-bot-management
-description: "Apply when working on multi-bot management (misc/BAGArt/telegram-bot-management-lib/) — the TgBot/TgBotOwner/TgBotModule models, migrations, tg_webhook routes/controllers/middlewares, DB token resolution, and the tgbm:* Artisan commands. Trigger when creating or editing TgBot, TgBotOwner, TgBotModule, TgDbTokenResolver, TgWebhookController, TgWebhookWithAutoSecretRequest, TgIpValidatorMiddleware, TgSecretValidatorMiddleware, TgBotIdResolverMiddleware, TelegramIpValidator, or any migration in database/migrations/. Also trigger when wiring tg_webhook routes in routes/web.php, registering commands in TelegramBotManagementServiceProvider, or resolving a bot token/secret from the database. Covers: tg_webhook endpoint structure (POST /tg/, POST /tg/tg_webhook/{bot_id}), tokens-in-DB rule, Telegram IP CIDR allowlist, secret-token validation, routes-loaded-from-main-app rule. Do NOT use for outbound queue/pipeline internals (use outbound-pipeline-development) or for async-kernel daemon lifecycle (use async-kernel-development)."
+description: "Apply when working on multi-bot management (misc/BAGArt/telegram-bot-management/) — the TgBot/TgBotOwner/TgBotModule models, migrations, tg_webhook routes/controllers/middlewares, DB token resolution, and the tgbm:* Artisan commands. Trigger when creating or editing TgBot, TgBotOwner, TgBotModule, TgDbTokenResolver, TgWebhookController, TgWebhookWithAutoSecretRequest, TgIpValidatorMiddleware, TgSecretValidatorMiddleware, TgBotIdResolverMiddleware, TelegramIpValidator, or any migration in database/migrations/. Also trigger when wiring tg_webhook routes in routes/web.php, registering commands in TelegramBotManagementServiceProvider, or resolving a bot token/secret from the database. Covers: tg_webhook endpoint structure (POST /tg/, POST /tg/tg_webhook/{bot_id}), tokens-in-DB rule, Telegram IP CIDR allowlist, secret-token validation, routes-loaded-from-main-app rule. Do NOT use for outbound queue/pipeline internals (use outbound-pipeline-development) or for async-kernel daemon lifecycle (use async-kernel-development)."
 license: MIT
 metadata:
   author: BAGArt
@@ -8,7 +8,7 @@ metadata:
 
 # Multi-Bot Management
 
-`telegram-bot-management-lib` is the Laravel-facing layer: it owns the DB schema for bots/owners/modules, the webhook HTTP layer, and the `tgbm:*` CLI commands. The actual message processing happens in `telegram-bot-lib`.
+`telegram-bot-management` is the Laravel-facing layer: it owns the DB schema for bots/owners/modules, the webhook HTTP layer, and the `tgbm:*` CLI commands. The actual message processing happens in `telegram-bot-lib`.
 
 ## The Tokens-in-DB Rule
 

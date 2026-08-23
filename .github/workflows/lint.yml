@@ -1,4 +1,4 @@
-name: linter
+name: Platform CI / Quality
 
 on:
   push:

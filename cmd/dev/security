@@ -32,7 +32,29 @@ require_root_dir
 cd "$REPO_ROOT"
 
 __audit_composer() {
-  composer audit --no-dev
+  # Advisories fail the control; abandoned status stays report-only (upstream
+  # lifecycle, not a vulnerability). Verdict is derived from JSON so the
+  # control behaves identically on composers without --abandoned (<2.9).
+  local out rc=0
+  out="$(composer audit --no-dev --format=json 2>/dev/null)" || rc=$?
+  if [[ "$rc" -ne 0 && -z "$out" ]]; then
+    echo "composer audit failed to run" >&2
+    return 1
+  fi
+  printf '%s\n' "$out" | php -r '
+$data = json_decode((string) stream_get_contents(STDIN), true) ?: [];
+$advisories = $data["advisories"] ?? [];
+if (isset($advisories["data"]) && is_array($advisories["data"])) {
+    $advisories = $advisories["data"];
+}
+$count = 0;
+foreach ((array) $advisories as $entries) {
+    $count += is_array($entries) ? count($entries) : 0;
+}
+$abandoned = $data["abandoned"] ?? [];
+printf("%d security advisory(ies), %d abandoned package(s)\n", $count, is_array($abandoned) ? count($abandoned) : 0);
+exit($count > 0 ? 1 : 0);
+'
 }
 
 __audit_npm() {

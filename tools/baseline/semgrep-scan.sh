@@ -43,7 +43,7 @@ if [[ "$CHANGED_ONLY" -eq 1 ]]; then
   done < <(git diff --name-only --diff-filter=ACM "$BASE_REF" -- app tests \
       misc/BAGArt/php-async-kernel-lib/src misc/BAGArt/php-async-kernel-client/src \
       misc/BAGArt/php-async-kernel-client-redis/src misc/BAGArt/telegram-bot-lib/src \
-      misc/BAGArt/telegram-bot-basic-lib/src misc/BAGArt/telegram-bot-management-lib/src || true)
+      misc/BAGArt/telegram-bot-basic-lib/src misc/BAGArt/telegram-bot-management/src || true)
   if [[ ${#TARGETS[@]} -eq 0 ]]; then
     echo "no changed files under scan targets — nothing to scan"
     exit 0
@@ -59,7 +59,7 @@ else
     misc/BAGArt/php-async-kernel-client-redis/src
     misc/BAGArt/telegram-bot-lib/src
     misc/BAGArt/telegram-bot-basic-lib/src
-    misc/BAGArt/telegram-bot-management-lib/src
+    misc/BAGArt/telegram-bot-management/src
   )
 fi
 

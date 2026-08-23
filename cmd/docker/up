@@ -4,9 +4,10 @@
 # Usage:
 #   cmd/docker/up                     # normal dev stack
 #   cmd/docker/up ai                  # dev stack + ai Compose profile
+#   cmd/docker/up stt                 # dev stack + stt Compose profile (Local Whisper)
 #   cmd/docker/up postgres redis      # targeted services
 #
-# `ai` is a semantic profile argument, never passed as a service name.
+# `ai` and `stt` are semantic profile arguments, never passed as service names.
 
 set -euo pipefail
 
@@ -18,27 +19,53 @@ source "$REPO_ROOT/cmd/lib/docker.sh"
 require_docker
 source "$REPO_ROOT/cmd/lib/output.sh"
 
+# Read KEY from .env without executing it; an exported environment variable
+# takes precedence over the file value (standard dotenv semantics).
+profile_env_value() {
+  local key="$1" file="$REPO_ROOT/.env" value=""
+  if [[ -f "$file" ]]; then
+    value="$(sed -nE "s/^${key}=(.*)\$/\\1/p" "$file" | tail -n 1)"
+    value="${value%\"}"
+    value="${value#\"}"
+    value="${value%\'}"
+    value="${value#\'}"
+    value="${value//[[:space:]]/}"
+  fi
+  printf '%s' "${!key:-$value}"
+}
+
 PROFILES=()
 SERVICES=()
 AI_REQUESTED=false
+STT_REQUESTED=false
 for arg in "$@"; do
   case "$arg" in
-    ai) PROFILES+=(--profile ai); AI_REQUESTED=true ;;
-    *)  SERVICES+=("$arg") ;;
+    ai)  PROFILES+=(--profile ai); AI_REQUESTED=true ;;
+    stt) PROFILES+=(--profile stt); STT_REQUESTED=true ;;
+    *)   SERVICES+=("$arg") ;;
   esac
 done
 
 if [[ "$AI_REQUESTED" == true ]]; then
   missing=()
-  [[ -z "${OMNIROUTE_JWT_SECRET:-}" ]]    && missing+=("OMNIROUTE_JWT_SECRET")
-  [[ -z "${OMNIROUTE_API_KEY_SECRET:-}" ]] && missing+=("OMNIROUTE_API_KEY_SECRET")
-  [[ -z "${OMNIROUTE_PASSWORD:-}" ]]       && missing+=("OMNIROUTE_PASSWORD")
+  [[ -z "$(profile_env_value OMNIROUTE_JWT_SECRET)" ]]     && missing+=("OMNIROUTE_JWT_SECRET")
+  [[ -z "$(profile_env_value OMNIROUTE_API_KEY_SECRET)" ]] && missing+=("OMNIROUTE_API_KEY_SECRET")
+  [[ -z "$(profile_env_value OMNIROUTE_PASSWORD)" ]]       && missing+=("OMNIROUTE_PASSWORD")
   if [[ ${#missing[@]} -gt 0 ]]; then
     err "AI profile requested but required secrets are not set:"
     for v in "${missing[@]}"; do
       echo "  - $v" >&2
     done
     echo "  Set them in .env and retry." >&2
+    exit "$EX_USAGE"
+  fi
+fi
+
+if [[ "$STT_REQUESTED" == true ]]; then
+  if [[ "$(profile_env_value STT_WHISPER_ENABLED)" != "true" ]]; then
+    err "STT profile requested but the opt-in switch is off:"
+    echo "  - Set STT_WHISPER_ENABLED=true in .env (default: false)" >&2
+    echo "  While off, nothing Whisper-related is pulled, started or downloaded." >&2
     exit "$EX_USAGE"
   fi
 fi

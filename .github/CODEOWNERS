@@ -18,7 +18,7 @@
 # Telegram libraries
 /misc/BAGArt/telegram-bot-lib/          @bagart
 /misc/BAGArt/telegram-bot-basic-lib/    @bagart
-/misc/BAGArt/telegram-bot-management-lib/ @bagart
+/misc/BAGArt/telegram-bot-management/ @bagart
 
 # Security baseline
 /tools/baseline/secret-scan.php         @bagart

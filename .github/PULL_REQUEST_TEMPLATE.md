@@ -15,6 +15,7 @@ Reference: .agents/skills/highload-stability/rules/checklist.md
 - [ ] Refactor (no behavior change)
 - [ ] Docs / agent infrastructure
 - [ ] Hot path (daemon / queue / middleware / webhook) — **fill the reliability checklist below**
+- [ ] AI-assisted (transparency only — AI-origin code passes exactly the same gates; 03 §46)
 
 ## Verification
 

@@ -13,6 +13,9 @@ Development and production Docker environments for Telegram Bot Manager.
 
 # Start with AI profile (OmniRoute)
 ./cmd/docker/up ai
+
+# Start with STT profile (Local Whisper) — requires STT_WHISPER_ENABLED=true in .env
+./cmd/docker/up stt
 ```
 
 ## Development Stack
@@ -22,10 +25,12 @@ Services: caddy, php-fpm, workspace, postgres, redis, swagger, xhprof-inbox
 ```bash
 ./cmd/docker/up              # start all dev services
 ./cmd/docker/up ai           # start with OmniRoute AI profile
+./cmd/docker/up stt          # start with Local Whisper STT profile (opt-in)
 ./cmd/docker/down            # stop (keeps volumes)
 ./cmd/docker/down -v         # stop and remove volumes (destructive)
 ./cmd/docker/logs            # tail all logs
 ./cmd/docker/logs php-fpm    # tail specific service
+./cmd/docker/logs whisper    # tail Local Whisper logs (when profile is on)
 ./cmd/docker/ps              # show container status
 ./cmd/docker/build           # rebuild images (uses cache)
 ./cmd/docker/build --no-cache  # rebuild without cache (slow)
@@ -63,6 +68,41 @@ Required `.env` variables:
 The `/v1/*` namespace is reserved for OmniRoute.
 Laravel routes must not claim this prefix.
 
+## STT Profile (Local Whisper)
+
+Opt-in OpenAI-compatible speech-to-text (speaches, faster-whisper on CPU).
+Disabled by default: while `STT_WHISPER_ENABLED` is not `true`, no image is
+pulled, no container starts and no model weights are downloaded — for both
+dev and production stacks.
+
+```bash
+# 1. Set in .env
+STT_WHISPER_ENABLED=true
+STT_WHISPER_MODEL=Systran/faster-whisper-large-v3   # any faster-whisper HF ID
+
+# 2. Start (pulls the ~2 GB image; model weights download once into a volume)
+./cmd/docker/up stt          # dev
+docker compose -f docker-compose.prod.yaml --profile stt up -d   # prod
+
+# 3. Verify
+curl http://localhost:8000/health
+```
+
+Optional `.env` variables:
+- `STT_WHISPER_PORT` (default `8000`)
+- `STT_WHISPER_API_KEY` (empty = unauthenticated; set to require Bearer auth)
+- `STT_WHISPER_MODEL` (HuggingFace ID, preloaded at startup)
+
+Notes:
+- speaches expects full HuggingFace model IDs (`Systran/faster-whisper-*`),
+  so point the STT module at it via the admin custom provider JSON with
+  `base_url http://localhost:8000/v1` (host) or `http://whisper:8000/v1`
+  (from inside the docker network) and the same `model` value.
+- Model weights live in the `whisper-models` volume (~3 GB for large-v3);
+  first startup downloads them before `/health` turns green.
+- large-v3 on CPU wants roughly 8 GB RAM; `WHISPER__COMPUTE_TYPE=int8`
+  (preset in compose) reduces that.
+
 ## Ports
 
 | Service    | Port  | Description              |
@@ -73,6 +113,7 @@ Laravel routes must not claim this prefix.
 | Vite       | 5173  | Frontend dev server      |
 | OmniRoute  | 20128 | AI dashboard             |
 | OmniRoute  | 20129 | AI API                   |
+| Whisper    | 8000  | STT API (stt profile)    |
 
 ## Volumes
 
@@ -81,6 +122,8 @@ Laravel routes must not claim this prefix.
 | postgres-data-development | Dev database data     |
 | postgres-data-production  | Prod database data    |
 | omniroute-data            | OmniRoute AI data     |
+| whisper-models            | Local Whisper weights (stt profile, dev) |
+| whisper-models-production | Local Whisper weights (stt profile, prod) |
 | laravel-storage-production| Prod storage          |
 | laravel-public-assets     | Prod frontend assets  |
 
@@ -106,6 +149,14 @@ Laravel routes must not claim this prefix.
 **AI profile fails:**
 - Ensure `OMNIROUTE_JWT_SECRET`, `OMNIROUTE_API_KEY_SECRET`, `OMNIROUTE_PASSWORD` are set in `.env`
 - Run `./cmd/dev/doctor` to check
+
+**STT profile refused (`up stt` exits immediately):**
+- Set `STT_WHISPER_ENABLED=true` in `.env` — this is the explicit opt-in switch
+
+**Whisper container unhealthy / `/health` unreachable:**
+- First start downloads model weights (~3 GB); watch `./cmd/docker/logs whisper`
+- large-v3 needs ~8 GB RAM even with int8; use a smaller
+  `Systran/faster-whisper-*` model if the host is constrained
 
 **Caddy 502 for OmniRoute:**
 - Run `./cmd/docker/up ai` to start the OmniRoute container

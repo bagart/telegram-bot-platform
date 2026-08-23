@@ -9,61 +9,43 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // --- Telegram bot scheduled daemons ---
+// Daemons spawn as detached processes via the named command below; per-daemon
+// enablement, cron expressions and options live in config/telegram.php.
 
 app()->booted(function (): void {
     $schedule = app(Schedule::class);
 
-    $tgLibPath = base_path('misc/BAGArt/telegram-bot-lib');
+    $daemons = [
+        'poll' => 'tg:poll-daemon',
+        'queue_processor' => 'tg:queue-processor-daemon',
+        'outbound' => 'tg:outbound-daemon',
+    ];
 
-    $schedule->call(function () use ($tgLibPath) {
-        $poll = config('telegram.schedule.poll');
-        if (empty($poll['enabled'])) {
-            return;
+    foreach ($daemons as $daemon => $event) {
+        $expression = config("telegram.schedule.$daemon.expression", '* * * * *');
+        if (! is_string($expression)) {
+            continue;
         }
 
-        $tokenArg = $poll['token'] ? ' --token='.escapeshellarg($poll['token']) : '';
-        $extraOpts = $poll['options'] ? ' '.$poll['options'] : '';
+        $schedule->command('tg:spawn-daemon', ['daemon' => $daemon])
+            ->cron($expression)
+            ->name($event)
+            ->withoutOverlapping();
+    }
 
-        exec(
-            PHP_BINARY.' '.escapeshellarg($tgLibPath.'/commands/tg_daemons-daemon.php').$tokenArg.$extraOpts.' > /dev/null 2>&1 &'
-        );
-    })->cron(config('telegram.schedule.poll.expression', '* * * * *'))
-      ->name('tg:poll-daemon')
-      ->withoutOverlapping();
+    $schedule->command('summarizer:digests')
+        ->cron(config('telegram.schedule.poll.expression', '* * * * *'))
+        ->name('summarizer:digests')
+        ->withoutOverlapping()
+        ->when(fn (): bool => (bool) config('telegram.schedule_summarizer_enabled', true));
 
-    $schedule->call(function () use ($tgLibPath) {
-        $qp = config('telegram.schedule.queue_processor');
-        if (empty($qp['enabled'])) {
-            return;
-        }
+    $schedule->command('stt:prune')
+        ->daily()
+        ->withoutOverlapping()
+        ->when(fn (): bool => (bool) config('telegram.schedule_stt_prune_enabled', true));
 
-        $opts = ' --redis-host='.escapeshellarg($qp['redis_host'])
-            .' --redis-port='.escapeshellarg((string) $qp['redis_port'])
-            .' --request-queue='.escapeshellarg($qp['request_queue']);
-        $extraOpts = $qp['options'] ? ' '.$qp['options'] : '';
-
-        exec(
-            PHP_BINARY.' '.escapeshellarg($tgLibPath.'/commands/processor-daemon.php').$opts.$extraOpts.' > /dev/null 2>&1 &'
-        );
-    })->cron(config('telegram.schedule.queue_processor.expression', '* * * * *'))
-      ->name('tg:queue-processor-daemon')
-      ->withoutOverlapping();
-
-    $schedule->call(function () use ($tgLibPath) {
-        $ob = config('telegram.schedule.outbound');
-        if (empty($ob['enabled'])) {
-            return;
-        }
-
-        $opts = ' --redis-host='.escapeshellarg($ob['redis_host'])
-            .' --redis-port='.escapeshellarg((string) $ob['redis_port'])
-            .' --request-queue='.escapeshellarg($ob['request_queue']);
-        $extraOpts = $ob['options'] ? ' '.$ob['options'] : '';
-
-        exec(
-            PHP_BINARY.' '.escapeshellarg($tgLibPath.'/commands/outbound-daemon.php').$opts.$extraOpts.' > /dev/null 2>&1 &'
-        );
-    })->cron(config('telegram.schedule.outbound.expression', '* * * * *'))
-      ->name('tg:outbound-daemon')
-      ->withoutOverlapping();
+    $schedule->command('tts:prune')
+        ->daily()
+        ->withoutOverlapping()
+        ->when(fn (): bool => (bool) config('tts.schedule_prune_enabled', true));
 });
