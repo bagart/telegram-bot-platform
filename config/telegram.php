@@ -15,6 +15,10 @@ $configTelegram = [
 
     'debug' => false,
 
+    // Opt-in only for local/staging load runs: loopback/private webhook
+    // sources skip the Telegram CIDR allowlist. Keep off in production.
+    'webhook_allow_local_ips' => (bool) env('TG_WEBHOOK_ALLOW_LOCAL_IPS', false),
+
     /*
     |--------------------------------------------------------------------------
     | Polling Defaults
@@ -120,41 +124,42 @@ $configTelegram = [
             'options' => env('SCHEDULE_TG_OUTBOUND_OPTIONS', ''),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Schedule — Summarizer digests
+    |--------------------------------------------------------------------------
+    |
+    | Cron that scans enabled chats and produces due digests (command provided
+    | by bagart/telegram-bot-summarizer-module). Module runtime settings live
+    | in the module's own summarizer.php config.
+    | Set SCHEDULE_SUMMARIZER_ENABLED=false to disable.
+    |
+    */
+    'schedule_summarizer_enabled' => (bool) env('SCHEDULE_SUMMARIZER_ENABLED', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Schedule — STT prune
+    |--------------------------------------------------------------------------
+    |
+    | Nightly retention sweep for the stt module (command provided by
+    | bagart/telegram-bot-stt-module). Module runtime settings live in the
+    | module's own stt.php config. Set SCHEDULE_STT_PRUNE_ENABLED=false to disable.
+    |
+    */
+    'schedule_stt_prune_enabled' => (bool) env('SCHEDULE_STT_PRUNE_ENABLED', true),
 ];
 
 // Local module discovery: each folder modules/<Name>/config.php must return
 // ['provider' => TgModuleContract::class]. Composer-installed modules are
 // listed in 'modules_providers' below. Both sources are booted by
 // TelegramBotServiceProvider::bootModules().
-$configTelegram['modules'] = (function (): array {
-    $configTelegramModules = [];
-    $configTelegramModulesPath = base_path().DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
-    $paths = is_dir($configTelegramModulesPath) ? scandir($configTelegramModulesPath) : [];
+$configTelegram['modules'] = \App\Config\TgModulesDiscovery::discover();
 
-    foreach ($paths as $moduleName) {
-        if (in_array($moduleName, ['.', '..'])) {
-            continue;
-        }
-        if (! is_dir($configTelegramModulesPath.$moduleName)) {
-            continue;
-        }
-        $curConfigFile = $configTelegramModulesPath.$moduleName.DIRECTORY_SEPARATOR.'config.php';
-        // is_file instead of is_readable: is_readable is unreliable on Windows drives
-        if (! is_file($curConfigFile)) {
-            continue;
-        }
-        $curConfig = include $curConfigFile;
-        if (! $curConfig) {
-            continue;
-        }
-        $configTelegramModules[$moduleName] = $curConfig;
-    }
-
-    return $configTelegramModules;
-})();
-
-// Composer-installed modules: list of TgModuleContract class-strings,
-// published by packages into the app config.
+// Composer-installed modules: list of TgModuleContract class-strings.
+// Empty by default — module packages self-register their provider class from
+// their Laravel service providers (see bootstrap/providers.php).
 $configTelegram['modules_providers'] = [];
 
 $remap = ['log_channel'];

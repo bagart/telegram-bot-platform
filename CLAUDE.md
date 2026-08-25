@@ -229,7 +229,7 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - `misc/BAGArt/telegram-bot-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
 - `misc/BAGArt/telegram-bot-antispam-module` — anti-spam module (`TgModuleContract` plugin)
 - `misc/BAGArt/telegram-bot-summarizer-module` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
-- `misc/BAGArt/telegram-bot-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit: SSRF guard, quotas, probe cache/semaphore, `/nt` + `/quota` via attributed commands; RFC: `docs/tasks/todo.nettools.md`)
+- `misc/BAGArt/telegram-bot-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
 - `misc/BAGArt/telegram-bot-mafia-module` — Mafia game module (`TgModuleContract` plugin; plan: `docs/tasks/mafia/todo.mafia.md`)
 
 **Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:

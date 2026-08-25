@@ -45,7 +45,9 @@ has_surface() {
   [[ " $SURFACES " == *" $1 "* ]]
 }
 
-PROFILES="$(bash tools/baseline/profiles.sh 2>/dev/null || echo "")"
+# Profiles compose (10 §6): telegram implies the relevant parts of
+# async-runtime and laravel, so profile-gated controls fire consistently.
+PROFILES="$(bash tools/baseline/profiles.sh --with-implied 2>/dev/null || echo "")"
 has_profile() {
   [[ " $PROFILES " == *" $1 "* ]]
 }
@@ -117,6 +119,25 @@ fi
 if [[ "$HEAVY" -eq 1 ]] && [[ -f vendor/bin/pest ]]; then
   engine_register "tests" "$PHPSTAN_ID" php artisan test --compact
 fi
+
+# --- Targeted library suites on the fast path (10 §6) ---
+# When a library surface changed and its owning profile is active, run that
+# suite immediately instead of waiting for --full. At heavy levels the full
+# `tests` control already covers every suite.
+run_lib_suite() {
+  local surface="$1" suite="$2" profile="$3"
+  if [[ "$HEAVY" -eq 0 && "$LEVEL" == "default" ]] \
+    && has_surface "$surface" && has_profile "$profile" && [[ -f vendor/bin/pest ]]; then
+    engine_register "tests ($suite)" "" vendor/bin/pest --testsuite "$suite" --compact
+  fi
+  return 0
+}
+run_lib_suite async AsyncKernelLib async-runtime
+run_lib_suite async ASKClientLib async-runtime
+run_lib_suite async ASKClientRedisLib async-runtime
+run_lib_suite telegram TelegramBotLib telegram
+run_lib_suite telegram TelegramBotBasicLib telegram
+run_lib_suite telegram TelegramBotManagement telegram
 
 # --- Docker ---
 if has_profile docker && { [[ "$HEAVY" -eq 1 ]] || has_surface docker; }; then

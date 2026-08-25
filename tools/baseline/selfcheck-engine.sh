@@ -70,5 +70,21 @@ source cmd/lib/common.sh; source cmd/lib/output.sh; source cmd/lib/contract.sh; 
 [[ "$ENGINE_MAX_JOBS" == "16" ]] && echo maxjobs-clamp: OK || echo maxjobs-clamp: FAIL
 ' >>"$OUT" 2>&1
 
+# 5) Profile composition (10 §6): --with-implied must keep detection stable,
+#    emit valid JSON and imply async-runtime + laravel from telegram.
+profiles="$(bash tools/baseline/profiles.sh 2>/dev/null || true)"
+implied="$(bash tools/baseline/profiles.sh --with-implied 2>/dev/null || true)"
+json="$(bash tools/baseline/profiles.sh --with-implied --format=json 2>/dev/null || true)"
+json_ok=0
+php -r '$d=json_decode($argv[1],true); exit(isset($d["profiles"])&&is_array($d["profiles"])?0:1);' "$json" && json_ok=1
+if grep -qw telegram <<<"$implied" \
+  && grep -qw async-runtime <<<"$implied" \
+  && grep -qw laravel <<<"$implied" \
+  && [[ "$json_ok" -eq 1 ]]; then
+  printf 'profiles-compose: OK\n' >>"$OUT"
+else
+  printf 'profiles-compose: FAIL (detected=[%s] implied=[%s] json=%s)\n' "$profiles" "$implied" "$json" >>"$OUT"
+fi
+
 rm -f .cache/baseline/cycle-case.sh .cache/baseline/resume-case.sh .cache/baseline/budget-case.sh
 echo DONE >>"$OUT"

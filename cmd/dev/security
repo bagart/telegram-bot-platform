@@ -31,6 +31,13 @@ if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 require_root_dir
 cd "$REPO_ROOT"
 
+# Profile-aware framework checks (10 §6): Laravel-profile security checks
+# only run when the laravel profile is actually detected.
+PROFILES="$(bash tools/baseline/profiles.sh --with-implied 2>/dev/null || echo "")"
+has_profile() {
+  [[ " $PROFILES " == *" $1 "* ]]
+}
+
 __audit_composer() {
   # Advisories fail the control; abandoned status stays report-only (upstream
   # lifecycle, not a vulnerability). Verdict is derived from JSON so the
@@ -99,9 +106,19 @@ __composer_lifecycle_scripts() {
 }
 
 # Security configuration checks (03 §28). Violations block in production
-# environments only; elsewhere they are reported as warnings.
+# environments only; elsewhere they are reported as warnings. The opinionated
+# framework checks are profile-gated (03 §28, 10 §6).
 __config_security() {
-  php tools/baseline/config-security.php
+  local args=()
+  has_profile laravel && args+=(--profile=laravel)
+  php tools/baseline/config-security.php "${args[@]+"${args[@]}"}"
+}
+
+# Architectural security-invariant audit (03 §65): the 12 SEC invariants
+# stay wired into the repo (scanners CI-connected, scoped exceptions,
+# policy-driven controls).
+__sec_invariants() {
+  php tools/baseline/sec-invariants.php
 }
 
 if [[ "$OFFLINE" -eq 1 ]]; then
@@ -119,6 +136,7 @@ engine_register "env-not-tracked" "" __env_not_tracked
 engine_register "composer-plugin-policy" "" __composer_plugin_policy
 engine_register "composer-lifecycle-scripts" "" __composer_lifecycle_scripts
 engine_register "config-security" "" __config_security
+engine_register "sec-invariants" "" __sec_invariants
 
 if ! engine_execute; then
   FAILS=1

@@ -76,32 +76,44 @@ pulled, no container starts and no model weights are downloaded — for both
 dev and production stacks.
 
 ```bash
-# 1. Set in .env
+# 1. Set in .env (STT_WHISPER_API_KEY must be NON-empty — see gotchas)
 STT_WHISPER_ENABLED=true
-STT_WHISPER_MODEL=Systran/faster-whisper-large-v3   # any faster-whisper HF ID
+STT_WHISPER_MODEL=Systran/faster-whisper-small   # any faster-whisper HF ID
 
-# 2. Start (pulls the ~2 GB image; model weights download once into a volume)
+# 2. Start (pulls the ~2 GB image)
 ./cmd/docker/up stt          # dev
 docker compose -f docker-compose.prod.yaml --profile stt up -d   # prod
 
-# 3. Verify
-curl http://localhost:8000/health
+# 3. Download model weights once (~500 MB small / ~3 GB large-v3)
+curl -X POST -H "Authorization: Bearer $STT_WHISPER_API_KEY" \
+     "http://localhost:${STT_WHISPER_PORT:-8000}/v1/models/$STT_WHISPER_MODEL"
+
+# 4. Verify
+curl -H "Authorization: Bearer $STT_WHISPER_API_KEY" \
+     "http://localhost:${STT_WHISPER_PORT:-8000}/health"
 ```
 
-Optional `.env` variables:
+Required/optional `.env` variables:
+- `STT_WHISPER_ENABLED` — the opt-in switch; `false` (default) means nothing
+  is pulled, started or downloaded
+- `STT_WHISPER_API_KEY` — **must be non-empty**: current speaches images
+  answer `403 Not authenticated` on every endpoint, `/health` included,
+  when the configured key is blank; generate one with `openssl rand -hex 16`
 - `STT_WHISPER_PORT` (default `8000`)
-- `STT_WHISPER_API_KEY` (empty = unauthenticated; set to require Bearer auth)
-- `STT_WHISPER_MODEL` (HuggingFace ID, preloaded at startup)
+- `STT_WHISPER_MODEL` (HuggingFace ID)
 
-Notes:
+Gotchas & notes:
+- Current speaches images ignore `PRELOAD_MODELS` and do not download models
+  lazily — use the `POST /v1/models/{model_id}` call above; weights persist
+  in the `whisper-models` volume.
 - speaches expects full HuggingFace model IDs (`Systran/faster-whisper-*`),
   so point the STT module at it via the admin custom provider JSON with
   `base_url http://localhost:8000/v1` (host) or `http://whisper:8000/v1`
   (from inside the docker network) and the same `model` value.
-- Model weights live in the `whisper-models` volume (~3 GB for large-v3);
-  first startup downloads them before `/health` turns green.
-- large-v3 on CPU wants roughly 8 GB RAM; `WHISPER__COMPUTE_TYPE=int8`
-  (preset in compose) reduces that.
+- Measured on a 24-thread dev box, 11 s speech sample, int8:
+  `small` ≈ 6 s p50 (fits the module's 30 s budget), `large-v3` ≈ 28 s p50
+  (RTF ~2.5 — over budget); both peak around 3.5–4.5 CPU threads,
+  large-v3 resident RAM ≈ 3.5 GiB. Prefer `small`/`base` for CPU boxes.
 
 ## Ports
 
@@ -153,10 +165,13 @@ Notes:
 **STT profile refused (`up stt` exits immediately):**
 - Set `STT_WHISPER_ENABLED=true` in `.env` — this is the explicit opt-in switch
 
-**Whisper container unhealthy / `/health` unreachable:**
-- First start downloads model weights (~3 GB); watch `./cmd/docker/logs whisper`
-- large-v3 needs ~8 GB RAM even with int8; use a smaller
-  `Systran/faster-whisper-*` model if the host is constrained
+**Whisper answers `403 Not authenticated` on everything:**
+- Set a non-empty `STT_WHISPER_API_KEY` (blank key = lockout on current
+  speaches images), then recreate the container: `./cmd/docker/up stt`
+
+**Whisper returns "model … is not installed locally":**
+- Download weights once:
+  `curl -X POST -H "Authorization: Bearer $STT_WHISPER_API_KEY" http://localhost:${STT_WHISPER_PORT:-8000}/v1/models/$STT_WHISPER_MODEL`
 
 **Caddy 502 for OmniRoute:**
 - Run `./cmd/docker/up ai` to start the OmniRoute container

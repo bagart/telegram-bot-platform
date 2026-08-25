@@ -37,9 +37,12 @@ ctl_manifest()      { php tools/baseline/manifest.php --verify; }
 ctl_image_policy()  { bash tools/baseline/image-policy.sh; }
 ctl_quarantine()    { php tools/baseline/quarantine-check.php; }
 ctl_github_policy() { php tools/baseline/github-policy.php; }
+ctl_sec_invariants() { php tools/baseline/sec-invariants.php; }
+ctl_baseline_config() { php tools/baseline/baseline-config.php --validate; }
 ctl_artifact_scan() { bash tools/baseline/artifact-scan.sh; }
 ctl_selfcheck()     { bash tools/baseline/selfcheck-engine.sh; }
 ctl_quick_gate()    { bash cmd/dev/check --quick --quiet; }
+ctl_baseline_health() { bash cmd/baseline/health --quiet; }
 ctl_readiness()     { bash cmd/ops/readiness; }
 
 # NOTE: perf-baselines compare deliberately absent (08 §54: benchmarks are
@@ -51,10 +54,13 @@ engine_register "shell-syntax"   ""            ctl_shell_syntax
 engine_register "manifest-sync"  ""            ctl_manifest
 engine_register "image-policy"   ""            ctl_image_policy
 engine_register "quarantine"     ""            ctl_quarantine
-engine_register "github-policy"  ""            ctl_github_policy
-engine_register "artifact-scan"  ""            ctl_artifact_scan
+engine_register "github-policy"  "" ctl_github_policy
+engine_register "sec-invariants" "" ctl_sec_invariants
+engine_register "baseline-config" "" ctl_baseline_config
+engine_register "artifact-scan"  "" ctl_artifact_scan
 engine_register "engine-selfcheck" "lint-config" ctl_selfcheck
 engine_register "quick-gate"     "manifest-sync" ctl_quick_gate
+engine_register "baseline-health" "quick-gate" ctl_baseline_health
 engine_register "readiness"      "quick-gate"  ctl_readiness
 
 SUMMARY="platform acceptance"

@@ -157,6 +157,18 @@ __engine_journal_write() {
   printf '%s\t%s\n' "$1" "$2" >>"$(__engine_cache_dir)/last-run.journal"
 }
 
+# Opt-in operational telemetry (11 §64): one NDJSON event per finished
+# control, consumed by tools/baseline/telemetry.php --summary.
+__engine_telemetry_write() {
+  [[ "${BASELINE_TELEMETRY:-0}" == "1" ]] || return 0
+  local control="$1" status="$2" duration_ms="$3" ts
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  mkdir -p "$(__engine_cache_dir)"
+  printf '{"ts":"%s","control":"%s","status":"%s","duration_ms":%s}\n' \
+    "$ts" "$(printf '%s' "$control" | tr -d '"')" "$status" "${duration_ms:-0}" \
+    >>"$(__engine_cache_dir)/telemetry.jsonl"
+}
+
 engine_execute() {
   local -A idx=()
   local -A START_TS=()
@@ -274,6 +286,7 @@ engine_execute() {
       if [[ "$status" == "passed" ]]; then
         report_result "$id" passed "" "$duration"
         __engine_journal_write "$id" passed
+        __engine_telemetry_write "$id" passed "$duration"
         if [[ -n "$state_hash" ]]; then
           cache_key="$(printf '%s|%s|%s' "$state_hash" "$id" "${ENGINE_CMDS[$i]}")"
           printf 'passed' >"$(__engine_cache_path "$cache_key")"
@@ -282,6 +295,7 @@ engine_execute() {
         [[ -z "$msg" && -s "$tmpdir/$i.out" ]] && msg="$(tail -n 3 "$tmpdir/$i.out" | tr '\n' ' ' | cut -c1-200)"
         report_result "$id" failed "$msg" "$duration"
         __engine_journal_write "$id" failed
+        __engine_telemetry_write "$id" failed "$duration"
         if [[ "$VERBOSE" -eq 1 && -s "$tmpdir/$i.out" ]]; then
           {
             echo "--- $id output ---"

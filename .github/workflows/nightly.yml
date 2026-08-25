@@ -113,8 +113,10 @@ jobs:
 
   mutation:
     # Mutation testing for the async kernel core (04-qa-and-testing.md §14).
-    # Report-only until MSI baselines stabilize; dependency is installed
-    # CI-locally so the repository composer.json stays untouched.
+    # Pest-native mutation engine against the AsyncKernelLib suite; the
+    # minimum score comes from tools/baseline/mutation-baseline.json
+    # (zero = report-only). Promotion: set a real floor there and drop
+    # continue-on-error. Runs are long, hence nightly-only.
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -125,19 +127,10 @@ jobs:
         with:
           php-version: '8.5'
           tools: composer:v2, pcov
+          coverage: pcov
 
-      - name: Install platform dependencies (for autoloading)
+      - name: Install platform dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Install Infection (CI-local)
-        working-directory: misc/BAGArt/php-async-kernel-lib
-        run: composer require --dev --no-interaction --no-progress infection/infection
-
-      - name: Run mutation testing (report-only)
-        working-directory: misc/BAGArt/php-async-kernel-lib
-        run: |
-          if [ -f infection.json5 ] || [ -f infection.json ]; then
-            vendor/bin/infection --threads=2 --show-mutations --only-covered
-          else
-            vendor/bin/infection --threads=2 --show-mutations --only-covered --coverage=phpunit
-          fi
+      - name: Mutation testing (async kernel)
+        run: bash cmd/dev/mutate

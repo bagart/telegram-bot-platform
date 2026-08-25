@@ -66,7 +66,7 @@
             "version": "v0.1.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-client.git",
+                "url": "https://github.com/bagart/php-async-kernel-client.git",
                 "reference": "03f2a9e5bc09bce65e146d4a6c499dd226308fdb"
             },
             "dist": {
@@ -128,6 +128,10 @@
                 "queue",
                 "transport"
             ],
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-client/tree/v0.1.0",
+                "issues": "https://github.com/bagart/php-async-kernel-client/issues"
+            },
             "time": "2026-08-25T00:02:46+00:00"
         },
         {
@@ -135,7 +139,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-client-redis.git",
+                "url": "https://github.com/bagart/php-async-kernel-client-redis.git",
                 "reference": "2c28fd2fa7958e739d88019bf11563687c2ae4be"
             },
             "dist": {
@@ -195,20 +199,24 @@
                 "redis",
                 "transport"
             ],
-            "time": "2026-08-23T07:20:27+00:00"
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-client-redis/tree/main",
+                "issues": "https://github.com/bagart/php-async-kernel-client-redis/issues"
+            },
+            "time": "2026-08-24T21:18:30+00:00"
         },
         {
             "name": "bagart/async-kernel",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-lib.git",
-                "reference": "6e99b92baf8be1c76e3a27ebcd240a80234d52c0"
+                "url": "https://github.com/bagart/php-async-kernel-lib.git",
+                "reference": "7bb687682e45657831e6beb831e38e19a67c71cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/6e99b92baf8be1c76e3a27ebcd240a80234d52c0",
-                "reference": "6e99b92baf8be1c76e3a27ebcd240a80234d52c0",
+                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/7bb687682e45657831e6beb831e38e19a67c71cb",
+                "reference": "7bb687682e45657831e6beb831e38e19a67c71cb",
                 "shasum": ""
             },
             "require": {
@@ -216,6 +224,9 @@
                 "php": "^8.5",
                 "psr/log": "^3.0",
                 "psr/simple-cache": "*"
+            },
+            "require-dev": {
+                "pestphp/pest": "^4.7"
             },
             "default-branch": true,
             "type": "library",
@@ -227,10 +238,7 @@
             "autoload-dev": {
                 "psr-4": {
                     "BAGArt\\AsyncKernel\\Tests\\": "tests/"
-                },
-                "files": [
-                    "tests/helpers.php"
-                ]
+                }
             },
             "scripts": {
                 "test": [
@@ -254,7 +262,11 @@
                 "fiber",
                 "pipeline"
             ],
-            "time": "2026-08-23T07:20:44+00:00"
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-lib/tree/main",
+                "issues": "https://github.com/bagart/php-async-kernel-lib/issues"
+            },
+            "time": "2026-08-25T12:25:36+00:00"
         },
         {
             "name": "bagart/telegram-bot-antispam-module",
@@ -469,12 +481,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-mafia-module.git",
-                "reference": "7315af58441f9d0156fb1a02c3bf1ebdf9d6e3a4"
+                "reference": "1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-mafia-module/zipball/7315af58441f9d0156fb1a02c3bf1ebdf9d6e3a4",
-                "reference": "7315af58441f9d0156fb1a02c3bf1ebdf9d6e3a4",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-mafia-module/zipball/1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83",
+                "reference": "1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83",
                 "shasum": ""
             },
             "require": {
@@ -600,18 +612,20 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-nettools.git",
-                "reference": "6bdb4e2753c4b33b22051ba630a6c5dde7cd78db"
+                "reference": "0c53559ff7ff3503d36978d953e8252d2b492be3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-nettools/zipball/6bdb4e2753c4b33b22051ba630a6c5dde7cd78db",
-                "reference": "6bdb4e2753c4b33b22051ba630a6c5dde7cd78db",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-nettools/zipball/0c53559ff7ff3503d36978d953e8252d2b492be3",
+                "reference": "0c53559ff7ff3503d36978d953e8252d2b492be3",
                 "shasum": ""
             },
             "require": {
-                "bagart/telegram-bot-lib": "*",
-                "laravel/framework": "^13.0",
                 "php": "^8.5"
+            },
+            "suggest": {
+                "bagart/telegram-bot-lib": "Telegram bot platform core (provided by the host app)",
+                "laravel/framework": "^13.0 (provided by the host app)"
             },
             "default-branch": true,
             "type": "library",
@@ -651,7 +665,7 @@
                 "tg-bot",
                 "whois"
             ],
-            "time": "2026-08-25T00:24:48+00:00"
+            "time": "2026-08-25T09:47:39+00:00"
         },
         {
             "name": "bagart/telegram-bot-stt-module",
@@ -659,12 +673,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-stt-module.git",
-                "reference": "1cb6b39d15ea3c0fd42e8ae4a4c2b7e9ba5b49d1"
+                "reference": "20d06b51bd90cb7acf700078554c8ef0adc4666f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-stt-module/zipball/1cb6b39d15ea3c0fd42e8ae4a4c2b7e9ba5b49d1",
-                "reference": "1cb6b39d15ea3c0fd42e8ae4a4c2b7e9ba5b49d1",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-stt-module/zipball/20d06b51bd90cb7acf700078554c8ef0adc4666f",
+                "reference": "20d06b51bd90cb7acf700078554c8ef0adc4666f",
                 "shasum": ""
             },
             "require": {
@@ -710,7 +724,7 @@
                 "transcription",
                 "whisper"
             ],
-            "time": "2026-08-25T00:07:33+00:00"
+            "time": "2026-08-25T01:11:14+00:00"
         },
         {
             "name": "bagart/telegram-bot-summarizer-module",
@@ -718,12 +732,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-summarizer-module.git",
-                "reference": "3b95ff4efcde21b7fe202b04c86ba169ffcbb98f"
+                "reference": "64835755d33ae470dc75b86f6a01215e7a7ac7fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-summarizer-module/zipball/3b95ff4efcde21b7fe202b04c86ba169ffcbb98f",
-                "reference": "3b95ff4efcde21b7fe202b04c86ba169ffcbb98f",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-summarizer-module/zipball/64835755d33ae470dc75b86f6a01215e7a7ac7fc",
+                "reference": "64835755d33ae470dc75b86f6a01215e7a7ac7fc",
                 "shasum": ""
             },
             "require": {
@@ -740,7 +754,8 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "BAGArt\\TelegramBotSummarizer\\Tests\\": "tests/"
+                    "BAGArt\\TelegramBotSummarizer\\Tests\\": "tests/",
+                    "BAGArt\\TelegramBotSummarizer\\Database\\Factories\\": "database/factories/"
                 }
             },
             "scripts": {
@@ -768,7 +783,7 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-08-24T23:57:03+00:00"
+            "time": "2026-08-25T01:11:13+00:00"
         },
         {
             "name": "bagart/telegram-bot-tts-module",
@@ -776,12 +791,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-tts-module.git",
-                "reference": "5df99a1d4fd1c3d9457208a11f918f112bd39820"
+                "reference": "7d1281d3f37f4d59e8f5b92c02518e371423943b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-tts-module/zipball/5df99a1d4fd1c3d9457208a11f918f112bd39820",
-                "reference": "5df99a1d4fd1c3d9457208a11f918f112bd39820",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-tts-module/zipball/7d1281d3f37f4d59e8f5b92c02518e371423943b",
+                "reference": "7d1281d3f37f4d59e8f5b92c02518e371423943b",
                 "shasum": ""
             },
             "require": {
@@ -835,7 +850,7 @@
                 "tts",
                 "voice"
             ],
-            "time": "2026-08-25T00:07:27+00:00"
+            "time": "2026-08-25T01:11:14+00:00"
         },
         {
             "name": "brick/math",
