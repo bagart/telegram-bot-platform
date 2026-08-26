@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# Pre-push hook: delegates to the shared pre-push gate.
-set -euo pipefail
-
-ROOT="$(git rev-parse --show-toplevel)"
-exec "$ROOT/cmd/git/prepush"

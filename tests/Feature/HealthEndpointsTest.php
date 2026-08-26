@@ -47,8 +47,24 @@ it('exposes prometheus-format metrics for authenticated users', function () {
     expect($response->getContent())->toContain('tg_db_up')
         ->toContain('tg_redis_up')
         ->toContain('tg_outbound_queue_depth')
+        ->toContain('tg_outbound_degradation')
         ->toContain('tg_dlq_depth_total')
         ->toContain('tg_sent_last24h')
         ->toContain('tg_retry_rate_limit_last24h')
-        ->toContain('tg_dlq_pushed_last24h');
+        ->toContain('tg_dlq_pushed_last24h')
+        // Saturation series (09 §38–§43)
+        ->toContain('tg_db_latency_ms')
+        ->toContain('tg_redis_latency_ms')
+        ->toContain('tg_php_memory_bytes');
+});
+
+it('exposes the outbound degradation gauge with normal rank by default', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/health/metrics');
+
+    $line = collect(explode("\n", $response->getContent()))
+        ->first(fn (string $l): bool => str_starts_with($l, 'tg_outbound_degradation '));
+
+    expect($line)->toBe('tg_outbound_degradation 0');
 });

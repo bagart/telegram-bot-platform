@@ -1,0 +1,13 @@
+name: Baseline Drift
+
+on:
+  schedule:
+    - cron: '9 4 * * 1' # weekly, Monday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/baseline-drift.yml@36b2f5869dc339490590971d91b16e1a4c61458b # pin!

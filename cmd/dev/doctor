@@ -139,20 +139,25 @@ fi
 
 # --- Git hooks ---
 say "Git hooks"
-EXPECTED_HOOKS_PATH="tools/git-hooks"
+# Hooks ship inside bagart/telegram-devops-baseline (cmd/dev/setup points
+# core.hooksPath at the vendor copy); the path-repo checkout is equivalent.
 CURRENT_HOOKS_PATH="$(git config core.hooksPath || true)"
-if [[ "$CURRENT_HOOKS_PATH" == "$EXPECTED_HOOKS_PATH" ]]; then
-  check_ok "core.hooksPath: $CURRENT_HOOKS_PATH"
-  for hook in pre-commit commit-msg pre-push; do
-    if [[ -x "$REPO_ROOT/$EXPECTED_HOOKS_PATH/$hook" ]]; then
-      check_ok "hook $hook: installed"
-    else
-      check_fail "hook $hook: missing or not executable (run cmd/dev/setup)"
-    fi
-  done
-else
-  check_warn "core.hooksPath not set (got: '${CURRENT_HOOKS_PATH:-<empty>}') — run cmd/dev/setup"
-fi
+CANONICAL_HOOKS_PATH="vendor/bagart/telegram-devops-baseline/hooks"
+case "$CURRENT_HOOKS_PATH" in
+  *"$CANONICAL_HOOKS_PATH"|*"misc/BAGArt/telegram-devops-baseline/hooks")
+    check_ok "core.hooksPath: $CURRENT_HOOKS_PATH"
+    for hook in pre-commit commit-msg pre-push; do
+      if [[ -x "$CURRENT_HOOKS_PATH/$hook" ]]; then
+        check_ok "hook $hook: installed"
+      else
+        check_fail "hook $hook: missing or not executable (run cmd/dev/setup)"
+      fi
+    done
+    ;;
+  *)
+    check_warn "core.hooksPath not set to package hooks (got: '${CURRENT_HOOKS_PATH:-<empty>}') — run cmd/dev/setup"
+    ;;
+esac
 
 # --- Line-ending control ---
 say "Line-ending control"

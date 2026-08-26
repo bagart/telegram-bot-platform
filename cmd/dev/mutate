@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Mutation testing for the async kernel core (04-qa-and-testing.md §14).
+#
+# Uses Pest's native mutation engine (pest-plugin-mutate, Infection-backed)
+# against the AsyncKernelLib suite. The minimum score comes from
+# tools/baseline/mutation-baseline.json — zero means report-only while the
+# nightly baseline accumulates; a non-zero floor is enforced via --min.
+#
+# Full-kernel mutation runs are long (tens of minutes); nightly is the
+# intended schedule (04 §14: never per-commit). Scope targets the kernel
+# namespace only.
+#
+# Usage:
+#   cmd/dev/mutate [--format=text|json|github] [--verbose] [--quiet]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/dev/mutate [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+[[ "$HELP" -eq 1 ]] && { usage; exit "$EX_OK"; }
+
+require_root_dir
+cd "$REPO_ROOT"
+
+[[ -f vendor/bin/pest ]] || { err "vendor/bin/pest not found"; exit "$EX_DEP"; }
+
+MIN="$(php tools/baseline/mutation-gate.php --library=bagart/async-kernel)" || {
+  err "mutation floor lookup failed"
+  exit "$EX_ENV"
+}
+
+ARGS=(--testsuite AsyncKernelLib --mutate --everything --covered-only --class='BAGArt\AsyncKernel' --no-cache)
+if (( MIN > 0 )); then
+  ARGS+=(--min="$MIN")
+  say "Mutation testing (enforced floor: $MIN)..."
+else
+  say "Mutation testing (report-only; no floor configured yet)..."
+fi
+
+rc=0
+contract_exec "mutate-async-kernel" env XDEBUG_MODE=coverage vendor/bin/pest "${ARGS[@]}" || rc=$?
+
+if [[ "$rc" -eq 0 ]]; then
+  report_result "mutate-async-kernel" passed ""
+  report_finish "$EX_OK" "mutation testing passed"
+else
+  report_result "mutate-async-kernel" failed "score below floor or run error (exit $rc)"
+  report_finish "$EX_CHECK" "mutation testing failed"
+fi

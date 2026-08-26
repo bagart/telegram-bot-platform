@@ -39,7 +39,7 @@ done
 mapfile -t OWNED < <(
   cd "$REPO_ROOT" &&
   printf '%s\n' cmd/lib/* cmd/dev/* cmd/git/* cmd/deps/* cmd/ci/* cmd/ops/* cmd/release/* cmd/docker/* cmd/baseline/* \
-                tools/baseline/* tools/git-hooks/* .github/workflows/*.yml deploy/systemd/* deploy/monitoring/* |
+                tools/baseline/* .github/workflows/*.yml deploy/systemd/* deploy/monitoring/* |
   grep -v -E 'MANIFEST\.json|perf-baselines\.json|~$|\.bak$'
 )
 

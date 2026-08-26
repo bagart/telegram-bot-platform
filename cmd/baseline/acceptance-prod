@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# Prod-mode install acceptance (todo.module-dual-mode.md §7, devops3.md B P1).
+#
+# Proves the prod overlay works without misc/: stages a copy of the tree that
+# excludes misc/, vendor/, node_modules/ and .git, installs dependencies from
+# composer.prod.lock (VCS dists only), boots the app and runs the module
+# discovery probe. This is the gate C Phase 5 folds into CI.
+#
+# Requires network access to the bagart VCS remotes; --offline reports skip.
+#
+# Usage:
+#   cmd/baseline/acceptance-prod [--format=text|json|github] [--offline] [--verbose] [--quiet]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+source "$REPO_ROOT/cmd/deps/lib.sh"
+
+usage() {
+  echo "Usage: cmd/baseline/acceptance-prod [--format=text|json|github] [--offline] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+[[ "$HELP" -eq 1 ]] && { usage; exit "$EX_OK"; }
+
+require_root_dir
+cd "$REPO_ROOT"
+
+if [[ "$OFFLINE" -eq 1 ]]; then
+  report_result "prod-acceptance" skipped "requires network access to VCS remotes"
+  report_finish "$EX_OK"
+fi
+
+FAILS=0
+
+# --- lock present + pure ------------------------------------------------------
+if [[ -f "$PROD_LOCK" ]] && prod_lock_is_pure "$PROD_LOCK"; then
+  report_result "prod-lock-pure" passed ""
+else
+  report_result "prod-lock-pure" failed "$PROD_LOCK missing or impure — run cmd/deps/update --mode=prod"
+  report_finish "$EX_POLICY"
+fi
+
+# --- stage a misc/-free copy ---------------------------------------------------
+STAGE="$(mktemp -d /tmp/baseline-prod-acceptance.XXXXXX)"
+cleanup() { rm -rf "$STAGE"; }
+trap cleanup EXIT
+
+say "Staging prod-mode copy (no misc/, vendor/, node_modules/, .git/)..."
+rsync -a \
+  --exclude='misc/' \
+  --exclude='vendor/' \
+  --exclude='node_modules/' \
+  --exclude='.git/' \
+  --exclude='storage/logs/*' \
+  --exclude='.env' \
+  ./ "$STAGE"/
+
+report_stage_step() {
+  local control="$1" ok_flag="$2" log="$3"
+  if [[ "$ok_flag" -eq 1 ]]; then
+    report_result "$control" passed ""
+  else
+    report_result "$control" failed "$(tail -n 3 "$log" | tr '\n' ' ' | cut -c1-200)"
+    FAILS=$((FAILS + 1))
+  fi
+  if [[ "$VERBOSE" -eq 1 ]] && [[ -s "$log" ]]; then
+    cat "$log" >&2
+  fi
+}
+
+# --- composer install from VCS dists ------------------------------------------
+say "Installing prod dependencies..."
+INSTALL_LOG="$STAGE/composer-install.log"
+if (cd "$STAGE" && COMPOSER="$PROD_MANIFEST" contract_exec "composer-install" \
+  composer install --no-interaction --no-progress) >"$INSTALL_LOG" 2>&1; then
+  report_stage_step "composer-install" 1 "$INSTALL_LOG"
+else
+  report_stage_step "composer-install" 0 "$INSTALL_LOG"
+  report_finish "$EX_CHECK" "prod acceptance failed ($FAILS control(s))"
+fi
+
+# --- boot smoke + module discovery --------------------------------------------
+say "Preparing environment and booting..."
+BOOT_LOG="$STAGE/boot.log"
+(
+  cd "$STAGE"
+  cp .env.example .env
+  php artisan key:generate --no-interaction >>"$BOOT_LOG" 2>&1
+  php tools/baseline/module-discovery-probe.php >>"$BOOT_LOG" 2>&1
+) && report_stage_step "prod-boot-discovery" 1 "$BOOT_LOG" \
+  || report_stage_step "prod-boot-discovery" 0 "$BOOT_LOG"
+
+if [[ "$FORMAT" == "text" && "$QUIET" -eq 0 && -f "$BOOT_LOG" ]]; then
+  grep -E 'providers registered|modules booted' "$BOOT_LOG" || true
+fi
+
+if [[ "$FAILS" -eq 0 ]]; then
+  report_finish "$EX_OK" "prod acceptance passed"
+else
+  report_finish "$EX_CHECK" "prod acceptance failed ($FAILS control(s))"
+fi

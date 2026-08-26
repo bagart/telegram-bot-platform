@@ -162,6 +162,26 @@ $configTelegram['modules'] = \App\Config\TgModulesDiscovery::discover();
 // their Laravel service providers (see bootstrap/providers.php).
 $configTelegram['modules_providers'] = [];
 
+// Module database seeders: list of seeder class-strings. Empty by default —
+// module packages self-register their seeders from their Laravel service
+// providers. DatabaseSeeder consumes this list; the host never references
+// module seeder classes directly.
+$configTelegram['modules_seeders'] = [];
+
+// Module Inertia page directories: list of absolute paths. Empty by default —
+// module packages self-register their `resources/js/pages` dir from their
+// Laravel service providers. `php artisan tgapp:pages` consumes this list and
+// (re)generates resources/js/modules-pages.generated.ts; the host frontend
+// never references module page paths directly.
+$configTelegram['modules_frontend_pages'] = [];
+
+// Module scheduled tasks: list of ['command', 'expression', 'enabled'] maps.
+// Empty by default — module packages self-register their commands from their
+// Laravel service providers. routes/console.php consumes this list; the host
+// never hardcodes module command names. Per-task user overrides (expression /
+// disabled) live in config/schedule-overrides.php.
+$configTelegram['modules_schedule'] = [];
+
 $remap = ['log_channel'];
 foreach ($configTelegram['modules'] as $name => $configTelegramModule) {
     foreach ($remap as $remapKey) {

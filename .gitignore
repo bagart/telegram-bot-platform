@@ -38,3 +38,6 @@ storage/backups/
 
 # OmniRoute runtime data (sqlite, logs, env) — never in git
 docker/omniroute/data/
+
+# Module UI pages are build artifacts materialized from module repos (cmd/dev/ui-sync)
+/resources/js/pages/antispam

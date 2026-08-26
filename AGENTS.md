@@ -39,6 +39,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+- **NEVER run `git commit`, `git push`, or any other git write operation (`git add` included) — in any repository, including nested repos under `misc/BAGArt/*`. The user reviews all changes via `git diff` / `git status` themselves and commits manually. Make changes on disk only; leave the working tree for user review.**
 
 ## Verification Scripts
 
@@ -180,6 +181,7 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+- Only run Pint on files you created or modified in the current task — never reformat untouched files (diff noise). When editing an existing file, fix style only in lines you are actively changing; leave unrelated style issues untouched.
 
 === pest/core rules ===
 
@@ -225,6 +227,8 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
     - When converting a file to LF programmatically, ALWAYS read fully into memory BEFORE opening for write. NEVER write `open(p,'wb').write(open(p,'rb').read()...)` — the write-open truncates the file before the nested read completes, destroying it.
     - `is_readable()` and PHP/Pint file writes are unreliable on the W: drive (WSL mount); prefer `is_file()` and expect Pint to be read-only here (use `pint --test` + manual fixes).
 - Strict contracts only — no `method_exists`, `instanceof` duck-typing across library boundaries. If a caller needs a method, it MUST be declared in the interface/contract. Do not add dead methods; every public method must have a real caller.
+- **Domain/config DTO style:** `final readonly` classes with explicitly typed, constructor-promoted properties and no setters; `JsonSerializable` + `SCHEMA_VERSION` constant + `fromJsonV1()` for anything persisted/serialized; enums for enumerations. Reference implementation: `misc/BAGArt/telegram-bot-lib/src/Outbound/DeadLetterEntry.php`.
+- **Minimize env dependencies: everything in config files.** Settings live in `config/*.php` structures (and readonly config-DTOs built from them), not in environment variables. Env is reserved for secrets and connection points only (encryption keys, HMAC keys, DSN for Redis/Postgres). Config reads env once at the config layer; domain logic must use `config()` / injected DTOs and never call `getenv()` directly. Keep each module's env set minimal and documented in one place.
 
 ## Telegram Bot Platform Structure
 
@@ -233,9 +237,10 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - `misc/BAGArt/telegram-bot-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
 - `misc/BAGArt/telegram-bot-antispam-module` — anti-spam module (`TgModuleContract` plugin)
 - `misc/BAGArt/telegram-bot-summarizer-module` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
-- `misc/BAGArt/telegram-bot-tts-module` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, fenced Track A multipart uploader, cron via `tts:prune`; RFC: `docs/tasks/todo.tts.md`)
-- `misc/BAGArt/telegram-bot-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
-- `misc/BAGArt/telegram-bot-mafia-module` — Mafia game module (`TgModuleContract` plugin; plan: `docs/tasks/mafia/todo.mafia.md`)
+- `misc/BAGArt/telegram-bot-tts-module` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, Track B multipart delivery through the core client, cron via `tts:prune`; docs: module `Readme.md`)
+- `misc/BAGArt/telegram-bot-nettools-module` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
+- `misc/BAGArt/telegram-game-mafia` — Mafia game module (`TgModuleContract` plugin; plan hub: `misc/BAGArt/telegram-game-mafia/docs/tasks/mafia/index.md` — task registry; legacy master plan `todo.mafia.md` there is FROZEN, migration gated by `_refactor/migration-matrix.md`)
+- `misc/BAGArt/telegram-bot-proxy-module` — Proxy Operations module (`BAGArt\ProxyOperations`; proxy inventory/quality/pools/gateway; bot + Telegram Mini App + web admin over one Application API)
 
 **Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:
 
@@ -243,6 +248,28 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - **prod mode** (servers): `composer.prod.json` requires versioned `bagart/...-module` packages from VCS sources; install with `cmd/deps/install --mode=prod`. The prod lock must never reference path repositories or symlinked installs (servers ship without `misc/`).
 
 In both modes the module's Laravel provider is listed explicitly in `bootstrap/providers.php`; on boot it self-registers its `TgModuleContract` class into `config('telegram.modules_providers')`, which stays empty by default in `config/telegram.php` (no package auto-discovery). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
+
+## Proxy Operations Module (telegram-bot-proxy-module)
+
+Full plan: `misc/BAGArt/telegram-bot-proxy-module/docs/proxy-operations/plan.md` — read it before any work on the module.
+
+Hard rules:
+
+- **Multi-tenant everywhere.** `tenant_id` (workspace) is mandatory in ALL domain tables, queries, queues, caches; tenant resolution happens before any logic; server-side scoping is covered by tests. Model (decided 2026-08-26): tenant = platform user, 1 user = 1 workspace, Owner-only (role field reserved). No global records outside a tenant except system dictionaries and the shared raw-probe cache.
+- **Scope: any proxy format EXCEPT VPN.** The parser rejects vless/vmess/trojan/ss/wireguard/openvpn with a clear error.
+- **SSRF-safe checker:** fixed judges only; private/metadata denylist for IPv4+IPv6; resolve-then-connect (anti-DNS-rebinding). Reuse the `SsrfGuard` pattern from `telegram-bot-nettools-module`.
+- **Secrets:** proxy credentials are never logged and never reach exceptions/Telegram output; masked by default; encrypted at rest.
+- `Working ≠ Anonymous ≠ Safe ≠ Good` — orthogonal statuses/scores.
+- Append-only observations, idempotency, tenant-scoped durable runtime — not "later".
+- **Everything in Docker** (decided 2026-08-26): the module runs in the platform PHP container; any external program gets its own container; if an external program needs domain access — a simple proxy-API with a versioned additive-only contract instead of pulling it into PHP. Tor is a separate container (SOCKS5 :9050). Prefer third-party tools with web APIs.
+- `verified_proxies` is a **projection, not a second model**: `ProxyEndpoint` is the single source of truth; one projector updates the projection on `AuditCompleted`; external containers are read-only.
+- Admin settings are editable from both interfaces (web admin panel and Telegram `/settings` form) over one application layer, with audit.
+- i18n: five languages from day one — RU, EN, FR, ES, ZH; all strings via keys.
+- **MTProto proxies are a separate endpoint type** (not SOCKS): parse `mtproto://` / `tg://proxy` (hex/dd/+r/FakeTLS secrets), check via minimal handshake `req_pq_multi→resPQ`; SOCKS5/HTTP get `telegram_usable` via TCP+TLS to a Telegram DC. Details: plan.md §10.12 item 22.
+- **List parser:** one grammar — the `ProxyOperations\Domain\Parsing` library; MVP is an internal application service (shared `ImportProxiesCommand` for bot/API/CLI/feeds); an HTTP parser-svc container is P2 once external consumers appear. The parser knows nothing about encryption. Details: plan.md §11.15 items 2–3.
+- **Layer boundaries (plan.md §11 round 4 — win on conflicts):** the worker makes no domain decisions (`AuditTask` → probes → `AuditResult`, Redis only, no Postgres writes); Postgres = domain truth, Redis = runtime; raw probe observations are shared, tenant interpretation (health/score/lifecycle) is per-workspace; HMAC trust only for self-hosted judges; lifecycle = one state machine + orthogonal Testability/Quarantine statuses.
+
+Stack: network layer only `bagart/php-async-kernel-client`; queues via Redis Streams through `bagart/php-async-kernel-client-redis`; the checker worker runs as a separate docker-compose container behind a strict contract (plan.md §10.11, task #81); free external services only (policy: plan.md §10.5); geo/ASN via free mmdb files downloaded install-time into storage (never committed); licensed sources plug in through the same contract. Frontend shared with the platform: React 19 + Inertia 2 + Tailwind 4 + Radix UI; Mini App uses `@telegram-apps/sdk-react` with `isVersionAtLeast` feature detection; Rich Messages (Bot API 10.x) with HTML fallback. Layout and conventions follow sibling modules (`telegram-bot-nettools-module`, `telegram-bot-antispam-module`). Verification: `composer test` mandatory before delivery, including negative tenant-scoping cases.
 
 ## Dependency Injection
 
@@ -264,6 +291,8 @@ In both modes the module's Laravel provider is listed explicitly in `bootstrap/p
 
 - Run `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
 - DTOs are generated to `misc/BAGArt/telegram-bot-lib/src/TgApi/`.
+- For anything related to the external Telegram API (methods, entities, types), always include a `@see https://core.telegram.org/bots/api#...` (or similar) link to the official documentation.
+- All DTOs and Enums under `BAGArt\TelegramBot\TgApi` are readonly contracts; code touching Tg DTO/Enum must use `TgApiServices` and inject the DTO/Enum, not raw arrays.
 
 ## Daemon Shutdown & State Management (Async Kernel)
 
@@ -317,12 +346,18 @@ Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). C
 
 ## Baseline Tooling
 
+- **Engine lives in `bagart/telegram-devops-baseline`** (`misc/BAGArt/telegram-devops-baseline`, path repo, `v0.1.0`; extracted from the host baseline 2026-08-25). Host entry points are shims: `cmd/dev/{check,security,fix}` and `cmd/baseline/drift-report` delegate to `vendor/bin/baseline-*`; every generic executor under `tools/baseline/*.php|sh` is a thin delegation stub. Policy/state JSONs (`secret-allowlist.json`, `test-budgets.json`, `test-quarantine.json`, `commit-policy.json`, `compat-matrix.json`, …) stay per-repo and override package defaults (resolver: consumer `tools/baseline/<name>` wins over `defaults/<name>`).
+- Git hooks ship with the package: `core.hooksPath=vendor/bagart/telegram-devops-baseline/hooks` (set by `cmd/dev/setup`; a fresh clone must `composer install` before its first hook-checked commit).
+- Profiles are composer-deps evidence based; the host keeps `async-runtime`+`telegram` via `.baseline-profiles.json` because its libs are in-tree, not required.
+- Central reusable CI workflows live in `BAGArt/telegram-platform-workflows` (local checkout `misc/BAGArt/telegram-platform-workflows`, push pending repo creation). Host `.github/workflows/*` switch to SHA-pinned callers after that repo is published.
+- **Freeze (Phase 0):** baseline-affecting refactors in `cmd/lib`, package `controls/`, `hooks/` are frozen until consumer rollout completes; edits land in the package first, host stubs follow.
+- Golden runs for parity checks: `.cache/baseline/golden-run-phase*.json`.
 - Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/{lib,promote}`, `cmd/baseline/*`, `cmd/help`. Prefer them over raw tool invocations. The devops-safe SDD set (`docs/tasks/devops-safe/01–11`) was implemented and then removed from the tree — recover it from git history when a `§N` reference needs context; the only live tracker is `docs/tasks/devops3.md` (consolidated undone work incl. module dual-mode and baseline-package RFCs).
-- CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--resume`, `--verbose`, `--quiet`. Defined in `cmd/lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `tools/baseline/commit-msg.php`, health paths → `routes/web.php`, SAST targets/rules → `tools/baseline/semgrep-scan.sh`.
-- Controls in `cmd/dev/check` and `cmd/dev/security` run through `cmd/lib/engine.sh` — declared dependencies + parallel waves (02 §15–§16). Register controls there; do not hand-roll sequential loops. Engine extras: `BASELINE_MAX_JOBS`, opt-in `BASELINE_CACHE=1`, per-control budgets `BASELINE_BUDGET_<ID>` / `BASELINE_CONTROL_BUDGET`.
+- CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--resume`, `--verbose`, `--quiet`. Defined in the package's `lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `defaults/commit-policy.json` (consumer override wins), health paths → `routes/web.php`, SAST targets/rules → `controls/semgrep-scan.sh`.
+- Controls in `bin/baseline-check` and `bin/baseline-security` run through `lib/engine.sh` — declared dependencies + parallel waves (02 §15–§16). Register controls there; do not hand-roll sequential loops. Engine extras: `BASELINE_MAX_JOBS`, opt-in `BASELINE_CACHE=1`, per-control budgets `BASELINE_BUDGET_<ID>` / `BASELINE_CONTROL_BUDGET`.
 - Baseline-owned files are manifest-tracked (`tools/baseline/MANIFEST.json`, regenerate with `php tools/baseline/manifest.php --generate`); drift via `cmd/baseline/drift-report`; production gate is `cmd/ops/readiness`.
-- Git hooks are version-controlled in `tools/git-hooks/` and activated via `core.hooksPath` (`cmd/dev/setup`). Never bypass with `--no-verify`; never disable a failing control — fix the cause or use the narrow allowlist (`tools/baseline/secret-allowlist.json`, requires reason + expiry; expired entries fail with exit 5).
-- Line endings are LF-only, enforced by `.gitattributes` plus `tools/baseline/lf-check.php`; auto-fix via `cmd/dev/fix`.
+- Git hooks are version-controlled in the package (`hooks/`) and activated via `core.hooksPath`. Never bypass with `--no-verify`; never disable a failing control — fix the cause or use the narrow allowlist (`tools/baseline/secret-allowlist.json`, requires reason + expiry; expired entries fail with exit 5).
+- Line endings are LF-only, enforced by `.gitattributes` plus the package's `lf-check.php`; auto-fix via `cmd/dev/fix`.
 - Dangerous ops require explicit confirmation flags: `ops/restore --confirm=database`, `ops/restart --confirm=restart`, `ops/replay --confirm=replay --count≤50`, `ops/deploy --confirm=deploy`, `ops/rollback --confirm=rollback`.
 - CI workflows (`.github/workflows/`) are SHA-pinned, read-permissions by default, validated locally by `php tools/baseline/yaml-lint.php` and `actionlint` if installed.
 

@@ -23,7 +23,7 @@ app()->booted(function (): void {
 
     foreach ($daemons as $daemon => $event) {
         $expression = config("telegram.schedule.$daemon.expression", '* * * * *');
-        if (! is_string($expression)) {
+        if (!is_string($expression)) {
             continue;
         }
 
@@ -33,19 +33,7 @@ app()->booted(function (): void {
             ->withoutOverlapping();
     }
 
-    $schedule->command('summarizer:digests')
-        ->cron(config('telegram.schedule.poll.expression', '* * * * *'))
-        ->name('summarizer:digests')
-        ->withoutOverlapping()
-        ->when(fn (): bool => (bool) config('telegram.schedule_summarizer_enabled', true));
-
-    $schedule->command('stt:prune')
-        ->daily()
-        ->withoutOverlapping()
-        ->when(fn (): bool => (bool) config('telegram.schedule_stt_prune_enabled', true));
-
-    $schedule->command('tts:prune')
-        ->daily()
-        ->withoutOverlapping()
-        ->when(fn (): bool => (bool) config('tts.schedule_prune_enabled', true));
+    // Module tasks arrive through telegram.modules_schedule (each module
+    // registers its own commands from its service provider).
+    (new \App\Console\ModuleTaskScheduler($schedule))->register();
 });

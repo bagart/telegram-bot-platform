@@ -19,5 +19,12 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Module seeders self-register via their service providers
+        // (config/telegram.php 'modules_seeders') — the host stays
+        // unaware of module implementations.
+        foreach ((array) config('telegram.modules_seeders', []) as $seeder) {
+            $this->call($seeder);
+        }
     }
 }

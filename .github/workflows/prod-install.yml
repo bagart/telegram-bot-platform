@@ -1,0 +1,51 @@
+# Dual-mode prod gate (devops3.md §1 step 3, absorbs legacy "B P4").
+# Platform-specific local job: a clean GitHub checkout has no misc/ tree, so
+# composer must resolve bagart/* as versioned packages from VCS sources via
+# composer.prod.json — exactly what servers consume.
+name: Prod Install
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - master
+      - workos
+    paths:
+      - 'composer.prod.json'
+      - 'composer.prod.lock'
+      - 'composer.lock'
+      - 'cmd/deps/**'
+  pull_request:
+    paths:
+      - 'composer.prod.json'
+      - 'composer.prod.lock'
+      - 'composer.lock'
+      - 'cmd/deps/**'
+
+permissions:
+  contents: read
+
+jobs:
+  prod-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Lock freshness
+        run: bash cmd/deps/check --mode=prod --format=github
+
+      - name: Install from VCS dists (prod manifest, no misc/)
+        run: COMPOSER=composer.prod.json composer install --no-interaction --no-progress --no-scripts
+
+      - name: Boot smoke
+        run: |
+          COMPOSER=composer.prod.json php artisan --version
+          COMPOSER=composer.prod.json php artisan package:discover --ansi

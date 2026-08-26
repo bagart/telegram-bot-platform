@@ -12970,133 +12970,133 @@ parameters:
 			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, int\|string\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Bots/NicknameFactory.php
+			path: misc/BAGArt/telegram-game-mafia/src/Bots/NicknameFactory.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Core/GameSnapshot.php
+			path: misc/BAGArt/telegram-game-mafia/src/Core/GameSnapshot.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotMafia\\Core\\NightResolver\:\:resolveInfo\(\) should return array\<string, array\<int, string\>\> but returns array\<int, array\<string, array\<int, string\>\>\>\.$#'
 			identifier: return.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Core/NightResolver.php
+			path: misc/BAGArt/telegram-game-mafia/src/Core/NightResolver.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:members\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/GameCoordinator.php
+			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 2
-			path: misc/BAGArt/telegram-bot-mafia-module/src/GameCoordinator.php
+			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>userId" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/GameCoordinator.php
+			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotMafia\\Presentation\\GroupPresenter\:\:\$cards is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Presentation/GroupPresenter.php
+			path: misc/BAGArt/telegram-game-mafia/src/Presentation/GroupPresenter.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Presentation/GroupPresenter.php
+			path: misc/BAGArt/telegram-game-mafia/src/Presentation/GroupPresenter.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Presentation/InterfacePresenter.php
+			path: misc/BAGArt/telegram-game-mafia/src/Presentation/InterfacePresenter.php
 
 		-
 			message: '#^Parameter \#1 \$array \(list\<BAGArt\\TelegramBotMafia\\Rooms\\Member\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Rooms/RoomService.php
+			path: misc/BAGArt/telegram-game-mafia/src/Rooms/RoomService.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/CallbackRouterProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/CallbackRouterProcessor.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:findByChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/KickCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/KickCommandProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/KickCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/KickCommandProcessor.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\Enum\\ChatPropTypeEnum and ''private'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO\:\:\$first_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO\:\:\$last_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:findByChat\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-mafia-module/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotManagement\\Commands\\Processors\\BmPollerEchoUpdateProcessor\:\:executionKey\(\) never returns string so it can be removed from the return type\.$#'
@@ -13247,132 +13247,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: misc/BAGArt/telegram-bot-management/tests/Models/TgBotOwnerTest.php
-
-		-
-			message: '#^Unknown PHPDoc tag\: @phpstan\-require\-property$#'
-			identifier: phpDoc.phpstanTag
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Commands/Concerns/BuildsScreens.php
-
-		-
-			message: '#^Unknown PHPDoc tag\: @phpstan\-require\-property$#'
-			identifier: phpDoc.phpstanTag
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Commands/Concerns/SendsCards.php
-
-		-
-			message: '#^Method BAGArt\\TelegramBotNettools\\Sources\\DnsClient\:\:parseTxt\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''A''\|''AAAA''\|''CAA''\|''CNAME''\|''DNSKEY''\|''DS''\|''MX''\|''NS''\|''PTR''\|''SOA''\|''TXT'' on array\{A\: 1, NS\: 2, CNAME\: 5, SOA\: 6, PTR\: 12, MX\: 15, TXT\: 16, AAAA\: 28, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''ancount'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int, 5\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''arcount'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int, 5\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''flags'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int, 5\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''nscount'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int, 5\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''qdcount'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int, 5\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''rdlength'' does not exist on array\{1\: int, 2\: int, 3\: int, 4\: int\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 2
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Parameter \#2 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, array\<int, int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between 1\|2\|5\|6\|12\|15\|16\|28\|43\|48\|257 and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between non\-falsy\-string and '''' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/DnsClient.php
-
-		-
-			message: '#^Offset ''timed_out'' on array\{timed_out\: bool, blocked\: bool, eof\: bool, unread_bytes\: int, stream_type\: string, wrapper_type\: string, wrapper_data\: mixed, mode\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Sources/StreamPort43Transport.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Support/DnsLookup.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between int and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Support/HomographCheck.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Support/TargetNormalizer.php
-
-		-
-			message: '#^PHPDoc tag @throws with type BAGArt\\TelegramBotNettools\\Contracts\\Exceptions\\NxDomainException\|BAGArt\\TelegramBotNettools\\Contracts\\Exceptions\\TargetBlockedException\|BAGArt\\TelegramBotNettools\\Support\\InvalidTargetException is not subtype of Throwable$#'
-			identifier: throws.notThrowable
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Support/TargetPipeline.php
-
-		-
-			message: '#^Property BAGArt\\TelegramBotNettools\\Results\\ProbeResult\:\:\$degradedSources \(list\<string\>\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Ui/DnsCard.php
-
-		-
-			message: '#^Method BAGArt\\TelegramBotNettools\\Ui\\WhoisCard\:\:registrarLine\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/src/Ui/WhoisCard.php
-
-		-
-			message: '#^Parameter \#3 \$recordType of method BAGArt\\TelegramBotNettools\\Sources\\DnsClient\:\:query\(\) expects ''A''\|''AAAA''\|''CAA''\|''CNAME''\|''DNSKEY''\|''DS''\|''MX''\|''NS''\|''PTR''\|''SOA''\|''TXT'', ''HINFO'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: misc/BAGArt/telegram-bot-nettools/tests/Unit/DnsClientTest.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO and BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO will always evaluate to true\.$#'

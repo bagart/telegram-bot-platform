@@ -1,0 +1,9 @@
+{
+    "_comment": "Mutation-score floors per library (04-qa-and-testing.md §14). Zero = report-only while nightly baselines accumulate; promoting a library means setting real floors here and dropping continue-on-error on the nightly mutation job. Values are percentages (e.g. 65.0).",
+    "libraries": {
+        "bagart/async-kernel": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        }
+    }
+}

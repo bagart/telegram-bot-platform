@@ -116,6 +116,12 @@ export default [
             'resources/js/components/ui/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
+            // Nested BAGArt repos ship their own tooling/vendors (incl. phpunit
+            // coverage template JS); they are linted by their own pipelines.
+            'misc/**',
+            'dist/**',
+            'docs/**',
+            'coverage/**',
         ],
     },
     prettier, // Turn off all rules that might conflict with Prettier

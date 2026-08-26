@@ -159,10 +159,11 @@ usage/configuration · `3` missing tool · `4` infrastructure failure ·
 
 ### Git Hooks
 
-`./cmd/dev/setup` activates version-controlled hooks from `tools/git-hooks/`
-(`core.hooksPath`): `pre-commit` (LF + secrets + Pint on staged files),
-`commit-msg` (conventional prefixes: `feat fix refactor perf test docs build ci
-chore security`), `pre-push` (delegates to `cmd/git/prepush`).
+Hooks ship with the `bagart/telegram-devops-baseline` package; `./cmd/dev/setup`
+activates them via `core.hooksPath=vendor/bagart/telegram-devops-baseline/hooks`:
+`pre-commit` (LF + secrets + Pint on staged files), `commit-msg`
+(conventional prefixes: `feat fix refactor perf test docs build ci chore
+security`), `pre-push` (delegates to `cmd/git/prepush`).
 Never bypass with `--no-verify`; CI remains authoritative.
 
 ## Test of Work

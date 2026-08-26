@@ -15,7 +15,7 @@ command -v php >/dev/null 2>&1 || { err "php is required"; exit "$EX_DEP"; }
 php artisan tinker --execute='
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-$dbUp = 0; $redisUp = 0; $queue = 0; $dlq = 0;
+$dbUp = 0; $redisUp = 0; $queue = 0; $dlq = 0; $degradation = 0;
 try { DB::select("select 1"); $dbUp = 1; } catch (Throwable) {}
 try {
     $r = Redis::connection(); $r->ping(); $redisUp = 1;
@@ -25,6 +25,19 @@ try {
         $b = $r->scan($it, ["MATCH" => "tg-dlq:*", "COUNT" => 100]);
         if ($b !== false) { foreach ($b as $k) { $dlq += (int)$r->llen($k); } }
     } while ($it > 0);
+} catch (Throwable) {}
+try {
+    $tracker = new BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationTracker(
+        new BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter(
+            app(BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper::class),
+            new BAGArt\ASKClient\Lockers\InMemoryLocker(),
+        ),
+    );
+    $degradation = match ($tracker->state()) {
+        BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationState::Normal => 0,
+        BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationState::Degraded => 1,
+        BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationState::Offline => 2,
+    };
 } catch (Throwable) {}
 
 $tg = ["sent" => 0, "retry_rate_limit" => 0, "retry_circuit_breaker" => 0, "failed_network" => 0, "failed_fatal" => 0, "business_error" => 0, "dlq_pushed" => 0, "dlq_retried" => 0];
@@ -39,6 +52,7 @@ try {
 echo "# HELP tg_db_up Database reachability.\n# TYPE tg_db_up gauge\ntg_db_up {$dbUp}\n";
 echo "# HELP tg_redis_up Redis reachability.\n# TYPE tg_redis_up gauge\ntg_redis_up {$redisUp}\n";
 echo "# HELP tg_outbound_queue_depth Outbound queue depth.\n# TYPE tg_outbound_queue_depth gauge\ntg_outbound_queue_depth {$queue}\n";
+echo "# HELP tg_outbound_degradation Aggregate outbound subsystem state (06 §43): 0 normal, 1 degraded, 2 offline.\n# TYPE tg_outbound_degradation gauge\ntg_outbound_degradation {$degradation}\n";
 echo "# HELP tg_dlq_depth_total Dead-letter entries across all bots.\n# TYPE tg_dlq_depth_total gauge\ntg_dlq_depth_total {$dlq}\n";
 foreach ($tg as $name => $v) {
     echo "# TYPE tg_{$name}_last24h gauge\ntg_{$name}_last24h {$v}\n";

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Dual-mode dependency layout control (todo.module-dual-mode.md §5).
+# Dual-mode dependency layout control (dev mode: misc/ PSR-4; prod mode: composer.prod.json).
 #
 # Validates, without network access:
 #   (a) composer.prod.json exists; non-bagart require deps are identical

@@ -29,7 +29,7 @@
             <directory>misc/BAGArt/telegram-bot-summarizer-module/tests</directory>
         </testsuite>
         <testsuite name="NettoolsModule">
-            <directory>misc/BAGArt/telegram-bot-nettools/tests</directory>
+            <directory>misc/BAGArt/telegram-bot-nettools-module/tests</directory>
         </testsuite>
         <testsuite name="SttModule">
             <directory>misc/BAGArt/telegram-bot-stt-module/tests</directory>
@@ -38,7 +38,16 @@
             <directory>misc/BAGArt/telegram-bot-tts-module/tests</directory>
         </testsuite>
         <testsuite name="MafiaModule">
-            <directory>misc/BAGArt/telegram-bot-mafia-module/tests</directory>
+            <directory>misc/BAGArt/telegram-game-mafia/tests</directory>
+        </testsuite>
+        <testsuite name="menu-unit">
+            <directory>misc/BAGArt/telegram-bot-menu-module/tests/Unit</directory>
+        </testsuite>
+        <testsuite name="menu-feature">
+            <directory>misc/BAGArt/telegram-bot-menu-module/tests/Feature</directory>
+        </testsuite>
+        <testsuite name="ProxyModule">
+            <directory>misc/BAGArt/telegram-bot-proxy-module/tests</directory>
         </testsuite>
         <testsuite name="TelegramBotManagement">
             <directory>misc/BAGArt/telegram-bot-management/tests</directory>

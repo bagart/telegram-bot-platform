@@ -1,10 +1,7 @@
 <?php
 
-require __DIR__.'/../../vendor/autoload.php';
+declare(strict_types=1);
 
-$files = glob(__DIR__.'/../../.github/workflows/*.yml');
-$files[] = __DIR__.'/prometheus-alerts.example.yml';
-foreach ($files as $file) {
-    Symfony\Component\Yaml\Yaml::parseFile($file);
-    echo basename($file), " OK\n";
-}
+// Delegates to bagart/telegram-devops-baseline (Phase 4 cutover; retire in Phase 7).
+$engine = getenv('BASELINE_DIR') ?: dirname(__DIR__, 2).'/vendor/bagart/telegram-devops-baseline';
+require $engine.'/controls/yaml-lint.php';

@@ -1,0 +1,7 @@
+{
+    "comment": "Explicit profile overrides (RFC §4.4): the host develops bagart libs in-tree via misc/BAGArt path repos, so they are not composer requirements. Directory evidence is replaced by this file.",
+    "profiles": [
+        "async-runtime",
+        "telegram"
+    ]
+}

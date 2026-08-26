@@ -1,4 +1,4 @@
-name: Platform CI / Tests
+name: Tests
 
 on:
   push:
@@ -17,65 +17,8 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: tests-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # composer.json requires php ^8.5 — older versions would fail on install.
-        php-version: ['8.5']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          tools: composer:v2
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '22'
-
-      - name: Install Node Dependencies
-        run: npm i
-
-      - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Copy Environment File
-        run: cp .env.example .env
-
-      - name: Generate Application Key
-        run: php artisan key:generate
-
-      - name: Build Assets
-        run: npm run build
-
-      # Artifact scan layer (03 §10): built bundles are untracked, so the
-      # source-tree secret scans never see them.
-      - name: Artifact secret scan (built frontend bundles)
-        run: bash tools/baseline/artifact-scan.sh
-
-      - name: Tests
-        run: ./vendor/bin/pest
-
-      - name: Static analysis (phpstan)
-        # Blocking since 2026-08-24: the baseline was regenerated honestly
-        # (nested vendor dirs excluded) and the local run is clean. New
-        # violations must be fixed or explicitly baselined.
-        run: vendor/bin/phpstan analyse --no-interaction
-
-      - name: Highload audit (tgbm:audit --strict)
-        run: php artisan tgbm:audit --strict
-
-      - name: Skills sync check
-        run: bash scripts/sync-skills --check
+  tests:
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/tests.yml@36b2f5869dc339490590971d91b16e1a4c61458b # pin!
+    with:
+      php-version: '8.5'

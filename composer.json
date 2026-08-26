@@ -43,7 +43,8 @@
         "nunomaduro/collision": "^8.9",
         "pestphp/pest": "^4.4",
         "pestphp/pest-plugin-laravel": "^4.1",
-        "react/dns": "^1.14"
+        "react/dns": "^1.14",
+        "bagart/telegram-devops-baseline": "@dev"
     },
     "autoload": {
         "psr-4": {
@@ -59,9 +60,12 @@
             "BAGArt\\TelegramBotSummarizer\\Database\\Factories\\": "misc/BAGArt/telegram-bot-summarizer-module/database/factories/",
             "BAGArt\\TelegramBotStt\\": "misc/BAGArt/telegram-bot-stt-module/src/",
             "BAGArt\\TelegramBotTts\\": "misc/BAGArt/telegram-bot-tts-module/src/",
-            "BAGArt\\TelegramBotNettools\\": "misc/BAGArt/telegram-bot-nettools/src/",
-            "BAGArt\\TelegramBotMafia\\": "misc/BAGArt/telegram-bot-mafia-module/src/",
+            "BAGArt\\TelegramBotNettools\\": "misc/BAGArt/telegram-bot-nettools-module/src/",
+            "BAGArt\\ProxyOperations\\": "misc/BAGArt/telegram-bot-proxy-module/src/",
+            "BAGArt\\ProxyOperations\\Database\\Factories\\": "misc/BAGArt/telegram-bot-proxy-module/database/factories/",
+            "BAGArt\\TelegramBotMafia\\": "misc/BAGArt/telegram-game-mafia/src/",
             "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-bot-management/src/",
+            "BAGArt\\TelegramBotMenu\\": "misc/BAGArt/telegram-bot-menu-module/src/",
             "BAGArt\\TelegramBot\\": "misc/BAGArt/telegram-bot-lib/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
@@ -77,9 +81,11 @@
             "BAGArt\\TelegramBotSummarizer\\Tests\\": "misc/BAGArt/telegram-bot-summarizer-module/tests/",
             "BAGArt\\TelegramBotTts\\Tests\\": "misc/BAGArt/telegram-bot-tts-module/tests/",
             "BAGArt\\TelegramBotStt\\Tests\\": "misc/BAGArt/telegram-bot-stt-module/tests/",
-            "BAGArt\\TelegramBotMafia\\Tests\\": "misc/BAGArt/telegram-bot-mafia-module/tests/",
+            "BAGArt\\TelegramBotMafia\\Tests\\": "misc/BAGArt/telegram-game-mafia/tests/",
             "BAGArt\\TelegramBotManagement\\Tests\\": "misc/BAGArt/telegram-bot-management/tests/",
-            "BAGArt\\TelegramBotNettools\\Tests\\": "misc/BAGArt/telegram-bot-nettools/tests/",
+            "BAGArt\\TelegramBotMenu\\Tests\\": "misc/BAGArt/telegram-bot-menu-module/tests/",
+            "BAGArt\\TelegramBotNettools\\Tests\\": "misc/BAGArt/telegram-bot-nettools-module/tests/",
+            "BAGArt\\ProxyOperations\\Tests\\": "misc/BAGArt/telegram-bot-proxy-module/tests/",
             "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
             "Tests\\": "tests/"
         },
@@ -123,12 +129,14 @@
             "cd misc/BAGArt/telegram-bot-lib && composer test",
             "cd misc/BAGArt/telegram-bot-basic-lib && composer test",
             "cd misc/BAGArt/telegram-bot-antispam-module && composer test",
-            "cd misc/BAGArt/telegram-bot-nettools && composer test",
+            "cd misc/BAGArt/telegram-bot-nettools-module && composer test",
             "cd misc/BAGArt/telegram-bot-management && composer test",
             "cd misc/BAGArt/telegram-bot-tts-module && composer test",
             "cd misc/BAGArt/telegram-bot-stt-module && composer test",
             "cd misc/BAGArt/telegram-bot-summarizer-module && composer test",
-            "cd misc/BAGArt/telegram-bot-mafia-module && composer test"
+            "cd misc/BAGArt/telegram-game-mafia && composer test",
+            "cd misc/BAGArt/telegram-bot-menu-module && composer test",
+            "cd misc/BAGArt/telegram-bot-proxy-module && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -209,11 +217,19 @@
         },
         {
             "type": "path",
-            "url": "misc/BAGArt/telegram-bot-mafia-module"
+            "url": "misc/BAGArt/telegram-game-mafia"
         },
         {
             "type": "path",
-            "url": "misc/BAGArt/telegram-bot-nettools"
+            "url": "misc/BAGArt/telegram-bot-nettools-module"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-bot-menu-module"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/telegram-devops-baseline"
         }
     ]
 }

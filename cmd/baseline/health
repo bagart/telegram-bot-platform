@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Baseline health view (11-implementation-and-rollout.md §65).
+#
+# Aggregates everything "is this repository on a healthy baseline" into one
+# verdict: manifest drift, security exceptions nearing expiry, git hooks
+# activation, CI workflow presence and — when telemetry is enabled — control
+# failure rates.
+#
+# Usage:
+#   cmd/baseline/health [--format=text|json] [--verbose] [--quiet]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+source "$REPO_ROOT/cmd/lib/contract.sh"
+
+usage() {
+  echo "Usage: cmd/baseline/health [--format=text|json|github] [--verbose] [--quiet]"
+  contract_usage
+}
+
+contract_parse_args "$@"
+[[ "$HELP" -eq 1 ]] && { usage; exit "$EX_OK"; }
+
+require_root_dir
+cd "$REPO_ROOT"
+
+FAILS=0
+
+# --- Drift --------------------------------------------------------------------
+DRIFT_JSON="$(php tools/baseline/manifest.php --verify --format=json 2>/dev/null || true)"
+if [[ -n "$DRIFT_JSON" ]] && php -r '$d=json_decode($argv[1],true); exit(empty($d["clean"])?1:0);' "$DRIFT_JSON"; then
+  report_result "baseline-drift" passed ""
+else
+  report_result "baseline-drift" failed "manifest drift — run cmd/baseline/drift-report"
+  FAILS=$((FAILS + 1))
+fi
+
+# --- Security exceptions nearing expiry ---------------------------------------
+EXPIRING="$(php -r '
+$a = json_decode((string) @file_get_contents("tools/baseline/secret-allowlist.json"), true) ?: [];
+$soon = strtotime("+30 days");
+foreach ($a as $e) {
+    $t = strtotime($e["expires"] ?? "");
+    if ($t === false || $t < $soon) { echo ($e["rule"] ?? "?"), " expires ", ($e["expires"] ?? "?"), "\n"; }
+}
+' 2>/dev/null)"
+if [[ -z "$EXPIRING" ]]; then
+  report_result "exception-expiry" passed ""
+else
+  report_result "exception-expiry" failed "$(echo "$EXPIRING" | tr '\n' ';' | cut -c1-180)"
+  FAILS=$((FAILS + 1))
+fi
+
+# --- Hooks active ---------------------------------------------------------------
+# Hooks ship inside bagart/telegram-devops-baseline; accept either the vendor
+# copy (what cmd/dev/setup configures) or the path-repo checkout (equivalent).
+HOOKS_PATH="$(git config core.hooksPath || echo "")"
+case "$HOOKS_PATH" in
+  *"vendor/bagart/telegram-devops-baseline/hooks"|*"misc/BAGArt/telegram-devops-baseline/hooks")
+    report_result "git-hooks" passed ""
+    ;;
+  *)
+    report_result "git-hooks" failed "core.hooksPath='$HOOKS_PATH' — run cmd/dev/setup"
+    FAILS=$((FAILS + 1))
+    ;;
+esac
+
+# --- CI present -------------------------------------------------------------------
+WORKFLOWS="$(ls .github/workflows/*.yml 2>/dev/null | wc -l)"
+if (( WORKFLOWS >= 5 )); then
+  report_result "ci-workflows" passed ""
+else
+  report_result "ci-workflows" failed "only $WORKFLOWS workflow(s) found"
+  FAILS=$((FAILS + 1))
+fi
+
+report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))" "baseline health: $FAILS issue(s)"

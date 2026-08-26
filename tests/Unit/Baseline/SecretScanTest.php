@@ -25,10 +25,10 @@ function baselineFixture(string $name, string $contents): string
 
 function runSecretScan(string $tool, array $args): array
 {
-    $command = array_merge([
-        PHP_BINARY,
-        baselineRepoRoot().'/tools/baseline/'.$tool,
-    ], $args);
+    $path = baselineRepoRoot().'/tools/baseline/'.$tool;
+    $command = str_ends_with($tool, '.sh')
+        ? array_merge(['bash', $path], $args)
+        : array_merge([PHP_BINARY, $path], $args);
 
     $descriptor = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $process = proc_open($command, $descriptor, $pipes, baselineRepoRoot());
@@ -70,4 +70,58 @@ it('masks detected secret excerpts in output', function () {
 
     expect($result['code'])->toBe(1)
         ->and($result['error'])->not->toContain('AKIAIOSFODNN7EXAMPLE');
+});
+
+function artifactBundleFixture(): string
+{
+    $dir = baselineFixtureDir().'/artifact-bundle';
+    if (! is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+    // Mimics a built bundle: untracked, minified, secret baked in.
+    file_put_contents($dir.'/app.js', 'window.TOKEN="1234567890:AAF3cD_eFgHiJkLmNoPqRsTuVwXyZ123456";'.PHP_EOL);
+
+    return 'storage/framework/testing/baseline/artifact-bundle';
+}
+
+it('detects secrets inside untracked artifact directories (--dir)', function () {
+    $dir = artifactBundleFixture();
+
+    $result = runSecretScan('secret-scan.php', ['--dir='.$dir, '--format=json']);
+
+    expect($result['code'])->toBe(1)
+        ->and(json_decode($result['output'], true)['findings'][0]['rule'])->toBe('telegram-bot-token');
+});
+
+it('skips artifact directories that do not exist', function () {
+    $result = runSecretScan('secret-scan.php', ['--dir=storage/framework/testing/baseline/absent-artifacts', '--format=json']);
+
+    expect($result['code'])->toBe(0);
+});
+
+it('artifact-scan wrapper passes when no artifact dirs exist', function () {
+    putenv('BASELINE_ARTIFACT_DIRS=storage/framework/testing/baseline/absent-artifacts');
+
+    try {
+        $result = runSecretScan('artifact-scan.sh', []);
+
+        expect($result['code'])->toBe(0)
+            ->and($result['output'])->toContain('nothing to scan');
+    } finally {
+        putenv('BASELINE_ARTIFACT_DIRS');
+    }
+});
+
+it('artifact-scan wrapper scans configured artifact dirs', function () {
+    $dir = artifactBundleFixture();
+    putenv('BASELINE_ARTIFACT_DIRS='.$dir);
+
+    try {
+        $result = runSecretScan('artifact-scan.sh', []);
+
+        expect($result['code'])->toBe(1)
+            ->and($result['error'])->toContain('SECRET DETECTED');
+    } finally {
+        putenv('BASELINE_ARTIFACT_DIRS');
+    }
 });

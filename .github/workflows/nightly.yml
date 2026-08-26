@@ -1,136 +1,16 @@
-name: nightly
+name: Nightly
 
 on:
   schedule:
-    # Nightly deep sweep (05-ci-cd-and-release.md §40): full suite + audits.
+    # Nightly deep sweep: full suite + audits (legacy host schedule).
     - cron: '17 2 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: nightly-${{ github.ref }}
-
 jobs:
-  full-suite:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          fetch-depth: 0
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: |
-          composer install --no-interaction --prefer-dist --optimize-autoloader
-          npm i
-
-      - name: Prepare environment
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-
-      - name: Build assets
-        run: npm run build
-
-      # Full application suite including all BAGArt library suites.
-      - name: Full test suite (app + libraries)
-        run: vendor/bin/pest --compact
-
-      # Artifact scan layer (03 §10): bundles can leak secrets that are safe
-      # at source level; public/build only exists after the asset build.
-      - name: Artifact secret scan (built frontend bundles)
-        run: bash tools/baseline/artifact-scan.sh
-
-      - name: Frontend checks
-        run: |
-          npx prettier --check resources/
-          npx tsc --noEmit
-
-      - name: Dependency audits (composer + npm, all deps)
-        run: |
-          composer audit --abandoned=report
-          npm audit --audit-level=high
-
-      - name: Secret scan (full git history via gitleaks)
-        # Blocking since 2026-08-24 decision: this is the only git-history
-        # secret layer in CI; report-only mode let findings rot silently.
-        # Flagged entries must be fixed or added to tools/baseline/secret-allowlist.json
-        # (reason + expiry required).
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
-
-      - name: Secret scan (working tree, built-in baseline scanner)
-        run: php tools/baseline/secret-scan.php --all
-
-      - name: Baseline tooling self-check
-        run: |
-          php tools/baseline/yaml-lint.php
-          bash tools/baseline/shell-lint.sh
-
-  coverage:
-    # Coverage collection + threshold gate (04-qa-and-testing.md §15).
-    # Report-only until a stable baseline accumulates; promote to blocking by
-    # setting BASELINE_COVERAGE_MIN in repo variables and dropping
-    # continue-on-error.
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    env:
-      BASELINE_COVERAGE_MIN: '55'
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-      - name: Setup PHP (pcov)
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          coverage: pcov
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-      - name: Prepare environment
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-
-      - name: Coverage-gated suite (app)
-        run: vendor/bin/pest --coverage --min=${BASELINE_COVERAGE_MIN}
-
-  mutation:
-    # Mutation testing for the async kernel core (04-qa-and-testing.md §14).
-    # Pest-native mutation engine against the AsyncKernelLib suite; the
-    # minimum score comes from tools/baseline/mutation-baseline.json
-    # (zero = report-only). Promotion: set a real floor there and drop
-    # continue-on-error. Runs are long, hence nightly-only.
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2, pcov
-          coverage: pcov
-
-      - name: Install platform dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Mutation testing (async kernel)
-        run: bash cmd/dev/mutate
+  nightly:
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/nightly.yml@36b2f5869dc339490590971d91b16e1a4c61458b # pin!
+    with:
+      php-version: '8.5'

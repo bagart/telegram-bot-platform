@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# One-shot switch of the platform CI to the central reusable workflows.
+#
+# Prerequisites: both GitHub repos exist and are empty (created via web UI,
+# no auto-init):
+#   git@github.com:BAGArt/telegram-platform-workflows.git
+#   git@github.com:BAGArt/telegram-devops-baseline.git
+# (repo creation needs gh/API credentials this machine does not have — that
+# click stays manual; everything after it is automated here).
+#
+# What it does:
+#   1. adds `origin` remotes to the two local checkouts (if missing)
+#   2. pushes HEAD (+tags) for both — uploads existing commits only, never
+#      creates commits (no-commit rule honored; dirty files stay local)
+#   3. pins the central repo's pushed HEAD SHA into the caller templates
+#      (misc/BAGArt/telegram-platform-workflows/examples/telegram-bot-platform/)
+#      and copies them over host `.github/workflows/*.yml` — replacing the
+#      legacy pipeline bodies for tests/lint/security/nightly/docker/
+#      dependency-review/baseline-drift; host-only bootstrap/maintenance/
+#      pr-triage stay untouched
+#   4. yaml-lints the result and prints the working-tree diff summary for
+#      manual review + commit (the user commits, per repo conventions).
+#
+# Usage:
+#   cmd/ops/central-ci-switch [--dry-run] [--skip-push] [--format=text|json] [--verbose|--quiet]
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../lib/root.sh"
+source "$REPO_ROOT/cmd/lib/common.sh"
+source "$REPO_ROOT/cmd/lib/output.sh"
+
+require_root_dir
+
+DRY_RUN=0 SKIP_PUSH=0 JSON=0 VERBOSE=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --skip-push) SKIP_PUSH=1 ;;
+    --format=json|--json) JSON=1 ;;
+    --verbose) VERBOSE=1 ;;
+    --quiet) QUIET=1 ;;
+    *) fail "Unknown argument: $arg" ;;
+  esac
+done
+
+WORKFLOWS_DIR="$REPO_ROOT/misc/BAGArt/telegram-platform-workflows"
+BASELINE_DIR="$REPO_ROOT/misc/BAGArt/telegram-devops-baseline"
+EXAMPLES="$WORKFLOWS_DIR/examples/telegram-bot-platform"
+HOST_CI="$REPO_ROOT/.github/workflows"
+
+[[ -d "$WORKFLOWS_DIR/.git" ]] || { fail "missing checkout: $WORKFLOWS_DIR"; exit "$EX_ENV"; }
+[[ -d "$BASELINE_DIR/.git" ]] || { fail "missing checkout: $BASELINE_DIR"; exit "$EX_ENV"; }
+[[ -d "$EXAMPLES" ]] || { fail "missing examples dir: $EXAMPLES"; exit "$EX_ENV"; }
+
+WF_URL="git@github.com:BAGArt/telegram-platform-workflows.git"
+BL_URL="git@github.com:BAGArt/telegram-devops-baseline.git"
+
+remote_ready() {
+  timeout 20 git ls-remote "$1" HEAD >/dev/null 2>&1
+}
+
+for pair in "$WORKFLOWS_DIR:$WF_URL" "$BASELINE_DIR:$BL_URL"; do
+  dir="${pair%%:*}" url="${pair#*:}"
+  name="$(basename "$dir")"
+  if remote_ready "$url"; then
+    ok "gh-repo reachable: $name"
+  else
+    fail "GitHub repo not found/empty: $url"
+    echo "  → create it first (empty, no auto-init), then re-run." >&2
+    exit "$EX_ENV"
+  fi
+  if [[ "$(git -C "$dir" remote get-url origin 2>/dev/null || true)" != "$url" ]]; then
+    if [[ "$SKIP_PUSH" -eq 1 && "$(git -C "$dir" remote get-url origin 2>/dev/null || true)" == "" ]]; then
+      fail "no origin in $name but --skip-push given"; exit "$EX_USAGE"
+    fi
+    (( DRY_RUN )) || git -C "$dir" remote add origin "$url"
+    say "remote add origin → $name"
+  fi
+done
+
+if [[ "$SKIP_PUSH" -eq 0 ]]; then
+  for pair in "$WORKFLOWS_DIR:$WF_URL" "$BASELINE_DIR:$BL_URL"; do
+    dir="${pair%%:*}" url="${pair#*:}"
+    name="$(basename "$dir")"
+    branch="$(git -C "$dir" branch --show-current)"
+    dirty="$(git -C "$dir" status --porcelain | wc -l)"
+    (( dirty > 0 )) && warn "$name: $dirty uncommitted change(s) stay local (not pushed)"
+    if (( DRY_RUN )); then
+      say "would push: $name ($branch) --tags"
+    else
+      git -C "$dir" push -u origin "HEAD:refs/heads/$branch" >/dev/null
+      git -C "$dir" push origin --tags >/dev/null 2>&1 || true
+      ok "pushed: $name ($branch)"
+    fi
+  done
+fi
+
+CENTRAL_SHA="$(git -C "$WORKFLOWS_DIR" rev-parse HEAD)"
+
+COPIED=()
+for src in "$EXAMPLES"/*.yml; do
+  target="$HOST_CI/$(basename "$src")"
+  COPIED+=("$(basename "$src")")
+  if (( DRY_RUN )); then
+    say "would install $(basename "$src") → .github/workflows/ (pinned @$CENTRAL_SHA)"
+  else
+    sed "s|@<CENTRAL_SHA>|@$CENTRAL_SHA|g" "$src" > "$target"
+  fi
+done
+
+if (( DRY_RUN )); then
+  say "dry run complete — nothing written"
+  exit "$EX_OK"
+fi
+
+command -v php >/dev/null 2>&1 && php "$REPO_ROOT/tools/baseline/yaml-lint.php" "$HOST_CI"/*.yml >/dev/null \
+  || warn "yaml-lint skipped"
+
+echo
+ok "CI switched to central callers @ $CENTRAL_SHA"
+echo "Installed: ${COPIED[*]}"
+echo "Untouched host-only workflows: bootstrap.yml maintenance.yml pr-triage.yml"
+echo
+echo "Next (manual, per no-commit rule):"
+echo "  1. review:   git diff -- .github/workflows/"
+echo "  2. commit:   ci: switch to BAGArt/telegram-platform-workflows callers"
+echo "  3. verify Actions runs green on the next push"

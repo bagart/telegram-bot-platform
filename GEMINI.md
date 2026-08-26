@@ -15,6 +15,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/framework (LARAVEL) - v13
 - laravel/prompts (PROMPTS) - v0
 - laravel/wayfinder (WAYFINDER) - v0
+- larastan/larastan (LARASTAN) - v3
 - laravel/boost (BOOST) - v2
 - laravel/mcp (MCP) - v0
 - laravel/pail (PAIL) - v1
@@ -31,19 +32,14 @@ This application is a Laravel application and its main Laravel ecosystems packag
 
 ## Skills Activation
 
-This project has domain-specific skills available. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
-
-- `wayfinder-development` — Activates whenever referencing backend routes in frontend components. Use when importing from @/actions or @/routes, calling Laravel routes from TypeScript, or working with Wayfinder route functions.
-- `pest-testing` — Use this skill for Pest PHP testing in Laravel projects only. Trigger whenever any test is being written, edited, fixed, or refactored — including fixing tests that broke after a code change, adding assertions, converting PHPUnit to Pest, adding datasets, and TDD workflows. Always activate when the user asks how to write something in Pest, mentions test files or directories (tests/Feature, tests/Unit, tests/Browser), or needs browser testing, smoke testing multiple pages for JS errors, or architecture tests. Covers: it()/expect() syntax, datasets, mocking, browser testing (visit/click/fill), smoke testing, arch(), Livewire component tests, RefreshDatabase, and all Pest 4 features. Do not use for factories, seeders, migrations, controllers, models, or non-test PHP code.
-- `inertia-react-development` — Develops Inertia.js v2 React client-side applications. Activates when creating React pages, forms, or navigation; using <Link>, <Form>, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions React with Inertia, React pages, React forms, or React navigation.
-- `tailwindcss-development` — Always invoke when the user's message includes 'tailwind' in any form. Also invoke for: building responsive grid layouts (multi-column card grids, product grids), flex/grid page structures (dashboards with sidebars, fixed topbars, mobile-toggle navs), styling UI components (cards, tables, navbars, pricing sections, forms, inputs, badges), adding dark mode variants, fixing spacing or typography, and Tailwind v3/v4 work. The core use case: writing or fixing Tailwind utility classes in HTML templates (Blade, JSX, Vue). Skip for backend PHP logic, database queries, API routes, JavaScript with no HTML/CSS component, CSS file audits, build tool configuration, and vanilla CSS.
-- `fortify-development` — Laravel Fortify headless authentication backend development. Activate when implementing authentication features including login, registration, password reset, email verification, two-factor authentication (2FA/TOTP), profile updates, headless auth, authentication scaffolding, or auth guards in Laravel applications.
+This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
 ## Conventions
 
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+- **NEVER run `git commit`, `git push`, or any other git write operation (`git add` included) — in any repository, including nested repos under `misc/BAGArt/*`. The user reviews all changes via `git diff` / `git status` themselves and commits manually. Make changes on disk only; leave the working tree for user review.**
 
 ## Verification Scripts
 
@@ -70,82 +66,56 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 # Laravel Boost
 
-- Laravel Boost is an MCP server that comes with powerful tools designed specifically for this application. Use them.
+## Tools
 
-## Artisan Commands
+- Laravel Boost is an MCP server with tools designed specifically for this application. Prefer Boost tools over manual alternatives like shell commands or file reads.
+- Use `database-query` to run read-only queries against the database instead of writing raw SQL in tinker.
+- Use `database-schema` to inspect table structure before writing migrations or models.
+- Use `get-absolute-url` to resolve the correct scheme, domain, and port for project URLs. Always use this before sharing a URL with the user.
+- Use `browser-logs` to read browser logs, errors, and exceptions. Only recent logs are useful, ignore old entries.
 
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`, `php artisan tinker --execute "..."`).
-- Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
+## Searching Documentation (IMPORTANT)
 
-## URLs
+- Always use `search-docs` before making code changes. Do not skip this step. It returns version-specific docs based on installed packages automatically.
+- Pass a `packages` array to scope results when you know which packages are relevant.
+- Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
+- Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
 
-- Whenever you share a project URL with the user, you should use the `get-absolute-url` tool to ensure you're using the correct scheme, domain/IP, and port.
+### Search Syntax
 
-## Debugging
+1. Use words for auto-stemmed AND logic: `rate limit` matches both "rate" AND "limit".
+2. Use `"quoted phrases"` for exact position matching: `"infinite scroll"` requires adjacent words in order.
+3. Combine words and phrases for mixed queries: `middleware "rate limit"`.
+4. Use multiple queries for OR logic: `queries=["authentication", "middleware"]`.
 
-- Use the `database-query` tool when you only need to read from the database.
-- Use the `database-schema` tool to inspect table structure before writing migrations or models.
-- To execute PHP code for debugging, run `php artisan tinker --execute "your code here"` directly.
-- To read configuration values, read the config files directly or run `php artisan config:show [key]`.
-- To inspect routes, run `php artisan route:list` directly.
-- To check environment variables, read the `.env` file directly.
+## Artisan
 
-## Reading Browser Logs With the `browser-logs` Tool
+- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
+- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
+- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
 
-- You can read browser logs, errors, and exceptions using the `browser-logs` tool from Boost.
-- Only recent browser logs will be useful - ignore old logs.
+## Tinker
 
-## Searching Documentation (Critically Important)
-
-- Boost comes with a powerful `search-docs` tool you should use before trying other approaches when working with Laravel or Laravel ecosystem packages. This tool automatically passes a list of installed packages and their versions to the remote Boost API, so it returns only version-specific documentation for the user's circumstance. You should pass an array of packages to filter on if you know you need docs for particular packages.
-- Search the documentation before making code changes to ensure we are taking the correct approach.
-- Use multiple, broad, simple, topic-based queries at once. For example: `['rate limiting', 'routing rate limiting', 'routing']`. The most relevant results will be returned first.
-- Do not add package names to queries; package information is already shared. For example, use `test resource table`, not `filament 4 test resource table`.
-
-### Available Search Syntax
-
-1. Simple Word Searches with auto-stemming - query=authentication - finds 'authenticate' and 'auth'.
-2. Multiple Words (AND Logic) - query=rate limit - finds knowledge containing both "rate" AND "limit".
-3. Quoted Phrases (Exact Position) - query="infinite scroll" - words must be adjacent and in that order.
-4. Mixed Queries - query=middleware "rate limit" - "middleware" AND exact phrase "rate limit".
-5. Multiple Queries - queries=["authentication", "middleware"] - ANY of these terms.
+- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
+- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
+  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 
 # PHP
 
 - Always use curly braces for control structures, even for single-line bodies.
+- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
+- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
+- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
+- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
+- Use array shape type definitions in PHPDoc blocks.
 
-## Constructors
+=== deployments rules ===
 
-- Use PHP 8 constructor property promotion in `__construct()`.
-    - `public function __construct(public GitHub $github) { }`
-- Do not allow empty `__construct()` methods with zero parameters unless the constructor is private.
+# Deployment
 
-## Type Declarations
-
-- Always use explicit return type declarations for methods and functions.
-- Use appropriate PHP type hints for method parameters.
-
-<!-- Explicit Return Types and Method Params -->
-```php
-protected function isAccessible(User $user, ?string $path = null): bool
-{
-    ...
-}
-```
-
-## Enums
-
-- Typically, keys in an Enum should be TitleCase. For example: `FavoritePerson`, `BestLake`, `Monthly`.
-
-## Comments
-
-- Prefer PHPDoc blocks over inline comments. Never use comments within the code itself unless the logic is exceptionally complex.
-
-## PHPDoc Blocks
-
-- Add useful array shape type definitions when appropriate.
+- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
 === tests rules ===
 
@@ -177,42 +147,17 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - If you're creating a generic PHP class, use `php artisan make:class`.
 - Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
 
-## Database
-
-- Always use proper Eloquent relationship methods with return type hints. Prefer relationship methods over raw queries or manual joins.
-- Use Eloquent models and relationships before suggesting raw database queries.
-- Avoid `DB::`; prefer `Model::query()`. Generate code that leverages Laravel's ORM capabilities rather than bypassing them.
-- Generate code that prevents N+1 query problems by using eager loading.
-- Use Laravel's query builder for very complex database operations.
-
 ### Model Creation
 
 - When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
 
-### APIs & Eloquent Resources
+## APIs & Eloquent Resources
 
 - For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## Controllers & Validation
-
-- Always create Form Request classes for validation rather than inline validation in controllers. Include both validation rules and custom error messages.
-- Check sibling Form Requests to see if the application uses array or string based validation rules.
-
-## Authentication & Authorization
-
-- Use Laravel's built-in authentication and authorization features (gates, policies, Sanctum, etc.).
 
 ## URL Generation
 
 - When generating links to other pages, prefer named routes and the `route()` function.
-
-## Queues
-
-- Use queued jobs for time-consuming operations with the `ShouldQueue` interface.
-
-## Configuration
-
-- Use environment variables only in configuration files - never use the `env()` function directly outside of config files. Always use `config('app.name')`, not `env('APP_NAME')`.
 
 ## Testing
 
@@ -228,13 +173,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 # Laravel Wayfinder
 
-Wayfinder generates TypeScript functions for Laravel routes. Import from `@/actions/` (controllers) or `@/routes/` (named routes).
-
-- IMPORTANT: Activate `wayfinder-development` skill whenever referencing backend routes in frontend components.
-- Invokable Controllers: `import StorePost from '@/actions/.../StorePostController'; StorePost()`.
-- Parameter Binding: Detects route keys (`{post:slug}`) — `show({ slug: "my-post" })`.
-- Query Merging: `show(1, { mergeQuery: { page: 2, sort: null } })` merges with current URL, `null` removes params.
-- Inertia: Use `.form()` with `<Form>` component or `form.submit(store())` with useForm.
+Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `@/actions/` (controllers) or `@/routes/` (named routes).
 
 === pint/core rules ===
 
@@ -242,12 +181,14 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+- Only run Pint on files you created or modified in the current task — never reformat untouched files (diff noise). When editing an existing file, fix style only in lines you are actively changing; leave unrelated style issues untouched.
 
 === pest/core rules ===
 
 ## Pest
 
 - This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
+- The `{name}` argument should not include the test suite directory. Use `php artisan make:test --pest SomeFeatureTest` instead of `php artisan make:test --pest Feature/SomeFeatureTest`.
 - Run tests: `php artisan test --compact` or filter: `php artisan test --compact --filter=testName`.
 - Do NOT delete tests without approval.
 
@@ -256,14 +197,6 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 # Inertia + React
 
 - IMPORTANT: Activate `inertia-react-development` when working with Inertia React client-side patterns.
-
-=== laravel/fortify rules ===
-
-# Laravel Fortify
-
-- Fortify is a headless authentication backend that provides authentication routes and controllers for Laravel applications.
-- IMPORTANT: Always use the `search-docs` tool for detailed Laravel Fortify patterns and documentation.
-- IMPORTANT: Activate `developing-with-fortify` skill when working with Fortify authentication features.
 
 </laravel-boost-guidelines>
 
@@ -279,17 +212,25 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 - Do not use comments to describe "stages" or "steps" — split the method instead.
 - All existing prompts, comments, and strings must be translated to English, with obvious ones removed.
 
-=== project conventions ===
+<!-- Mirrored from AGENTS.md. Keep in sync. Canonical source: AGENTS.md. -->
 
-<!-- Mirrored from AGENTS.md (lines 193+). Keep in sync. Canonical source: AGENTS.md. -->
+=== project conventions ===
 
 # Project Conventions
 
 - When reading MD files, always append their content to the end of the conversation context.
+- For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
+- **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
 - Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.
-- ALWAYS use LF line endings, never CRLF. Write all files with `\n` only.
+- ALWAYS use LF line endings, never CRLF. Write all files with `\n` only. Generated code MUST be LF-only — this is enforced by `.gitattributes` (`* text=auto eol=lf`), which overrides any global `core.autocrlf=true`.
+  - **Agent pitfalls (from real incidents):**
+    - After ANY `git checkout` / `git stash apply` / `git show > file`, re-verify with `file <path>` or `grep -c $'\r' <path>` — on Windows W: drives CRLF can sneak in despite `.gitattributes`. Convert if needed.
+    - When converting a file to LF programmatically, ALWAYS read fully into memory BEFORE opening for write. NEVER write `open(p,'wb').write(open(p,'rb').read()...)` — the write-open truncates the file before the nested read completes, destroying it.
+    - `is_readable()` and PHP/Pint file writes are unreliable on the W: drive (WSL mount); prefer `is_file()` and expect Pint to be read-only here (use `pint --test` + manual fixes).
 - Strict contracts only — no `method_exists`, `instanceof` duck-typing across library boundaries. If a caller needs a method, it MUST be declared in the interface/contract. Do not add dead methods; every public method must have a real caller.
+- **Domain/config DTO style:** `final readonly` classes with explicitly typed, constructor-promoted properties and no setters; `JsonSerializable` + `SCHEMA_VERSION` constant + `fromJsonV1()` for anything persisted/serialized; enums for enumerations. Reference implementation: `misc/BAGArt/telegram-bot-lib/src/Outbound/DeadLetterEntry.php`.
+- **Minimize env dependencies: everything in config files.** Settings live in `config/*.php` structures (and readonly config-DTOs built from them), not in environment variables. Env is reserved for secrets and connection points only (encryption keys, HMAC keys, DSN for Redis/Postgres). Config reads env once at the config layer; domain logic must use `config()` / injected DTOs and never call `getenv()` directly. Keep each module's env set minimal and documented in one place.
 
 ## Telegram Bot Platform Structure
 
@@ -298,8 +239,10 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 - `misc/BAGArt/telegram-bot-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
 - `misc/BAGArt/telegram-bot-antispam-module` — anti-spam module (`TgModuleContract` plugin)
 - `misc/BAGArt/telegram-bot-summarizer-module` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
-- `misc/BAGArt/telegram-bot-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
-- `misc/BAGArt/telegram-bot-mafia-module` — Mafia game module (`TgModuleContract` plugin; plan: `docs/tasks/todo.mafia.md`)
+- `misc/BAGArt/telegram-bot-tts-module` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, Track B multipart delivery through the core client, cron via `tts:prune`; docs: module `Readme.md`)
+- `misc/BAGArt/telegram-bot-nettools-module` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
+- `misc/BAGArt/telegram-game-mafia` — Mafia game module (`TgModuleContract` plugin; plan hub: `misc/BAGArt/telegram-game-mafia/docs/tasks/mafia/index.md` — task registry; legacy master plan `todo.mafia.md` there is FROZEN, migration gated by `_refactor/migration-matrix.md`)
+- `misc/BAGArt/telegram-bot-proxy-module` — Proxy Operations module (`BAGArt\ProxyOperations`; proxy inventory/quality/pools/gateway; bot + Telegram Mini App + web admin over one Application API)
 
 **Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:
 
@@ -307,6 +250,28 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 - **prod mode** (servers): `composer.prod.json` requires versioned `bagart/...-module` packages from VCS sources; install with `cmd/deps/install --mode=prod`. The prod lock must never reference path repositories or symlinked installs (servers ship without `misc/`).
 
 In both modes the module's Laravel provider is listed explicitly in `bootstrap/providers.php`; on boot it self-registers its `TgModuleContract` class into `config('telegram.modules_providers')`, which stays empty by default in `config/telegram.php` (no package auto-discovery). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
+
+## Proxy Operations Module (telegram-bot-proxy-module)
+
+Full plan: `misc/BAGArt/telegram-bot-proxy-module/docs/proxy-operations/plan.md` — read it before any work on the module.
+
+Hard rules:
+
+- **Multi-tenant everywhere.** `tenant_id` (workspace) is mandatory in ALL domain tables, queries, queues, caches; tenant resolution happens before any logic; server-side scoping is covered by tests. Model (decided 2026-08-26): tenant = platform user, 1 user = 1 workspace, Owner-only (role field reserved). No global records outside a tenant except system dictionaries and the shared raw-probe cache.
+- **Scope: any proxy format EXCEPT VPN.** The parser rejects vless/vmess/trojan/ss/wireguard/openvpn with a clear error.
+- **SSRF-safe checker:** fixed judges only; private/metadata denylist for IPv4+IPv6; resolve-then-connect (anti-DNS-rebinding). Reuse the `SsrfGuard` pattern from `telegram-bot-nettools-module`.
+- **Secrets:** proxy credentials are never logged and never reach exceptions/Telegram output; masked by default; encrypted at rest.
+- `Working ≠ Anonymous ≠ Safe ≠ Good` — orthogonal statuses/scores.
+- Append-only observations, idempotency, tenant-scoped durable runtime — not "later".
+- **Everything in Docker** (decided 2026-08-26): the module runs in the platform PHP container; any external program gets its own container; if an external program needs domain access — a simple proxy-API with a versioned additive-only contract instead of pulling it into PHP. Tor is a separate container (SOCKS5 :9050). Prefer third-party tools with web APIs.
+- `verified_proxies` is a **projection, not a second model**: `ProxyEndpoint` is the single source of truth; one projector updates the projection on `AuditCompleted`; external containers are read-only.
+- Admin settings are editable from both interfaces (web admin panel and Telegram `/settings` form) over one application layer, with audit.
+- i18n: five languages from day one — RU, EN, FR, ES, ZH; all strings via keys.
+- **MTProto proxies are a separate endpoint type** (not SOCKS): parse `mtproto://` / `tg://proxy` (hex/dd/+r/FakeTLS secrets), check via minimal handshake `req_pq_multi→resPQ`; SOCKS5/HTTP get `telegram_usable` via TCP+TLS to a Telegram DC. Details: plan.md §10.12 item 22.
+- **List parser:** one grammar — the `ProxyOperations\Domain\Parsing` library; MVP is an internal application service (shared `ImportProxiesCommand` for bot/API/CLI/feeds); an HTTP parser-svc container is P2 once external consumers appear. The parser knows nothing about encryption. Details: plan.md §11.15 items 2–3.
+- **Layer boundaries (plan.md §11 round 4 — win on conflicts):** the worker makes no domain decisions (`AuditTask` → probes → `AuditResult`, Redis only, no Postgres writes); Postgres = domain truth, Redis = runtime; raw probe observations are shared, tenant interpretation (health/score/lifecycle) is per-workspace; HMAC trust only for self-hosted judges; lifecycle = one state machine + orthogonal Testability/Quarantine statuses.
+
+Stack: network layer only `bagart/php-async-kernel-client`; queues via Redis Streams through `bagart/php-async-kernel-client-redis`; the checker worker runs as a separate docker-compose container behind a strict contract (plan.md §10.11, task #81); free external services only (policy: plan.md §10.5); geo/ASN via free mmdb files downloaded install-time into storage (never committed); licensed sources plug in through the same contract. Frontend shared with the platform: React 19 + Inertia 2 + Tailwind 4 + Radix UI; Mini App uses `@telegram-apps/sdk-react` with `isVersionAtLeast` feature detection; Rich Messages (Bot API 10.x) with HTML fallback. Layout and conventions follow sibling modules (`telegram-bot-nettools-module`, `telegram-bot-antispam-module`). Verification: `composer test` mandatory before delivery, including negative tenant-scoping cases.
 
 ## Dependency Injection
 
@@ -328,6 +293,8 @@ In both modes the module's Laravel provider is listed explicitly in `bootstrap/p
 
 - Run `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
 - DTOs are generated to `misc/BAGArt/telegram-bot-lib/src/TgApi/`.
+- For anything related to the external Telegram API (methods, entities, types), always include a `@see https://core.telegram.org/bots/api#...` (or similar) link to the official documentation.
+- All DTOs and Enums under `BAGArt\TelegramBot\TgApi` are readonly contracts; code touching Tg DTO/Enum must use `TgApiServices` and inject the DTO/Enum, not raw arrays.
 
 ## Daemon Shutdown & State Management (Async Kernel)
 
@@ -378,3 +345,21 @@ Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). C
 - Libraries connect via `path` repositories — run composer operations from the WSL shell (not Git Bash). In dev mode vendor symlinks point into `misc/BAGArt/`, so lib changes are immediately visible.
 - Dual manifests: `composer.json` (dev, canonical) + `composer.prod.json` (prod overlay; lock `composer.prod.lock`). Non-bagart deps must be identical across manifests — enforced by `cmd/deps/check`.
 - All dependency operations go through `cmd/deps/{install,update,check,audit,outdated} --mode=dev|prod|both`. After any intentional composer change regenerate reviewed baselines (`tools/baseline/composer-policy.php --check=scripts --update`, then `tools/baseline/manifest.php --generate`).
+
+## Baseline Tooling
+
+- **Engine lives in `bagart/telegram-devops-baseline`** (`misc/BAGArt/telegram-devops-baseline`, path repo, `v0.1.0`; extracted from the host baseline 2026-08-25). Host entry points are shims: `cmd/dev/{check,security,fix}` and `cmd/baseline/drift-report` delegate to `vendor/bin/baseline-*`; every generic executor under `tools/baseline/*.php|sh` is a thin delegation stub. Policy/state JSONs (`secret-allowlist.json`, `test-budgets.json`, `test-quarantine.json`, `commit-policy.json`, `compat-matrix.json`, …) stay per-repo and override package defaults (resolver: consumer `tools/baseline/<name>` wins over `defaults/<name>`).
+- Git hooks ship with the package: `core.hooksPath=vendor/bagart/telegram-devops-baseline/hooks` (set by `cmd/dev/setup`; a fresh clone must `composer install` before its first hook-checked commit).
+- Profiles are composer-deps evidence based; the host keeps `async-runtime`+`telegram` via `.baseline-profiles.json` because its libs are in-tree, not required.
+- Central reusable CI workflows live in `BAGArt/telegram-platform-workflows` (local checkout `misc/BAGArt/telegram-platform-workflows`, push pending repo creation). Host `.github/workflows/*` switch to SHA-pinned callers after that repo is published.
+- **Freeze (Phase 0):** baseline-affecting refactors in `cmd/lib`, package `controls/`, `hooks/` are frozen until consumer rollout completes; edits land in the package first, host stubs follow.
+- Golden runs for parity checks: `.cache/baseline/golden-run-phase*.json`.
+- Developer entry points live under `cmd/`: `cmd/dev/{setup,doctor,check,fix,test,lint,security,bench}`, `cmd/git/quick-commit`, `cmd/deps/*`, `cmd/ci/*`, `cmd/ops/*`, `cmd/release/{lib,promote}`, `cmd/baseline/*`, `cmd/help`. Prefer them over raw tool invocations. The devops-safe SDD set (`docs/tasks/devops-safe/01–11`) was implemented and then removed from the tree — recover it from git history when a `§N` reference needs context; the only live tracker is `docs/tasks/devops3.md` (consolidated undone work incl. module dual-mode and baseline-package RFCs).
+- CLI contract: exit codes `0`–`5` (5 = policy failure), flags `--format=text|json|github` (`--json` alias), levels `--quick|--full|--ci`, `--offline`, `--resume`, `--verbose`, `--quiet`. Defined in the package's `lib/contract.sh`; single definition sites: exit codes + flags → 02 §3, commit prefixes → `defaults/commit-policy.json` (consumer override wins), health paths → `routes/web.php`, SAST targets/rules → `controls/semgrep-scan.sh`.
+- Controls in `bin/baseline-check` and `bin/baseline-security` run through `lib/engine.sh` — declared dependencies + parallel waves (02 §15–§16). Register controls there; do not hand-roll sequential loops. Engine extras: `BASELINE_MAX_JOBS`, opt-in `BASELINE_CACHE=1`, per-control budgets `BASELINE_BUDGET_<ID>` / `BASELINE_CONTROL_BUDGET`.
+- Baseline-owned files are manifest-tracked (`tools/baseline/MANIFEST.json`, regenerate with `php tools/baseline/manifest.php --generate`); drift via `cmd/baseline/drift-report`; production gate is `cmd/ops/readiness`.
+- Git hooks are version-controlled in the package (`hooks/`) and activated via `core.hooksPath`. Never bypass with `--no-verify`; never disable a failing control — fix the cause or use the narrow allowlist (`tools/baseline/secret-allowlist.json`, requires reason + expiry; expired entries fail with exit 5).
+- Line endings are LF-only, enforced by `.gitattributes` plus the package's `lf-check.php`; auto-fix via `cmd/dev/fix`.
+- Dangerous ops require explicit confirmation flags: `ops/restore --confirm=database`, `ops/restart --confirm=restart`, `ops/replay --confirm=replay --count≤50`, `ops/deploy --confirm=deploy`, `ops/rollback --confirm=rollback`.
+- CI workflows (`.github/workflows/`) are SHA-pinned, read-permissions by default, validated locally by `php tools/baseline/yaml-lint.php` and `actionlint` if installed.
+

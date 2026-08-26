@@ -7,6 +7,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use BAGArt\ASKClient\Lockers\InMemoryLocker;
+use BAGArt\AsyncKernel\Wrappers\ASKCacheWrapper;
+use BAGArt\TelegramBot\Outbound\Adapters\KernelCacheAdapter;
+use BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationState;
+use BAGArt\TelegramBot\Outbound\Degradation\OutboundDegradationTracker;
 
 /**
  * Platform health endpoints (06-runtime-operations.md §39-§40).
@@ -86,6 +91,9 @@ class HealthController extends Controller
             '# HELP tg_outbound_queue_depth Outbound queue depth.',
             '# TYPE tg_outbound_queue_depth gauge',
             "tg_outbound_queue_depth {$queueDepth}",
+            '# HELP tg_outbound_degradation Aggregate outbound subsystem state (06 §43): 0 normal, 1 degraded (circuit breaker open), 2 offline (queue driver failing).',
+            '# TYPE tg_outbound_degradation gauge',
+            'tg_outbound_degradation '.$this->outboundDegradationRank(),
             '# HELP tg_dlq_depth_total Dead-letter entries across all bots.',
             '# TYPE tg_dlq_depth_total gauge',
             "tg_dlq_depth_total {$dlqDepth}",
@@ -189,6 +197,29 @@ class HealthController extends Controller
         }
 
         return $zero;
+    }
+
+    /**
+     * Aggregate outbound degradation state (06 §43), written by the outbound
+     * daemon through the shared cache. Unknown/absent state reads as normal.
+     */
+    protected function outboundDegradationRank(): int
+    {
+        try {
+            $adapter = new KernelCacheAdapter(
+                app(ASKCacheWrapper::class),
+                new InMemoryLocker(),
+            );
+            $tracker = new OutboundDegradationTracker($adapter);
+
+            return match ($tracker->state()) {
+                OutboundDegradationState::Normal => 0,
+                OutboundDegradationState::Degraded => 1,
+                OutboundDegradationState::Offline => 2,
+            };
+        } catch (\Throwable) {
+            return 0;
+        }
     }
 
     /** @return array{0: int, 1: int} */

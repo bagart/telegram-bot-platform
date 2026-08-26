@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Example;
 
+use BAGArt\TelegramBot\Contracts\Outbound\OutboundNextHandlerContract;
 use BAGArt\TelegramBot\Outbound\OutboundEnvelope;
 use BAGArt\TelegramBot\Outbound\OutboundMiddleware;
 use BAGArt\TelegramBot\Outbound\OutboundSkipException;
-use Closure;
 
 /**
  * Demo outbound middleware: records that an envelope passed through it and
@@ -21,8 +21,10 @@ class ExampleOutboundMiddleware implements OutboundMiddleware
     /** @var list<string> json payloads of envelopes seen by this middleware */
     public static array $seen = [];
 
-    public function handle(OutboundEnvelope $envelope, Closure $next): void
-    {
+    public function handle(
+        OutboundEnvelope $envelope,
+        OutboundNextHandlerContract $next,
+    ): void {
         $payload = json_encode($envelope->task->jsonSerialize());
         self::$seen[] = $payload;
 
@@ -30,6 +32,6 @@ class ExampleOutboundMiddleware implements OutboundMiddleware
             throw new OutboundSkipException(reason: 'Dropped by ExampleOutboundMiddleware (demo)');
         }
 
-        $next($envelope);
+        $next->handle($envelope);
     }
 }

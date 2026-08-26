@@ -17,10 +17,10 @@
         "bagart/telegram-bot-management": "@dev",
         "bagart/telegram-bot-antispam-module": "@dev",
         "bagart/telegram-bot-summarizer-module": "@dev",
-        "bagart/telegram-bot-nettools": "@dev",
+        "bagart/telegram-bot-nettools-module": "@dev",
         "bagart/telegram-bot-tts-module": "@dev",
         "bagart/telegram-bot-stt-module": "@dev",
-        "bagart/telegram-bot-mafia-module": "@dev",
+        "bagart/telegram-game-mafia": "@dev",
         "darkaonline/l5-swagger": "^8.6",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.34",
@@ -64,7 +64,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-nettools.git"
+            "url": "https://github.com/bagart/telegram-bot-nettools-module.git"
         },
         {
             "type": "vcs",
@@ -76,7 +76,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-mafia-module.git"
+            "url": "https://github.com/bagart/telegram-game-mafia.git"
         }
     ],
     "autoload": {

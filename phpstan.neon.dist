@@ -1,5 +1,6 @@
 includes:
     - phpstan-baseline.neon
+    - misc/BAGArt/telegram-bot-nettools-module/phpstan-baseline.neon
 
 parameters:
     level: 5
@@ -8,6 +9,6 @@ parameters:
         - misc
     excludePaths:
         - misc/BAGArt/php-async-kernel-client/vendor
-        - misc/BAGArt/telegram-bot-mafia-module/vendor
+        - misc/BAGArt/telegram-game-mafia/vendor
         - misc/BAGArt/telegram-bot-tts-module/vendor
     inferPrivatePropertyTypeFromConstructor: true

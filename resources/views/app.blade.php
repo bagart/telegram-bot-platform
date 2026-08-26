@@ -40,7 +40,10 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
         @viteReactRefresh
-        @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        {{-- Page chunks live at different paths now (module packages own their
+             pages), so only the entry is preloaded here; Inertia loads the
+             page chunk client-side via the dynamic import registry. --}}
+        @vite(['resources/js/app.tsx'])
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

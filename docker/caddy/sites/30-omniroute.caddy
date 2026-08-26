@@ -1,12 +1,13 @@
 # OmniRoute / OpenAI-compatible API
 #   http://localhost/v1/*        → OmniRoute (AI profile only)
 # /v1/* is reserved for OmniRoute — Laravel routes must not claim this namespace.
-@omniroute path /v1/*
-handle @omniroute {
-    reverse_proxy omniroute:20128 {
-        dynamic a
-    }
-    handle_errors {
-        respond "AI profile is disabled. Run `./cmd/docker/up ai` to enable." 503
-    }
+# A path-scoped site block: imported in global scope, so bare matchers are not
+# allowed here; the more specific key wins over the catch-all :80 site.
+:80/v1/* {
+	reverse_proxy omniroute:20128 {
+		dynamic a
+	}
+	handle_errors {
+		respond "AI profile is disabled. Run `./cmd/docker/up ai` to enable." 503
+	}
 }

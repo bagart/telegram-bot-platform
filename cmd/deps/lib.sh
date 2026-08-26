@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared helpers for cmd/deps mode-aware tooling (todo.module-dual-mode.md §5).
+# Shared helpers for cmd/deps mode-aware tooling.
 # Sourced by install/update/check/audit/outdated after contract.sh.
 
 # deps_parse_mode <default> "$@"... — extract --mode=dev|prod|both from the
@@ -38,7 +38,7 @@ require_prod_manifest() {
 }
 
 # A prod lock must never reference path repositories or symlinked installs:
-# servers do not have misc/ (todo.module-dual-mode.md §8).
+# servers do not have misc/.
 prod_lock_is_pure() {
   local lock="$1"
   if grep -q 'misc/BAGArt' "$lock"; then

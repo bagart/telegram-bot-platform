@@ -6,10 +6,11 @@
 #   2. Validate .env exists
 #   3. Install PHP dependencies (Composer)
 #   4. Install JS dependencies (npm)
-#   5. Build frontend assets
-#   6. Generate app key (if missing)
-#   7. Run database migrations
-#   8. Install Git hooks (safe — never overwrites foreign hooks)
+#   5. Sync module UI pages (cmd/dev/ui-sync)
+#   6. Build frontend assets
+#   7. Generate app key (if missing)
+#   8. Run database migrations
+#   9. Install Git hooks (safe — never overwrites foreign hooks)
 #
 # Usage:
 #   cmd/dev/setup
@@ -60,6 +61,9 @@ else
 fi
 
 # --- 5. Frontend build ---
+say "Syncing module UI pages..."
+"$REPO_ROOT/cmd/dev/ui-sync"
+
 say "Building frontend assets..."
 if command -v npm >/dev/null 2>&1 && [[ -f package.json ]]; then
   npm run build 2>&1 | sed 's/^/    /'
@@ -83,14 +87,15 @@ php artisan migrate --no-interaction 2>&1 | sed 's/^/    /'
 ok "Migrations done"
 
 # --- 8. Git hooks ---
-# Hooks live in tools/git-hooks/ and are activated via core.hooksPath,
-# so they are version-controlled and identical for every clone.
-HOOKS_PATH="tools/git-hooks"
+# Hooks ship with bagart/telegram-devops-baseline
+# and are activated via core.hooksPath pointing into vendor/. A fresh clone
+# must run `composer install` before its first commit is hook-checked —
+# baseline-setup fails loudly when vendor hooks are absent (no silent skip).
+HOOKS_PATH="vendor/bagart/telegram-devops-baseline/hooks"
 
-for hook in pre-commit commit-msg pre-push; do
-  [[ -f "$REPO_ROOT/$HOOKS_PATH/$hook" ]] || fail "Missing hook: $HOOKS_PATH/$hook"
-  chmod +x "$REPO_ROOT/$HOOKS_PATH/$hook"
-done
+if [[ ! -f "$REPO_ROOT/$HOOKS_PATH/pre-commit" ]]; then
+  fail "Missing hooks at $HOOKS_PATH — run 'composer install' first"
+fi
 
 CURRENT_HOOKS_PATH="$(git config core.hooksPath || true)"
 if [[ "$CURRENT_HOOKS_PATH" != "$HOOKS_PATH" ]]; then

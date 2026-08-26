@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Update dependencies per mode (todo.module-dual-mode.md §5).
+# Update dependencies per mode.
 #
 # Usage:
 #   cmd/deps/update [--mode=dev|prod|both] [composer|npm]

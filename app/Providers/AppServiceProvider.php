@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->registerSlowQueryLogging();
+        $this->registerTgAppThrottles();
     }
 
     /**
@@ -76,5 +80,33 @@ class AppServiceProvider extends ServiceProvider
                 'connection' => $query->connectionName,
             ]);
         });
+    }
+
+    /**
+     * Named throttle buckets for /tgapp/api/v1/* (menu RFC §27.8): libraries
+     * never register rate limiters, the host does — later menu tasks only
+     * reference these bucket names.
+     */
+    protected function registerTgAppThrottles(): void
+    {
+        RateLimiter::for('tgapp-session', fn (Request $request) => Limit::perMinute(
+            (int) config('menu.throttle.session'),
+        )->by('sess|'.$request->ip().'|'.substr(hash('sha256', strval($request->input('initData'))), 0, 16)));
+
+        foreach (['read', 'write', 'api'] as $bucket) {
+            RateLimiter::for("tgapp-{$bucket}", fn (Request $request) => Limit::perMinute(
+                (int) config("menu.throttle.{$bucket}"),
+            )->by(self::tgAppAuthedKey($request, $bucket)));
+        }
+    }
+
+    /** Authenticated buckets key by tg uid; anonymous fallback keys by IP. */
+    private static function tgAppAuthedKey(Request $request, string $bucket): string
+    {
+        $uid = $request->attributes->get('tgapp.user_id');
+
+        return $uid === null
+            ? "tgapp|{$bucket}|anon|".$request->ip()
+            : "tgapp|{$bucket}|{$uid}";
     }
 }

@@ -3,7 +3,6 @@
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
@@ -16,10 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
 //    ->withCommands([
 //        __DIR__.'/../misc/BAGArt/telegram-bot-lib/src/Commands',
 //        __DIR__.'/../misc/BAGArt/telegram-bot-basic-lib/src/Commands',
-//        __DIR__.'/../misc/BAGArt/telegram-bot-management-lib/src/Commands',
+//        __DIR__.'/../misc/BAGArt/telegram-bot-management/src/Commands',
 //    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+        // Telegram delivers webhooks without CSRF tokens; the secret-token
+        // and IP middlewares are the authentication layer for tg/*.
+        $middleware->validateCsrfTokens(except: ['tg/*', 'tgapp/*']);
 
         $middleware->web(append: [
             HandleAppearance::class,
@@ -27,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+    // No inline exception configuration here: withExceptions() is still
+    // required (it registers the ExceptionHandler singleton), but the §13.4
+    // rate-limit envelope rendering lives in the menu module provider.
+    ->withExceptions()
+    ->create();

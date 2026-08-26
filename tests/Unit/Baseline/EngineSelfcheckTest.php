@@ -5,7 +5,8 @@
  *
  * Runs the engine self-check harness and asserts every verdict. The harness
  * (tools/baseline/selfcheck-engine.sh) exercises cycle detection, resume
- * journaling, per-control budgets and the max-jobs clamp in a real shell.
+ * journaling, per-control budgets, the max-jobs clamp and profile
+ * composition in a real shell.
  */
 
 use Symfony\Component\Process\Process;
@@ -34,6 +35,7 @@ it('passes the control engine self-check harness', function () {
         ->toContain('resume-journal: OK')
         ->toContain('budget-enforce: OK')
         ->toContain('maxjobs-clamp: OK')
+        ->toContain('profiles-compose: OK')
         ->toContain('DONE');
 });
 

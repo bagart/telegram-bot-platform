@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2664da0ba569e94b7265ea34108f4f10",
+    "content-hash": "4391354963b8586edfe8b33680fd1340",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -63,16 +63,16 @@
         },
         {
             "name": "bagart/ask-client",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/bagart/php-async-kernel-client.git",
-                "reference": "03f2a9e5bc09bce65e146d4a6c499dd226308fdb"
+                "url": "git@github.com:bagart/php-async-kernel-client.git",
+                "reference": "0f43e1ffe077e551278e0e7136151bf038e4ce16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/php-async-kernel-client/zipball/03f2a9e5bc09bce65e146d4a6c499dd226308fdb",
-                "reference": "03f2a9e5bc09bce65e146d4a6c499dd226308fdb",
+                "url": "https://api.github.com/repos/bagart/php-async-kernel-client/zipball/0f43e1ffe077e551278e0e7136151bf038e4ce16",
+                "reference": "0f43e1ffe077e551278e0e7136151bf038e4ce16",
                 "shasum": ""
             },
             "require": {
@@ -128,18 +128,14 @@
                 "queue",
                 "transport"
             ],
-            "support": {
-                "source": "https://github.com/bagart/php-async-kernel-client/tree/v0.1.0",
-                "issues": "https://github.com/bagart/php-async-kernel-client/issues"
-            },
-            "time": "2026-08-25T00:02:46+00:00"
+            "time": "2026-08-25T11:30:57+00:00"
         },
         {
             "name": "bagart/ask-client-redis",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/bagart/php-async-kernel-client-redis.git",
+                "url": "git@github.com:bagart/php-async-kernel-client-redis.git",
                 "reference": "2c28fd2fa7958e739d88019bf11563687c2ae4be"
             },
             "dist": {
@@ -199,24 +195,20 @@
                 "redis",
                 "transport"
             ],
-            "support": {
-                "source": "https://github.com/bagart/php-async-kernel-client-redis/tree/main",
-                "issues": "https://github.com/bagart/php-async-kernel-client-redis/issues"
-            },
-            "time": "2026-08-24T21:18:30+00:00"
+            "time": "2026-08-23T07:20:27+00:00"
         },
         {
             "name": "bagart/async-kernel",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/bagart/php-async-kernel-lib.git",
-                "reference": "7bb687682e45657831e6beb831e38e19a67c71cb"
+                "url": "git@github.com:bagart/php-async-kernel-lib.git",
+                "reference": "5a2ab7cf0848d3a38f0ba7ba3cbcceb84e3f3960"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/7bb687682e45657831e6beb831e38e19a67c71cb",
-                "reference": "7bb687682e45657831e6beb831e38e19a67c71cb",
+                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/5a2ab7cf0848d3a38f0ba7ba3cbcceb84e3f3960",
+                "reference": "5a2ab7cf0848d3a38f0ba7ba3cbcceb84e3f3960",
                 "shasum": ""
             },
             "require": {
@@ -226,6 +218,7 @@
                 "psr/simple-cache": "*"
             },
             "require-dev": {
+                "bagart/devops-baseline": "@dev",
                 "pestphp/pest": "^4.7"
             },
             "default-branch": true,
@@ -262,11 +255,7 @@
                 "fiber",
                 "pipeline"
             ],
-            "support": {
-                "source": "https://github.com/bagart/php-async-kernel-lib/tree/main",
-                "issues": "https://github.com/bagart/php-async-kernel-lib/issues"
-            },
-            "time": "2026-08-25T12:25:36+00:00"
+            "time": "2026-08-25T21:09:00+00:00"
         },
         {
             "name": "bagart/telegram-bot-antispam-module",
@@ -333,12 +322,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-basic-lib.git",
-                "reference": "8b036a9ff5b955a0777297906202bd6b2db330fe"
+                "reference": "382144dc0ac4dad13956b3da87df57213f35e9bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-basic-lib/zipball/8b036a9ff5b955a0777297906202bd6b2db330fe",
-                "reference": "8b036a9ff5b955a0777297906202bd6b2db330fe",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-basic-lib/zipball/382144dc0ac4dad13956b3da87df57213f35e9bb",
+                "reference": "382144dc0ac4dad13956b3da87df57213f35e9bb",
                 "shasum": ""
             },
             "require": {
@@ -387,16 +376,16 @@
         },
         {
             "name": "bagart/telegram-bot-lib",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-lib.git",
-                "reference": "40b4522b3afd3530921bba95887375131fb688d8"
+                "reference": "5ea773bae78656a66b7828b9b31de43f4da5045a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/40b4522b3afd3530921bba95887375131fb688d8",
-                "reference": "40b4522b3afd3530921bba95887375131fb688d8",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/5ea773bae78656a66b7828b9b31de43f4da5045a",
+                "reference": "5ea773bae78656a66b7828b9b31de43f4da5045a",
                 "shasum": ""
             },
             "require": {
@@ -473,72 +462,7 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-08-25T00:03:03+00:00"
-        },
-        {
-            "name": "bagart/telegram-bot-mafia-module",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-mafia-module.git",
-                "reference": "1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-mafia-module/zipball/1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83",
-                "reference": "1dfaff9a8b95b88ffdf10e1e9ab567bd0ccaaf83",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.5"
-            },
-            "require-dev": {
-                "pestphp/pest": "^4.0"
-            },
-            "suggest": {
-                "bagart/telegram-bot-lib": "Telegram platform runtime contracts (provided by the host app)"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "BAGArt\\TelegramBotMafia\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "BAGArt\\TelegramBotMafia\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "composer exec pest"
-                ],
-                "lint": [
-                    "pint --dirty"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "BAGArt (Artur Baltaev)",
-                    "email": "baltaev.artur+ask@gmail.com"
-                }
-            ],
-            "description": "Mafia (Werewolf) game module for the Telegram bot platform: dual interface (group + private rooms), AI filler players, 16 roles, i18n",
-            "keywords": [
-                "bot-platform",
-                "game",
-                "mafia",
-                "module",
-                "telegram",
-                "telegram-bot",
-                "tg-module",
-                "werewolf"
-            ],
-            "time": "2026-08-25T00:18:12+00:00"
+            "time": "2026-08-25T11:45:10+00:00"
         },
         {
             "name": "bagart/telegram-bot-management",
@@ -546,12 +470,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-management.git",
-                "reference": "02f0ef693dd37a5a0ea29b8d00e7cf6355e52e83"
+                "reference": "009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-management/zipball/02f0ef693dd37a5a0ea29b8d00e7cf6355e52e83",
-                "reference": "02f0ef693dd37a5a0ea29b8d00e7cf6355e52e83",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-management/zipball/009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e",
+                "reference": "009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e",
                 "shasum": ""
             },
             "require": {
@@ -604,24 +528,27 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-08-25T00:18:50+00:00"
+            "time": "2026-08-25T17:49:22+00:00"
         },
         {
-            "name": "bagart/telegram-bot-nettools",
+            "name": "bagart/telegram-bot-nettools-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-nettools.git",
-                "reference": "0c53559ff7ff3503d36978d953e8252d2b492be3"
+                "url": "git@github.com:bagart/telegram-bot-nettools-module.git",
+                "reference": "7d8dd2d36d00c366f75b047c35c2e96f4c483c80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-nettools/zipball/0c53559ff7ff3503d36978d953e8252d2b492be3",
-                "reference": "0c53559ff7ff3503d36978d953e8252d2b492be3",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-nettools-module/zipball/7d8dd2d36d00c366f75b047c35c2e96f4c483c80",
+                "reference": "7d8dd2d36d00c366f75b047c35c2e96f4c483c80",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.5"
+            },
+            "require-dev": {
+                "bagart/telegram-devops-baseline": "@dev"
             },
             "suggest": {
                 "bagart/telegram-bot-lib": "Telegram bot platform core (provided by the host app)",
@@ -665,7 +592,7 @@
                 "tg-bot",
                 "whois"
             ],
-            "time": "2026-08-25T09:47:39+00:00"
+            "time": "2026-08-26T08:59:08+00:00"
         },
         {
             "name": "bagart/telegram-bot-stt-module",
@@ -673,12 +600,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-stt-module.git",
-                "reference": "20d06b51bd90cb7acf700078554c8ef0adc4666f"
+                "reference": "d88d9c74f0879aa020abe982064fb38a056d581e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-stt-module/zipball/20d06b51bd90cb7acf700078554c8ef0adc4666f",
-                "reference": "20d06b51bd90cb7acf700078554c8ef0adc4666f",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-stt-module/zipball/d88d9c74f0879aa020abe982064fb38a056d581e",
+                "reference": "d88d9c74f0879aa020abe982064fb38a056d581e",
                 "shasum": ""
             },
             "require": {
@@ -724,7 +651,7 @@
                 "transcription",
                 "whisper"
             ],
-            "time": "2026-08-25T01:11:14+00:00"
+            "time": "2026-08-25T16:18:39+00:00"
         },
         {
             "name": "bagart/telegram-bot-summarizer-module",
@@ -791,12 +718,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-tts-module.git",
-                "reference": "7d1281d3f37f4d59e8f5b92c02518e371423943b"
+                "reference": "7d90e42f07ddf656cc4fab3ef090a317050a1dba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-tts-module/zipball/7d1281d3f37f4d59e8f5b92c02518e371423943b",
-                "reference": "7d1281d3f37f4d59e8f5b92c02518e371423943b",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-tts-module/zipball/7d90e42f07ddf656cc4fab3ef090a317050a1dba",
+                "reference": "7d90e42f07ddf656cc4fab3ef090a317050a1dba",
                 "shasum": ""
             },
             "require": {
@@ -850,7 +777,73 @@
                 "tts",
                 "voice"
             ],
-            "time": "2026-08-25T01:11:14+00:00"
+            "time": "2026-08-25T19:53:51+00:00"
+        },
+        {
+            "name": "bagart/telegram-game-mafia",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/telegram-game-mafia.git",
+                "reference": "819e7db09a1335a8b750ea535ac1394c9c310b42"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bagart/telegram-game-mafia/zipball/819e7db09a1335a8b750ea535ac1394c9c310b42",
+                "reference": "819e7db09a1335a8b750ea535ac1394c9c310b42",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.5"
+            },
+            "require-dev": {
+                "bagart/telegram-devops-baseline": "@dev",
+                "pestphp/pest": "^4.0"
+            },
+            "suggest": {
+                "bagart/telegram-bot-lib": "Telegram platform runtime contracts (provided by the host app)"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BAGArt\\TelegramBotMafia\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "BAGArt\\TelegramBotMafia\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "composer exec pest"
+                ],
+                "lint": [
+                    "pint --dirty"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "BAGArt (Artur Baltaev)",
+                    "email": "baltaev.artur+ask@gmail.com"
+                }
+            ],
+            "description": "Mafia (Werewolf) game module for the Telegram bot platform: dual interface (group + private rooms), AI filler players, 16 roles, i18n",
+            "keywords": [
+                "bot-platform",
+                "game",
+                "mafia",
+                "module",
+                "telegram",
+                "telegram-bot",
+                "tg-module",
+                "werewolf"
+            ],
+            "time": "2026-08-26T09:37:52+00:00"
         },
         {
             "name": "brick/math",
@@ -2229,16 +2222,16 @@
         },
         {
             "name": "laravel/fortify",
-            "version": "v1.38.0",
+            "version": "v1.39.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/fortify.git",
-                "reference": "c04ca2998631e1816f2e94a78b668f3a59b3962d"
+                "reference": "b1fc50707bbe007fd92165d8b7d460ab549b355a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/fortify/zipball/c04ca2998631e1816f2e94a78b668f3a59b3962d",
-                "reference": "c04ca2998631e1816f2e94a78b668f3a59b3962d",
+                "url": "https://api.github.com/repos/laravel/fortify/zipball/b1fc50707bbe007fd92165d8b7d460ab549b355a",
+                "reference": "b1fc50707bbe007fd92165d8b7d460ab549b355a",
                 "shasum": ""
             },
             "require": {
@@ -2289,20 +2282,20 @@
                 "issues": "https://github.com/laravel/fortify/issues",
                 "source": "https://github.com/laravel/fortify"
             },
-            "time": "2026-08-07T14:07:45+00:00"
+            "time": "2026-08-23T07:46:41+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v13.26.1",
+            "version": "v13.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "e4a1bc52ef551d52e60244bb004256d6861da7ab"
+                "reference": "6e2c363716964d8238cee7097b258119a984f0cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/e4a1bc52ef551d52e60244bb004256d6861da7ab",
-                "reference": "e4a1bc52ef551d52e60244bb004256d6861da7ab",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/6e2c363716964d8238cee7097b258119a984f0cf",
+                "reference": "6e2c363716964d8238cee7097b258119a984f0cf",
                 "shasum": ""
             },
             "require": {
@@ -2424,7 +2417,7 @@
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3",
                 "predis/predis": "^2.3 || ^3.0",
-                "rector/rector": "^2.3",
+                "rector/rector": "2.6.3",
                 "resend/resend-php": "^1.0",
                 "symfony/cache": "^7.4.0 || ^8.0.0",
                 "symfony/http-client": "^7.4.0 || ^8.0.0",
@@ -2516,7 +2509,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-08-18T20:31:28+00:00"
+            "time": "2026-08-25T20:57:16+00:00"
         },
         {
             "name": "laravel/mcp",
@@ -2662,16 +2655,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.23",
+            "version": "v0.3.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221"
+                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221",
-                "reference": "b7b4c35e5bc47450f6b6238c6cc9c47ba19b2221",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/5d3cdef29e93ca3b62b1871359db3078cd99908b",
+                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b",
                 "shasum": ""
             },
             "require": {
@@ -2715,22 +2708,22 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.23"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.24"
             },
-            "time": "2026-08-11T18:58:24+00:00"
+            "time": "2026-08-20T12:55:36+00:00"
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.15",
+            "version": "v2.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661"
+                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/dccd8bcb851bb03fcc005df650b708b57cc52661",
-                "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
+                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
                 "shasum": ""
             },
             "require": {
@@ -2778,7 +2771,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2026-07-21T16:49:22+00:00"
+            "time": "2026-08-18T20:28:54+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -8864,10 +8857,10 @@
         "bagart/telegram-bot-management": 20,
         "bagart/telegram-bot-antispam-module": 20,
         "bagart/telegram-bot-summarizer-module": 20,
-        "bagart/telegram-bot-nettools": 20,
+        "bagart/telegram-bot-nettools-module": 20,
         "bagart/telegram-bot-tts-module": 20,
         "bagart/telegram-bot-stt-module": 20,
-        "bagart/telegram-bot-mafia-module": 20
+        "bagart/telegram-game-mafia": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
