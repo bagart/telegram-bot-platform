@@ -87,11 +87,11 @@ php artisan migrate --no-interaction 2>&1 | sed 's/^/    /'
 ok "Migrations done"
 
 # --- 8. Git hooks ---
-# Hooks ship with bagart/telegram-devops-baseline
+# Hooks ship with bagart/telegram-platform-devops-baseline
 # and are activated via core.hooksPath pointing into vendor/. A fresh clone
 # must run `composer install` before its first commit is hook-checked —
 # baseline-setup fails loudly when vendor hooks are absent (no silent skip).
-HOOKS_PATH="vendor/bagart/telegram-devops-baseline/hooks"
+HOOKS_PATH="vendor/bagart/telegram-platform-devops-baseline/hooks"
 
 if [[ ! -f "$REPO_ROOT/$HOOKS_PATH/pre-commit" ]]; then
   fail "Missing hooks at $HOOKS_PATH — run 'composer install' first"

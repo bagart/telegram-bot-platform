@@ -233,31 +233,34 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 ## Telegram Bot Platform Structure
 
 - `misc/BAGArt/telegram-bot-lib` — pure Telegram Bot API library (no Laravel)
-- `misc/BAGArt/telegram-bot-basic-lib` — basic webhook handlers, middleware, commands (works with pure PHP and Laravel)
-- `misc/BAGArt/telegram-bot-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
-- `misc/BAGArt/telegram-bot-antispam-module` — anti-spam module (`TgModuleContract` plugin)
-- `misc/BAGArt/telegram-bot-summarizer-module` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
-- `misc/BAGArt/telegram-bot-tts-module` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, Track B multipart delivery through the core client, cron via `tts:prune`; docs: module `Readme.md`)
-- `misc/BAGArt/telegram-bot-nettools-module` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
-- `misc/BAGArt/telegram-game-mafia` — Mafia game module (`TgModuleContract` plugin; plan hub: `misc/BAGArt/telegram-game-mafia/docs/tasks/mafia/index.md` — task registry; legacy master plan `todo.mafia.md` there is FROZEN, migration gated by `_refactor/migration-matrix.md`)
-- `misc/BAGArt/telegram-bot-proxy-module` — Proxy Operations module (`BAGArt\ProxyOperations`; proxy inventory/quality/pools/gateway; bot + Telegram Mini App + web admin over one Application API)
+- `misc/BAGArt/telegram-bot-lib-basic` — basic webhook handlers, middleware, commands (works with pure PHP and Laravel)
+- `misc/BAGArt/telegram-platform-management` — multi-bot management, models (`TgBot`, `TgBotOwner`, `TgModuleEnablement`), DB migrations
+- `misc/BAGArt/tgbot-module-antispam` — anti-spam module (`TgModuleContract` plugin)
+- `misc/BAGArt/tgbot-module-summarizer` — chat summarizer/digest module (`TgModuleContract` plugin; LLM digests + in-chat admin panel, cron via `summarizer:digests`)
+- `misc/BAGArt/tgbot-module-tts` — text-to-speech module (`TgModuleContract` plugin; `/voice` command, private auto-speak, provider presets + custom JSON with SSRF guard, Track B multipart delivery through the core client, cron via `tts:prune`; docs: module `Readme.md`)
+- `misc/BAGArt/tgbot-module-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
+- `misc/BAGArt/tgbot-game-mafia` — Mafia game module (`TgModuleContract` plugin; plan hub: `misc/BAGArt/tgbot-game-mafia/docs/tasks/mafia/index.md` — task registry; legacy master plan `todo.mafia.md` there is FROZEN, migration gated by `_refactor/migration-matrix.md`)
+- `misc/BAGArt/tgbot-module-proxy` — Proxy Operations module (`BAGArt\ProxyOperations`; proxy inventory/quality/pools/gateway; bot + Telegram Mini App + web admin over one Application API)
+- `misc/BAGArt/telegram-module-engine` — Telegram Module Engine (`BAGArt\TelegramModuleEngine`): declarative module registry from `config/tg_modules.php` (policy DTOs + `laravelProvider`), module boot + bootstrap takeover in dependency order, bot-scoped activation (PG `bot_module_activations`), PG routing table behind `RouteResolver`, capabilities/dependency graphs, diagnostics CLI `tg:modules:list|validate|diagnose`. Plan hub: `misc/BAGArt/telegram-module-engine/docs/architecture/` (00 overview + 07 roadmap with status).
+- `misc/BAGArt/telegram-bot-lib-access` — Chat Access Control module (`BAGArt\TelegramBotAccess`; pure-domain authz: `AccessControlContract`, `ChatRole`, `Grant`, `AccessDecision`; Platform Administration / Bot Administration / Chat Access Control terminology).
+- `misc/BAGArt/telegram-platform-audit` — Audit module (`BAGArt\TelegramBotAudit`; append-only `AuditSinkContract`, `AuditEntry` DTO with `SCHEMA_VERSION`/`fromJsonV1`, in-memory sink for tests/hosts).
 
 **Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:
 
 - **dev mode** (default for development): root `composer.json` maps the module namespace PSR-4 directly into `misc/BAGArt/<name>-module/src` (+ tests via autoload-dev), keeps a path repository entry, and does **not** composer-require the package. Edits are immediately visible, no version bumps mid-refactor.
 - **prod mode** (servers): `composer.prod.json` requires versioned `bagart/...-module` packages from VCS sources; install with `cmd/deps/install --mode=prod`. The prod lock must never reference path repositories or symlinked installs (servers ship without `misc/`).
 
-In both modes the module's Laravel provider is listed explicitly in `bootstrap/providers.php`; on boot it self-registers its `TgModuleContract` class into `config('telegram.modules_providers')`, which stays empty by default in `config/telegram.php` (no package auto-discovery). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
+Since the module-engine bootstrap takeover (phase 3), a module's Laravel provider is NOT listed in `bootstrap/providers.php` — it is declared as `laravelProvider` on the module's entry in `config/tg_modules.php` and registered by the engine in dependency order. `bootstrap/providers.php` holds only lib + engine + basic-lib + management + proxy-operations (non-`TgModuleContract` packages). The legacy `telegram.modules` / `modules_providers` / `modules_seeders` keys are retired from `config/telegram.php`; modules declare `seeders`/`routes` directly in `config/tg_modules.php` (the deprecated alias consumption in lib/engine remains for external consumers). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
 
-## Proxy Operations Module (telegram-bot-proxy-module)
+## Proxy Operations Module (tgbot-module-proxy)
 
-Full plan: `misc/BAGArt/telegram-bot-proxy-module/docs/proxy-operations/plan.md` — read it before any work on the module.
+Full plan: `misc/BAGArt/tgbot-module-proxy/docs/proxy-operations/plan.md` — read it before any work on the module.
 
 Hard rules:
 
 - **Multi-tenant everywhere.** `tenant_id` (workspace) is mandatory in ALL domain tables, queries, queues, caches; tenant resolution happens before any logic; server-side scoping is covered by tests. Model (decided 2026-08-26): tenant = platform user, 1 user = 1 workspace, Owner-only (role field reserved). No global records outside a tenant except system dictionaries and the shared raw-probe cache.
 - **Scope: any proxy format EXCEPT VPN.** The parser rejects vless/vmess/trojan/ss/wireguard/openvpn with a clear error.
-- **SSRF-safe checker:** fixed judges only; private/metadata denylist for IPv4+IPv6; resolve-then-connect (anti-DNS-rebinding). Reuse the `SsrfGuard` pattern from `telegram-bot-nettools-module`.
+- **SSRF-safe checker:** fixed judges only; private/metadata denylist for IPv4+IPv6; resolve-then-connect (anti-DNS-rebinding). Reuse the `SsrfGuard` pattern from `tgbot-module-nettools`.
 - **Secrets:** proxy credentials are never logged and never reach exceptions/Telegram output; masked by default; encrypted at rest.
 - `Working ≠ Anonymous ≠ Safe ≠ Good` — orthogonal statuses/scores.
 - Append-only observations, idempotency, tenant-scoped durable runtime — not "later".
@@ -269,7 +272,7 @@ Hard rules:
 - **List parser:** one grammar — the `ProxyOperations\Domain\Parsing` library; MVP is an internal application service (shared `ImportProxiesCommand` for bot/API/CLI/feeds); an HTTP parser-svc container is P2 once external consumers appear. The parser knows nothing about encryption. Details: plan.md §11.15 items 2–3.
 - **Layer boundaries (plan.md §11 round 4 — win on conflicts):** the worker makes no domain decisions (`AuditTask` → probes → `AuditResult`, Redis only, no Postgres writes); Postgres = domain truth, Redis = runtime; raw probe observations are shared, tenant interpretation (health/score/lifecycle) is per-workspace; HMAC trust only for self-hosted judges; lifecycle = one state machine + orthogonal Testability/Quarantine statuses.
 
-Stack: network layer only `bagart/php-async-kernel-client`; queues via Redis Streams through `bagart/php-async-kernel-client-redis`; the checker worker runs as a separate docker-compose container behind a strict contract (plan.md §10.11, task #81); free external services only (policy: plan.md §10.5); geo/ASN via free mmdb files downloaded install-time into storage (never committed); licensed sources plug in through the same contract. Frontend shared with the platform: React 19 + Inertia 2 + Tailwind 4 + Radix UI; Mini App uses `@telegram-apps/sdk-react` with `isVersionAtLeast` feature detection; Rich Messages (Bot API 10.x) with HTML fallback. Layout and conventions follow sibling modules (`telegram-bot-nettools-module`, `telegram-bot-antispam-module`). Verification: `composer test` mandatory before delivery, including negative tenant-scoping cases.
+Stack: network layer only `bagart/php-async-kernel-client`; queues via Redis Streams through `bagart/php-async-kernel-client-redis`; the checker worker runs as a separate docker-compose container behind a strict contract (plan.md §10.11, task #81); free external services only (policy: plan.md §10.5); geo/ASN via free mmdb files downloaded install-time into storage (never committed); licensed sources plug in through the same contract. Frontend shared with the platform: React 19 + Inertia 2 + Tailwind 4 + Radix UI; Mini App uses `@telegram-apps/sdk-react` with `isVersionAtLeast` feature detection; Rich Messages (Bot API 10.x) with HTML fallback. Layout and conventions follow sibling modules (`tgbot-module-nettools`, `tgbot-module-antispam`). Verification: `composer test` mandatory before delivery, including negative tenant-scoping cases.
 
 ## Dependency Injection
 

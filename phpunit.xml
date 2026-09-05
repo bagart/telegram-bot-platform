@@ -20,37 +20,37 @@
             <exclude>misc/BAGArt/telegram-bot-lib/tests/Unit/Runtime/Daemon/DaemonRunnerTest.php</exclude>
         </testsuite>
         <testsuite name="TelegramBotBasicLib">
-            <directory>misc/BAGArt/telegram-bot-basic-lib/tests</directory>
+            <directory>misc/BAGArt/telegram-bot-lib-basic/tests</directory>
         </testsuite>
         <testsuite name="AntispamModule">
-            <directory>misc/BAGArt/telegram-bot-antispam-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-antispam/tests</directory>
         </testsuite>
         <testsuite name="SummarizerModule">
-            <directory>misc/BAGArt/telegram-bot-summarizer-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-summarizer/tests</directory>
         </testsuite>
         <testsuite name="NettoolsModule">
-            <directory>misc/BAGArt/telegram-bot-nettools-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-nettools/tests</directory>
         </testsuite>
         <testsuite name="SttModule">
-            <directory>misc/BAGArt/telegram-bot-stt-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-stt/tests</directory>
         </testsuite>
         <testsuite name="TtsModule">
-            <directory>misc/BAGArt/telegram-bot-tts-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-tts/tests</directory>
         </testsuite>
         <testsuite name="MafiaModule">
-            <directory>misc/BAGArt/telegram-game-mafia/tests</directory>
+            <directory>misc/BAGArt/tgbot-game-mafia/tests</directory>
         </testsuite>
         <testsuite name="menu-unit">
-            <directory>misc/BAGArt/telegram-bot-menu-module/tests/Unit</directory>
+            <directory>misc/BAGArt/telegram-platform-menu/tests/Unit</directory>
         </testsuite>
         <testsuite name="menu-feature">
-            <directory>misc/BAGArt/telegram-bot-menu-module/tests/Feature</directory>
+            <directory>misc/BAGArt/telegram-platform-menu/tests/Feature</directory>
         </testsuite>
         <testsuite name="ProxyModule">
-            <directory>misc/BAGArt/telegram-bot-proxy-module/tests</directory>
+            <directory>misc/BAGArt/tgbot-module-proxy/tests</directory>
         </testsuite>
         <testsuite name="TelegramBotManagement">
-            <directory>misc/BAGArt/telegram-bot-management/tests</directory>
+            <directory>misc/BAGArt/telegram-platform-management/tests</directory>
         </testsuite>
         <testsuite name="AsyncKernelLib">
             <directory>misc/BAGArt/php-async-kernel-lib/tests</directory>
@@ -60,6 +60,15 @@
         </testsuite>
         <testsuite name="ASKClientRedisLib">
             <directory>misc/BAGArt/php-async-kernel-client-redis/tests</directory>
+        </testsuite>
+        <testsuite name="ModuleEngine">
+            <directory>misc/BAGArt/telegram-module-engine/tests</directory>
+        </testsuite>
+        <testsuite name="AccessModule">
+            <directory>misc/BAGArt/telegram-bot-lib-access/tests</directory>
+        </testsuite>
+        <testsuite name="AuditModule">
+            <directory>misc/BAGArt/telegram-platform-audit/tests</directory>
         </testsuite>
     </testsuites>
     <source>

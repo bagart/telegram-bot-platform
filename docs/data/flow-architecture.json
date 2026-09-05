@@ -4,8 +4,8 @@
     { "id":"telegram-api", "name":"Telegram API", "desc":"Telegram Bot API servers", "cat":"external", "emoji":"🤖", "x":76, "y":4, "w":16, "tags":["HTTPS","JSON"] },
     { "id":"frontend", "name":"Frontend SPA", "desc":"Inertia React · TypeScript · Tailwind v4", "cat":"frontend", "emoji":"⚛️", "x":30, "y":18, "w":22, "tags":["React 19","Inertia v2","shadcn/ui","Wayfinder"] },
     { "id":"laravel-app", "name":"Laravel App", "desc":"Routes · Controllers · Fortify Auth", "cat":"backend", "emoji":"🧩", "x":30, "y":32, "w":22, "tags":["Laravel 13","Fortify","Service Providers"] },
-    { "id":"basic-lib", "name":"Basic Lib", "desc":"Artisan commands · Webhook handlers", "cat":"library", "emoji":"📦", "x":4, "y":50, "w":18, "tags":["bagart/telegram-bot-basic-lib"] },
-    { "id":"mgmt-lib", "name":"Management Lib", "desc":"DB models · Multi-bot management", "cat":"library", "emoji":"🗄️", "x":30, "y":50, "w":22, "tags":["bagart/telegram-bot-management"] },
+    { "id":"basic-lib", "name":"Basic Lib", "desc":"Artisan commands · Webhook handlers", "cat":"library", "emoji":"📦", "x":4, "y":50, "w":18, "tags":["bagart/telegram-bot-lib-basic"] },
+    { "id":"mgmt-lib", "name":"Management Lib", "desc":"DB models · Multi-bot management", "cat":"library", "emoji":"🗄️", "x":30, "y":50, "w":22, "tags":["bagart/telegram-platform-management"] },
     { "id":"core-lib", "name":"Core Lib", "desc":"DTOs · HTTP transport · Pipeline", "cat":"library", "emoji":"⚙️", "x":58, "y":50, "w":18, "tags":["bagart/telegram-bot-lib","Pure PHP"] },
     { "id":"database", "name":"Database", "desc":"PostgreSQL 17 · Migrations", "cat":"infra", "emoji":"🗃️", "x":12, "y":68, "w":16, "tags":["tg_bots","users","queues"] },
     { "id":"redis", "name":"Redis", "desc":"Cache · Session · Queue", "cat":"infra", "emoji":"⚡", "x":36, "y":68, "w":14, "tags":["PSR-16","Horizon"] },
@@ -174,7 +174,7 @@
         { "from":"core-lib", "to":"telegram-api", "label":"Fetch API spec", "detail":"Core lib fetches the Telegram Bot API specification document." },
         { "from":"telegram-api", "to":"core-lib", "label":"API spec (JSON)", "detail":"Returns the full API specification with all methods, types, and fields." },
         { "from":"core-lib", "to":"core-lib", "label":"DTOGenerator::generate()", "detail":"Parses the spec and generates PHP DTO classes for all types (~250) and methods (~170)." },
-        { "from":"core-lib", "to":"filesystem", "label":"Write DTO files", "detail":"Generated DTO PHP files written to misc/BAGArt/telegram-bot-basic-lib/src/TgApi/." },
+        { "from":"core-lib", "to":"filesystem", "label":"Write DTO files", "detail":"Generated DTO PHP files written to misc/BAGArt/telegram-bot-lib-basic/src/TgApi/." },
         { "from":"filesystem", "to":"user", "label":"New DTO classes", "detail":"Developer can now use the newly generated, fully-typed DTO classes." }
       ]
     },

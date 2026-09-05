@@ -12,7 +12,7 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 /**
  * Page registry: platform pages plus module-package pages (P4
  * self-containment). Module globs come from modules-pages.generated.ts
- * (run `php artisan tgapp:pages` to regenerate).
+ * (run `php artisan modules:pages` to regenerate).
  */
 const pageLoaders = {
     ...import.meta.glob('./pages/**/*.tsx'),

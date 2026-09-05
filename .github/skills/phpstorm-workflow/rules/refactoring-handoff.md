@@ -32,7 +32,7 @@ The change isn't a pure rename — it's a behavior shift across files. Example: 
 `php artisan make:` + wiring migrations/factories/tests. The agent chains the commands and writes the glue.
 
 ### Cross-library changes
-Edits that span `telegram-bot-lib`, `telegram-bot-management`, and the host app, where each has its own conventions. The agent holds the conventions in context; PHPStorm sees files uniformly.
+Edits that span `telegram-bot-lib`, `telegram-platform-management`, and the host app, where each has its own conventions. The agent holds the conventions in context; PHPStorm sees files uniformly.
 
 ### Applying a pattern skillfully
 "Make this daemon implement `ASKShutdownAware` correctly" — the agent applies the `async-kernel-development` rules; PHPStorm can't reason about correctness, only structure.
