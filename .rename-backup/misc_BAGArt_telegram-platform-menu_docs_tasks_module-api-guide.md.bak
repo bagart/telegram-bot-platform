@@ -1,0 +1,230 @@
+# Menu module — Integration API guide for module authors
+
+> You wrote (or plan to write) a `TgModuleContract` plugin and want it to
+> appear in the bot's Telegram Mini App menu — with settings, actions,
+> pickers, your own permission model, or a fully custom game screen.
+> This guide shows every integration path. Normative source:
+> `menu.md` §8 (contracts), §14.1 (chunk protocol), §18 (worked examples);
+> this document is the developer-friendly rendering of the same rules.
+> The menu ships as a **standalone composer dependency**
+> (`bagart/telegram-bot-menu-module`) with its own repo and docs — nothing
+> here requires you to touch host-app code.
+
+## 0. Choose your track
+
+| You want | Track | You write |
+|---|---|---|
+| A menu item + settings form | **Schema** (zero UI code) | manifest + `validate()` |
+| Settings + "Run now"-style operations | **Schema + Actions** | manifest (+ optional webApi handler) |
+| Your own screen inside the app | **Chunk** | prebuilt JS bundle + webApi handler |
+| Chat/user pickers in your forms | **Resource fields** | nothing (hub-provided domains) |
+| Your own RBAC ("Mafia moderator") | **Permission resolver** | one small contract impl |
+
+All tracks compose: a chunk module can also ship schema-less settings via its
+own handler, actions, and permissions.
+
+## 1. Declare the dependency
+
+```bash
+composer require bagart/telegram-bot-menu-module
+```
+
+In your module class (`TgModuleContract`):
+
+```php
+public function requiresModules(): array { return ['menu' => '*']; }
+```
+
+Register through the standard registrar — the bootstrapper stamps ownership
+(you never state your own module id):
+
+```php
+public function register(TgModuleRegistrar $r): void
+{
+    $r->webUi(MyUi::class);                       // required: menu entry
+    $r->webApi(MyApi::class);                     // optional: custom API
+    $r->webResource(MyPickerDomain::class);       // optional: picker domain
+    $r->webPermissions(MyPerms::class);           // optional: your RBAC (§5)
+}
+```
+
+Install/redeploy — done. No menu config, no routes, no frontend edits (INV-2).
+
+## 2. Schema track — zero UI tax
+
+```php
+final readonly class MyUi implements TgWebUiContract
+{
+    public static function manifest(): TgWebUiManifest
+    {
+        return new TgWebUiManifest(
+            moduleId: 'mystats',
+            title: 't:title',                    // 't:' = i18n key
+            icon: '📊',
+            kind: UiKind::Tool,
+            minAudience: UiAudience::Admin,
+            entry: UiEntry::schema([             // hub renders everything
+                new UiGroup('general', 'General', [
+                    UiField::bool('enabled', 'Enabled', default: true),
+                    UiField::int('threshold', 'Threshold', min: 1, max: 100),
+                    UiField::resource('audience', 'Audience Chat',
+                        resource: 'chat'),       // native picker sheet
+                ]),
+            ]),
+            actions: [                           // declarative operations
+                new UiAction('recount', 'Recount now', confirm: true),
+            ],
+            permission: 'mystats.view',          // optional, YOUR model (§5)
+        );
+    }
+
+    public static function translations(): array
+    {
+        return ['en' => ['title' => 'My Stats'], 'ru' => ['title' => 'Моя статистика']];
+    }
+}
+```
+
+Settings round-trip: implement `TgSettingsFormContract` on the same or a
+separate class:
+
+```php
+public function validate(array $raw): array;   // throw InvalidInputException{fieldErrors}
+public function isConfigured(array $settings): bool;  // feeds the ⚠ badge
+```
+
+Rules that bite: no secret-capable field types exist (§8.5); `raw[key] = null`
+deletes a leaf; lists replace wholesale; server-side validation is truth —
+the schema only describes rendering. Save/conflict UX (version echo, 409
+[Reload | Keep mine]) is built into the hub.
+
+**Actions** always pair 1:1 with a declared route (§8.9 — the hub renders the
+bar from the manifest alone):
+
+```php
+// In MyApi::routes():
+new TgWebApiRoute(method: 'POST', path: 'actions/recount', minRole: EffectiveRole::Admin)
+```
+
+The hub POSTs to `/tgapp/api/v1/m/mystats/actions/recount`; return `{message}`
+for a success toast. Danger flows: set `dangerText` for type-to-confirm styling.
+Unpaired action id ⇒ doctor ERROR at refine time.
+
+## 3. Custom API track
+
+Implement `TgWebApiHandlerContract` when your screen needs endpoints:
+
+```php
+public static function routes(): array
+{
+    return [
+        new TgWebApiRoute('POST', 'session/join', EffectiveRole::Member, ChatScope::Required),
+        new TgWebApiRoute('GET',  'stats/{period}', EffectiveRole::Admin),
+    ];
+}
+
+public function handle(TgWebRequest $request, array $path): TgWebResponse
+{
+    // $request->context is THE identity (bot/chat/module/role/user) — D36:
+    // never read session/DB identity yourself; narrowing is allowed, widening is not.
+    return TgWebResponse::ok([...]);
+}
+```
+
+Paths are module-relative (`'stats/{period}'`, no leading `/`, no moduleId).
+The dispatcher enforces method/minRole/chatScope/permission BEFORE your
+handler runs; unmatched ⇒ 404 envelope; disabled module ⇒ 404
+`module_disabled` while mounted chunks keep rendering.
+
+## 4. Resource track (pickers)
+
+Consume built-in domains by declaring a field `type: resource` with
+`resource: 'chat' | 'user'` — the hub provides search/pagination/scoping.
+
+Provide your own domain for other modules/forms:
+
+```php
+final class PersonaProvider implements TgResourceProviderContract
+{
+    public function domain(): string { return 'mystats.persona'; } // '<moduleId>.<name>'
+    public function meta(): TgResourceMeta { ... }   // searchable/sortable/pagination flags
+    public function search(TgResourceQuery $q, TgUiContext $ctx): TgResourcePage;   // context-scoped!
+    public function validate(array $ids, TgUiContext $ctx): TgResourceSelection;    // per-id verdicts
+}
+```
+
+Scoping is a security invariant (D39): identical queries under different
+contexts MUST yield role-appropriate results — there is a dedicated test you
+must pass.
+
+## 5. Permissions — YOUR model, menu support
+
+The hub knows only Telegram reality (member/admin/owner/superadmin). Anything
+richer belongs to you. Register a resolver and reference permission ids from
+your manifest entries, actions, routes, or resource meta:
+
+```php
+final class MyPerms implements TgPermissionResolverContract
+{
+    public static function permissions(): list<string> { return ['mystats.view', 'mystats.recount']; }
+
+    public function resolve(array $ids, TgUiContext $ctx): array
+    {
+        // Your logic, your caches. Batched: at most ONE call per request.
+        return array_fill_keys($ids, $this->can($ctx)); // unknown id => false, throw => all false
+    }
+
+    public function revision(): string { return (string) $this->counter(); } // D59: feeds the
+    // bootstrap ETag so your access changes invalidate clients. Keep it O(1):
+    // a counter row / Redis key / max(updated_at). Return '1' if static.
+}
+```
+
+Semantics: effective access = hub-role check AND your verdict — a permission
+narrows, never widens. Denied entries/actions are filtered server-side before
+rendering and rejected at dispatch; the frontend never sees permission ids.
+Fail-closed everywhere: throwing resolver ⇒ denied for the request + logged.
+
+## 6. Chunk track — full custom screens
+
+For games and rich tools: build a content-hashed bundle exposing
+`window.TgMenu.mount`, declare `UiEntry::Chunk(url)` + required features:
+
+```js
+window.__TG_MENU_CHUNK__ = {id: 'mystats', api: 1,
+                            features: ['context','navigation','resources','haptics','fullscreen']};
+window.TgMenu = {mount(rootEl, bridge) {/* render; all HTTP via bridge.fetch */}};
+```
+
+The frozen surface (`ts/bridge.d.ts`, vendored next to `bridge-mock.ts`):
+`fetch` (strict `/m/<module>` prefix), `navigate/close`, `setBackHandler`
+(exclusive), `haptic`, `theme()`, `searchResources` (iff `'resources'`
+granted), fullscreen trio (iff `'fullscreen'` granted). Credentials never
+cross the bridge. Feature negotiation degrades gracefully — declare only what
+you require. Local development without deploying: ask the host admin to add
+your dev origin to `config('menu.chunks.dev_urls')` (never enabled in prod;
+doctor enforces). Publish assets via your package's `<moduleId>-assets` tag.
+
+## 7. Tooling
+
+- `tg:menu:scaffold mystats` — generates a passing manifest skeleton + Pest case.
+- `tg:menu:manifest mystats --json` — what the host actually sees (routes,
+  masks, your declared permissions).
+- `tg:menu:doctor` — integration linter: capability honesty, grammar lint,
+  action⇄route pairing, resource scoping probe, permission declaration checks.
+- `Testing\TgWebUiContractTest::for(MyUi::class)` — reusable Pest battery;
+  run it in YOUR suite.
+
+## 8. Stability promise & checklist
+
+The `Contracts\` namespace is semver'd: additive is non-breaking; breaking =
+new major + migration notes. Wire formats carry explicit versions
+(`schemaVersion`, chunk `api`). Before opening your PR:
+
+- [ ] `requiresModules()` contains `'menu'`
+- [ ] Manifest passes `SchemaAssertions`; ids unique; `when` refs backward-only
+- [ ] Every UiAction has a matching route (minRole sane)
+- [ ] Resource domain namespaced `<moduleId>.…`; provider passes scoping test
+- [ ] Permission ids declared ⇄ referenced (1:1); resolver total & batched
+- [ ] No Laravel imports in contract-facing pure classes (INV-4)
+- [ ] `tg:menu:doctor` clean for your module; contract battery green

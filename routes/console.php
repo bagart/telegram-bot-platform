@@ -33,7 +33,6 @@ app()->booted(function (): void {
             ->withoutOverlapping();
     }
 
-    // Module tasks arrive through telegram.modules_schedule (each module
-    // registers its own commands from its service provider).
-    (new \App\Console\ModuleTaskScheduler($schedule))->register();
+    // Module cron tasks are declared in config/tg_modules.php (schedule) and
+    // registered by the module engine (schedule-overrides.php honoured).
 });

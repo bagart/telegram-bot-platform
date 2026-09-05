@@ -1,0 +1,105 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+export const page = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: page.url(args, options),
+    method: 'get',
+})
+
+page.definition = {
+    methods: ["get","head"],
+    url: '/tgapp/{botId}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+page.url = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { botId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            botId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        botId: args.botId,
+    }
+
+    return page.definition.url
+            .replace('{botId}', parsedArgs.botId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+page.get = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: page.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+page.head = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: page.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+const pageForm = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: page.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+pageForm.get = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: page.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgMiniAppPageController::page
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgMiniAppPageController.php:23
+* @route '/tgapp/{botId}'
+*/
+pageForm.head = (args: { botId: string | number } | [botId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: page.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+page.form = pageForm
+
+const tgapp = {
+    page: Object.assign(page, page),
+}
+
+export default tgapp

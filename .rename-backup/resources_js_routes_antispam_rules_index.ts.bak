@@ -1,0 +1,326 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/rules',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:22
+* @route '/antispam/rules'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:36
+* @route '/antispam/rules'
+*/
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/antispam/rules',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:36
+* @route '/antispam/rules'
+*/
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:36
+* @route '/antispam/rules'
+*/
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:36
+* @route '/antispam/rules'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:36
+* @route '/antispam/rules'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::update
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:46
+* @route '/antispam/rules/{rule}'
+*/
+export const update = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: update.url(args, options),
+    method: 'patch',
+})
+
+update.definition = {
+    methods: ["patch"],
+    url: '/antispam/rules/{rule}',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::update
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:46
+* @route '/antispam/rules/{rule}'
+*/
+update.url = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { rule: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { rule: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            rule: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        rule: typeof args.rule === 'object'
+        ? args.rule.id
+        : args.rule,
+    }
+
+    return update.definition.url
+            .replace('{rule}', parsedArgs.rule.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::update
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:46
+* @route '/antispam/rules/{rule}'
+*/
+update.patch = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: update.url(args, options),
+    method: 'patch',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::update
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:46
+* @route '/antispam/rules/{rule}'
+*/
+const updateForm = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::update
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:46
+* @route '/antispam/rules/{rule}'
+*/
+updateForm.patch = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:54
+* @route '/antispam/rules/{rule}'
+*/
+export const destroy = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+destroy.definition = {
+    methods: ["delete"],
+    url: '/antispam/rules/{rule}',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:54
+* @route '/antispam/rules/{rule}'
+*/
+destroy.url = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { rule: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { rule: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            rule: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        rule: typeof args.rule === 'object'
+        ? args.rule.id
+        : args.rule,
+    }
+
+    return destroy.definition.url
+            .replace('{rule}', parsedArgs.rule.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:54
+* @route '/antispam/rules/{rule}'
+*/
+destroy.delete = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:54
+* @route '/antispam/rules/{rule}'
+*/
+const destroyForm = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamRulesController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamRulesController.php:54
+* @route '/antispam/rules/{rule}'
+*/
+destroyForm.delete = (args: { rule: string | { id: string } } | [rule: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
+
+const rules = {
+    index: Object.assign(index, index),
+    store: Object.assign(store, store),
+    update: Object.assign(update, update),
+    destroy: Object.assign(destroy, destroy),
+}
+
+export default rules

@@ -1,0 +1,260 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+export const settings = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: settings.url(args, options),
+    method: 'get',
+})
+
+settings.definition = {
+    methods: ["get","head"],
+    url: '/tgapp/api/v1/modules/{moduleId}/settings',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+settings.url = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { moduleId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            moduleId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        moduleId: args.moduleId,
+    }
+
+    return settings.definition.url
+            .replace('{moduleId}', parsedArgs.moduleId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+settings.get = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: settings.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+settings.head = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: settings.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+const settingsForm = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: settings.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+settingsForm.get = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: settings.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::settings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:39
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+settingsForm.head = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: settings.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+settings.form = settingsForm
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::saveSettings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:64
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+export const saveSettings = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: saveSettings.url(args, options),
+    method: 'put',
+})
+
+saveSettings.definition = {
+    methods: ["put"],
+    url: '/tgapp/api/v1/modules/{moduleId}/settings',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::saveSettings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:64
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+saveSettings.url = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { moduleId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            moduleId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        moduleId: args.moduleId,
+    }
+
+    return saveSettings.definition.url
+            .replace('{moduleId}', parsedArgs.moduleId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::saveSettings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:64
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+saveSettings.put = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: saveSettings.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::saveSettings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:64
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+const saveSettingsForm = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: saveSettings.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::saveSettings
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:64
+* @route '/tgapp/api/v1/modules/{moduleId}/settings'
+*/
+saveSettingsForm.put = (args: { moduleId: string | number } | [moduleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: saveSettings.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+saveSettings.form = saveSettingsForm
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::toggle
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:131
+* @route '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle'
+*/
+export const toggle = (args: { chatId: string | number, moduleId: string | number } | [chatId: string | number, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggle.url(args, options),
+    method: 'post',
+})
+
+toggle.definition = {
+    methods: ["post"],
+    url: '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::toggle
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:131
+* @route '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle'
+*/
+toggle.url = (args: { chatId: string | number, moduleId: string | number } | [chatId: string | number, moduleId: string | number ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            chatId: args[0],
+            moduleId: args[1],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        chatId: args.chatId,
+        moduleId: args.moduleId,
+    }
+
+    return toggle.definition.url
+            .replace('{chatId}', parsedArgs.chatId.toString())
+            .replace('{moduleId}', parsedArgs.moduleId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::toggle
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:131
+* @route '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle'
+*/
+toggle.post = (args: { chatId: string | number, moduleId: string | number } | [chatId: string | number, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggle.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::toggle
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:131
+* @route '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle'
+*/
+const toggleForm = (args: { chatId: string | number, moduleId: string | number } | [chatId: string | number, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: toggle.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppApiController::toggle
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppApiController.php:131
+* @route '/tgapp/api/v1/chats/{chatId}/modules/{moduleId}/toggle'
+*/
+toggleForm.post = (args: { chatId: string | number, moduleId: string | number } | [chatId: string | number, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: toggle.url(args, options),
+    method: 'post',
+})
+
+toggle.form = toggleForm
+
+const TgAppApiController = { settings, saveSettings, toggle }
+
+export default TgAppApiController

@@ -1,0 +1,85 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+export const bootstrap = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: bootstrap.url(options),
+    method: 'get',
+})
+
+bootstrap.definition = {
+    methods: ["get","head"],
+    url: '/tgapp/api/v1/bootstrap',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+bootstrap.url = (options?: RouteQueryOptions) => {
+    return bootstrap.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+bootstrap.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: bootstrap.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+bootstrap.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: bootstrap.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+const bootstrapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: bootstrap.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+bootstrapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: bootstrap.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppBootstrapController::bootstrap
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppBootstrapController.php:52
+* @route '/tgapp/api/v1/bootstrap'
+*/
+bootstrapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: bootstrap.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+bootstrap.form = bootstrapForm
+
+const TgAppBootstrapController = { bootstrap }
+
+export default TgAppBootstrapController

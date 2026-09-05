@@ -1,0 +1,224 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults, validateParameters } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+const TgWebApiDispatchController = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'get',
+})
+
+TgWebApiDispatchController.definition = {
+    methods: ["get","head","post","put","patch","delete","options"],
+    url: '/tgapp/api/v1/m/{moduleId}/{path?}',
+} satisfies RouteDefinition<["get","head","post","put","patch","delete","options"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.url = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            moduleId: args[0],
+            path: args[1],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    validateParameters(args, [
+        "path",
+    ])
+
+    const parsedArgs = {
+        moduleId: args.moduleId,
+        path: args.path,
+    }
+
+    return TgWebApiDispatchController.definition.url
+            .replace('{moduleId}', parsedArgs.moduleId.toString())
+            .replace('{path?}', parsedArgs.path?.toString() ?? '')
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.get = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.head = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.post = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.put = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.patch = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'patch',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.delete = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'delete',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchController.options = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteDefinition<'options'> => ({
+    url: TgWebApiDispatchController.url(args, options),
+    method: 'options',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+const TgWebApiDispatchControllerForm = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: TgWebApiDispatchController.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.get = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: TgWebApiDispatchController.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.head = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: TgWebApiDispatchController.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.post = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: TgWebApiDispatchController.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.put = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: TgWebApiDispatchController.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.patch = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: TgWebApiDispatchController.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.delete = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: TgWebApiDispatchController.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController::__invoke
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgWebApiDispatchController.php:48
+* @route '/tgapp/api/v1/m/{moduleId}/{path?}'
+*/
+TgWebApiDispatchControllerForm.options = (args: { moduleId: string | number, path?: string | number } | [moduleId: string | number, path: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: TgWebApiDispatchController.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'OPTIONS',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+TgWebApiDispatchController.form = TgWebApiDispatchControllerForm
+
+export default TgWebApiDispatchController

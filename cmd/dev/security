@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# Shim -> bagart/telegram-devops-baseline (Phase 4 cutover; legacy removed in Phase 7).
-exec "${BASELINE_DIR:-$(cd "$(dirname "$0")/../../vendor/bagart/telegram-devops-baseline" && pwd)}/bin/baseline-security" "$@"
+# Shim -> bagart/telegram-platform-devops-baseline (Phase 4 cutover; legacy removed in Phase 7).
+exec "${BASELINE_DIR:-$(cd "$(dirname "$0")/../../vendor/bagart/telegram-platform-devops-baseline" && pwd)}/bin/baseline-security" "$@"

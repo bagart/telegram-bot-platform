@@ -1,0 +1,168 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/chats',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:27
+* @route '/antispam/chats'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::updateSettings
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:57
+* @route '/antispam/chats/{botId}/{chatId}'
+*/
+export const updateSettings = (args: { botId: string | number, chatId: string | number } | [botId: string | number, chatId: string | number ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateSettings.url(args, options),
+    method: 'put',
+})
+
+updateSettings.definition = {
+    methods: ["put"],
+    url: '/antispam/chats/{botId}/{chatId}',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::updateSettings
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:57
+* @route '/antispam/chats/{botId}/{chatId}'
+*/
+updateSettings.url = (args: { botId: string | number, chatId: string | number } | [botId: string | number, chatId: string | number ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            botId: args[0],
+            chatId: args[1],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        botId: args.botId,
+        chatId: args.chatId,
+    }
+
+    return updateSettings.definition.url
+            .replace('{botId}', parsedArgs.botId.toString())
+            .replace('{chatId}', parsedArgs.chatId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::updateSettings
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:57
+* @route '/antispam/chats/{botId}/{chatId}'
+*/
+updateSettings.put = (args: { botId: string | number, chatId: string | number } | [botId: string | number, chatId: string | number ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateSettings.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::updateSettings
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:57
+* @route '/antispam/chats/{botId}/{chatId}'
+*/
+const updateSettingsForm = (args: { botId: string | number, chatId: string | number } | [botId: string | number, chatId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateSettings.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamChatsController::updateSettings
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php:57
+* @route '/antispam/chats/{botId}/{chatId}'
+*/
+updateSettingsForm.put = (args: { botId: string | number, chatId: string | number } | [botId: string | number, chatId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateSettings.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+updateSettings.form = updateSettingsForm
+
+const AntispamChatsController = { index, updateSettings }
+
+export default AntispamChatsController

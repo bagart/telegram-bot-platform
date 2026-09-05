@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "083e5035ea987a32756401590a8acfbd",
+    "content-hash": "d11bc599f3efc9dc440b85006a2b62d4",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -8638,12 +8638,12 @@
             "time": "2024-08-03T19:31:26+00:00"
         },
         {
-            "name": "bagart/telegram-devops-baseline",
+            "name": "bagart/telegram-platform-devops-baseline",
             "version": "dev-main",
             "dist": {
                 "type": "path",
-                "url": "misc/BAGArt/telegram-devops-baseline",
-                "reference": "b9b6f054d845dab446185693d1412dd26fd48714"
+                "url": "misc/BAGArt/telegram-platform-devops-baseline",
+                "reference": "0d0eccb33a32e61f468660d11729a3e928d422d0"
             },
             "require": {
                 "php": "^8.4"
@@ -12872,7 +12872,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "bagart/telegram-devops-baseline": 20
+        "bagart/telegram-platform-devops-baseline": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -67,16 +67,16 @@ misc/BAGArt/
 ├── php-async-kernel-client/       → HTTP transports, lockers, queue adapters (BAGArt\ASKClient)
 ├── php-async-kernel-client-redis/ → Redis fiber client, locks, queues, DLQ (BAGArt\ASKClientRedis)
 ├── telegram-bot-lib/              → core: ~450 DTOs, API client, outbound pipeline (BAGArt\TelegramBot)
-├── telegram-bot-basic-lib/        → CLI commands: poller, chatting, webhook (BAGArt\TelegramBotBasic)
-├── telegram-bot-management/   → multi-bot DB models, daemon commands (BAGArt\TelegramBotManagement)
-├── telegram-bot-antispam-module/  → anti-spam module (BAGArt\TelegramBotAntispam, TgModuleContract plugin)
-├── telegram-bot-summarizer-module/ → chat summarizer/digest module (BAGArt\TelegramBotSummarizer, TgModuleContract plugin)
-├── telegram-bot-nettools-module/       → nettools auditor module (BAGArt\TelegramBotNettools, TgModuleContract plugin; MVP complete)
-├── telegram-game-mafia/     → Mafia game module (BAGArt\TelegramBotMafia, TgModuleContract plugin)
-├── telegram-bot-stt-module/       → STT module, planned (BAGArt\TelegramBotStt) — voice→text
-├── telegram-bot-tts-module/       → TTS module (BAGArt\TelegramBotTts, TgModuleContract plugin) — text→voice
-├── telegram-bot-menu-module/      → Web Menu hub module (Plugin UI Host), planned (BAGArt\TelegramBotMenu) — tasks/menu/menu.md + tasks/menu/01–23 prompt-tasks
-├── telegram-devops-baseline/               → reusable DevOps/security baseline ENGINE (bagart/telegram-devops-baseline, v0.1.0): controls/, hooks/, bin/baseline-*, defaults/ — host consumes via shims; policy JSONs stay per-repo
+├── telegram-bot-lib-basic/        → CLI commands: poller, chatting, webhook (BAGArt\TelegramBotBasic)
+├── telegram-platform-management/   → multi-bot DB models, daemon commands (BAGArt\TelegramBotManagement)
+├── tgbot-module-antispam/  → anti-spam module (BAGArt\TelegramBotAntispam, TgModuleContract plugin)
+├── tgbot-module-summarizer/ → chat summarizer/digest module (BAGArt\TelegramBotSummarizer, TgModuleContract plugin)
+├── tgbot-module-nettools/       → nettools auditor module (BAGArt\TelegramBotNettools, TgModuleContract plugin; MVP complete)
+├── tgbot-game-mafia/     → Mafia game module (BAGArt\TelegramBotMafia, TgModuleContract plugin)
+├── tgbot-module-stt/       → STT module, planned (BAGArt\TelegramBotStt) — voice→text
+├── tgbot-module-tts/       → TTS module (BAGArt\TelegramBotTts, TgModuleContract plugin) — text→voice
+├── telegram-platform-menu/      → Web Menu hub module (Plugin UI Host) (BAGArt\TelegramBotMenu) — tasks/menu/menu.md + tasks/menu/01–23 prompt-tasks; cross-module integration plan: tasks/menu_integration.md (M-1…M-6 implemented, M-7 deferred)
+├── telegram-platform-devops-baseline/               → reusable DevOps/security baseline ENGINE (bagart/telegram-platform-devops-baseline, v0.1.0): controls/, hooks/, bin/baseline-*, defaults/ — host consumes via shims; policy JSONs stay per-repo
 ```
 
 External repos: `BAGArt/telegram-platform-workflows` (central reusable CI workflows; local checkout `misc/BAGArt/telegram-platform-workflows`, push pending repo creation).

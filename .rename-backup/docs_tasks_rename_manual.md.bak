@@ -1,0 +1,241 @@
+# Manual Handling — Repository Rename
+
+This file is a **manual fallback and checklist** for the automated rename.
+
+The automation is intentionally cautious with changes that may have meaning beyond
+a simple directory/repository name. After running the script, check
+`RENAME_MANUAL.generated.md` for specific items that need attention.
+
+## 1. Namespace and PHP Symbols
+
+The script changes repository names and paths but **does not guess** PHP namespaces.
+
+If a module's PHP namespace contains the old project name, first decide whether
+that namespace is part of the public API, then rename it.
+
+Check first:
+
+- `composer.json`
+- `src/`
+- `tests/`
+- service providers
+- module manifests/configuration
+- PHP imports (`use ...`)
+- documentation containing namespace examples
+
+Do not rename PHP namespaces automatically just because the directory changed.
+
+## 2. Composer Path Repositories
+
+Check each `composer.json` for:
+
+- `repositories[].url`
+- `repositories[].path`
+- package names
+- PSR-4 mappings
+- dev PSR-4 mappings
+
+The script replaces literal old directory/repository names, but package names and
+namespaces may intentionally stay the same.
+
+After manual changes:
+
+```bash
+composer validate
+composer update --lock
+```
+
+## 3. Module Registry / Runtime Configuration
+
+Check manually:
+
+```text
+config/tg_modules.php
+config/telegram.php
+bootstrap/providers.php
+routes/web.php
+```
+
+Check module identifiers, filesystem paths, namespace and package names that may
+be dynamically constructed rather than stored as literal strings.
+
+## 4. CI/CD and Docker
+
+Inspect:
+
+```text
+.github/
+Docker/
+docker-compose*.yml
+docker-compose*.yaml
+scripts/
+cmd/
+```
+
+Pay special attention to:
+
+- checkout paths
+- cache keys
+- artifact names
+- Docker volume mounts
+- Composer path repositories
+- GitHub repository URLs
+- workflow `uses:` references
+- scripts that derive paths from repository names
+
+## 5. External References
+
+If these repositories are used by other projects, also search outside the current
+repository:
+
+```bash
+grep -r -n -E 'telegram-bot-(antispam|example|nettools|proxy|stt|summarizer|tts)-module|telegram-game-mafia|telegram-bot-(access|basic|audit|menu)-module|telegram-bot-management|telegram-devops-baseline' /path/to/other/projects/
+```
+
+Also check other local projects in the parent workspace.
+
+## 6. GitHub Verification
+
+If needed, verify each renamed repository via GitHub UI:
+
+```text
+tgbot-module-antispam
+tgbot-module-example
+tgbot-module-nettools
+tgbot-module-proxy
+tgbot-module-stt
+tgbot-module-summarizer
+tgbot-module-tts
+tgbot-game-mafia
+telegram-bot-lib-access
+telegram-bot-lib-basic
+telegram-platform-audit
+telegram-platform-menu
+telegram-platform-management
+telegram-platform-devops-baseline
+```
+
+The intended new repositories:
+
+```text
+bagart/tgbot-module-antispam
+bagart/tgbot-module-example
+bagart/tgbot-module-nettools
+bagart/tgbot-module-proxy
+bagart/tgbot-module-stt
+bagart/tgbot-module-summarizer
+bagart/tgbot-module-tts
+bagart/tgbot-game-mafia
+bagart/telegram-bot-lib-access
+bagart/telegram-bot-lib-basic
+bagart/telegram-platform-audit
+bagart/telegram-platform-menu
+bagart/telegram-platform-management
+bagart/telegram-platform-devops-baseline
+```
+
+## 7. Original Plan Fix
+
+The original quick commands contained:
+
+```bash
+gh repo create bagart/tgbot-module-audit --public
+```
+
+This is **wrong** for the target state.
+
+The correct target:
+
+```bash
+bagart/telegram-platform-audit
+```
+
+So the correct creation command, if needed separately:
+
+```bash
+gh repo create bagart/telegram-platform-audit --public
+```
+
+## 8. `git mv` Warning
+
+These directories are independent Git repositories. **Do not run**:
+
+```bash
+git mv telegram-bot-antispam-module tgbot-module-antispam
+```
+
+from `misc/BAGArt/`, unless the parent directory itself is a Git repository that
+tracks these directories.
+
+For standalone repositories, use regular directory rename:
+
+```bash
+mv telegram-bot-antispam-module tgbot-module-antispam
+```
+
+The automation already works this way.
+
+## 9. Repositories with Uncommitted Changes
+
+If the automation reports a repository is dirty, do not overwrite or reset.
+
+Review:
+
+```bash
+git -C misc/BAGArt/<repo> status
+git -C misc/BAGArt/<repo> diff
+```
+
+Then either commit/stash changes and rerun the script, or intentionally run:
+
+```bash
+./cmd/rename-repos --allow-dirty
+```
+
+## 10. If Push Failed
+
+The script does not rewrite history. If push failed, check:
+
+```bash
+git -C misc/BAGArt/<repo> remote -v
+git -C misc/BAGArt/<repo> branch --show-current
+git -C misc/BAGArt/<repo> status
+```
+
+Then push manually:
+
+```bash
+git -C misc/BAGArt/<repo> push -u origin <branch>
+```
+
+## 11. Recommended Execution Order
+
+Run a dry-run first:
+
+```bash
+./cmd/rename-repos --dry-run
+```
+
+Then the actual run:
+
+```bash
+./cmd/rename-repos
+```
+
+After resolving dirty repositories, you can run a second pass:
+
+```bash
+./cmd/rename-repos
+```
+
+To skip pushing:
+
+```bash
+./cmd/rename-repos --no-push
+```
+
+To skip Laravel tests:
+
+```bash
+./cmd/rename-repos --skip-tests
+```

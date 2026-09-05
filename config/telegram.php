@@ -125,70 +125,12 @@ $configTelegram = [
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Schedule — Summarizer digests
-    |--------------------------------------------------------------------------
-    |
-    | Cron that scans enabled chats and produces due digests (command provided
-    | by bagart/telegram-bot-summarizer-module). Module runtime settings live
-    | in the module's own summarizer.php config.
-    | Set SCHEDULE_SUMMARIZER_ENABLED=false to disable.
-    |
-    */
-    'schedule_summarizer_enabled' => (bool) env('SCHEDULE_SUMMARIZER_ENABLED', true),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Schedule — STT prune
-    |--------------------------------------------------------------------------
-    |
-    | Nightly retention sweep for the stt module (command provided by
-    | bagart/telegram-bot-stt-module). Module runtime settings live in the
-    | module's own stt.php config. Set SCHEDULE_STT_PRUNE_ENABLED=false to disable.
-    |
-    */
-    'schedule_stt_prune_enabled' => (bool) env('SCHEDULE_STT_PRUNE_ENABLED', true),
+    // Module cron tasks, frontend page dirs and page-generator commands are
+    // declared per module in config/tg_modules.php; the module engine
+    // registers them (schedule-overrides.php user overrides honoured) and
+    // relays the frontend interchange keys (telegram.modules_frontend_pages /
+    // telegram.modules_page_generators) consumed by `modules:pages` and the
+    // menu module's `menu:pages` generator.
 ];
-
-// Local module discovery: each folder modules/<Name>/config.php must return
-// ['provider' => TgModuleContract::class]. Composer-installed modules are
-// listed in 'modules_providers' below. Both sources are booted by
-// TelegramBotServiceProvider::bootModules().
-$configTelegram['modules'] = \App\Config\TgModulesDiscovery::discover();
-
-// Composer-installed modules: list of TgModuleContract class-strings.
-// Empty by default — module packages self-register their provider class from
-// their Laravel service providers (see bootstrap/providers.php).
-$configTelegram['modules_providers'] = [];
-
-// Module database seeders: list of seeder class-strings. Empty by default —
-// module packages self-register their seeders from their Laravel service
-// providers. DatabaseSeeder consumes this list; the host never references
-// module seeder classes directly.
-$configTelegram['modules_seeders'] = [];
-
-// Module Inertia page directories: list of absolute paths. Empty by default —
-// module packages self-register their `resources/js/pages` dir from their
-// Laravel service providers. `php artisan tgapp:pages` consumes this list and
-// (re)generates resources/js/modules-pages.generated.ts; the host frontend
-// never references module page paths directly.
-$configTelegram['modules_frontend_pages'] = [];
-
-// Module scheduled tasks: list of ['command', 'expression', 'enabled'] maps.
-// Empty by default — module packages self-register their commands from their
-// Laravel service providers. routes/console.php consumes this list; the host
-// never hardcodes module command names. Per-task user overrides (expression /
-// disabled) live in config/schedule-overrides.php.
-$configTelegram['modules_schedule'] = [];
-
-$remap = ['log_channel'];
-foreach ($configTelegram['modules'] as $name => $configTelegramModule) {
-    foreach ($remap as $remapKey) {
-        if (! array_key_exists($remapKey, $configTelegramModule)) {
-            $configTelegram['modules'][$name][$remapKey] = $configTelegram[$remapKey] ?? null;
-        }
-    }
-}
 
 return $configTelegram;

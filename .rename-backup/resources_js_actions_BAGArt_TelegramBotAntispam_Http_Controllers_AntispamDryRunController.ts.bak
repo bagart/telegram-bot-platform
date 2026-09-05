@@ -1,0 +1,60 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::run
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+export const run = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: run.url(options),
+    method: 'post',
+})
+
+run.definition = {
+    methods: ["post"],
+    url: '/antispam/dry-run',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::run
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+run.url = (options?: RouteQueryOptions) => {
+    return run.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::run
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+run.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: run.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::run
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+const runForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: run.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::run
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+runForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: run.url(options),
+    method: 'post',
+})
+
+run.form = runForm
+
+const AntispamDryRunController = { run }
+
+export default AntispamDryRunController

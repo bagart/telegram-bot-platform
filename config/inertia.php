@@ -39,6 +39,10 @@ return [
 
         'page_paths' => [
             resource_path('js/pages'),
+
+            // Module packages own their pages (P4 self-containment): the
+            // antispam module ships resources/js/pages/antispam/*.
+            base_path('misc/BAGArt/tgbot-module-antispam/resources/js/pages'),
         ],
 
         'page_extensions' => [

@@ -4,8 +4,8 @@ Three library providers, registered in the host's `bootstrap/providers.php`:
 
 ```
 BAGArt\TelegramBot\TelegramBotServiceProvider         (telegram-bot-lib)
-BAGArt\TelegramBotBasic\TelegramBotBasicServiceProvider (telegram-bot-basic-lib)
-BAGArt\TelegramBotManagement\TelegramBotManagementServiceProvider (telegram-bot-management)
+BAGArt\TelegramBotBasic\TelegramBotBasicServiceProvider (telegram-bot-lib-basic)
+BAGArt\TelegramBotManagement\TelegramBotManagementServiceProvider (telegram-platform-management)
 ```
 
 Plus `AppServiceProvider`, `FortifyServiceProvider`.

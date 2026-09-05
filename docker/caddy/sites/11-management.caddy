@@ -1,7 +1,7 @@
-# Bot management — serves misc/BAGArt/telegram-bot-management/public/
+# Bot management — serves misc/BAGArt/telegram-platform-management/public/
 #   http://management.localhost/ → Bot management UI
 management.localhost {
-    root * /var/www/misc/BAGArt/telegram-bot-management/public
+    root * /var/www/misc/BAGArt/telegram-platform-management/public
     php_fastcgi php-fpm:9000
     file_server
 }

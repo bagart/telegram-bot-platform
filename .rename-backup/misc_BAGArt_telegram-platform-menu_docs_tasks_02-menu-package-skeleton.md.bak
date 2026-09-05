@@ -1,0 +1,103 @@
+---
+id: 02
+phase: P0
+est: 4h
+depends: [01]
+rfc: "§18, §19bis"
+status: done
+---
+
+# Task 02 — Menu package skeleton (Phase 0, 4h)
+
+Create the `bagart/telegram-bot-menu-module` package shell. RFC anchors: §18
+(integration guide), §19bis (file tree — normative), header metadata table,
+§27.1 (PSR-4 map), §27.8 (config tree).
+
+## Goal
+
+A bootable, testable, doctor-visible module that does nothing yet except
+register its command/processor hooks and own its config — the chassis every
+later task fills.
+
+## Read first
+
+- `menu.md` §19bis file tree (exact paths), §27.8 config defaults.
+- Precedent packages: `../../../tgbot-module-antispam`
+  (ServiceProvider self-registration pattern, composer dual manifests, Pest
+  wiring) and `../../../telegram-platform-management` (provider layout).
+
+## Deliverables
+
+1. `../..` with:
+    - `../../../../../composer.json` (name `bagart/telegram-bot-menu-module`, requires
+      `bagart/telegram-bot-lib`; PSR-4 `BAGArt\TelegramBotMenu\`) +
+      `../../../../../composer.prod.json` overlay per repo dual-manifest convention; `composer
+      test` script; own phpunit.xml wired into root suites with EXACT suite
+      names `menu-unit` and `menu-feature` — later task files reference these
+      verbatim, so renaming later breaks other tasks' verification blocks.
+    - `src/TelegramBotMenuServiceProvider.php` — singletons only;
+      `loadMigrationsFrom(...)` in boot; **no routes** (host app owns them);
+      registers `vendor:publish` tags for the publishable assets §19bis
+      marks (`tgapp-shell.blade.php`, `ts/bridge.d.ts`) — chunks' per-module
+      `<module>-assets` tags belong to the modules themselves (§22.6).
+   - `src/MenuModule.php` — `TgModuleContract` with descriptor:
+     id `menu`, capabilities `[Command, Processor, Ui]`,
+     `defaultEnabled: true`; register(): `$registrar->command('menu',
+     MenuCommandProcessor::class)` + `$registrar->processor(UpdateTypeDTO::class,
+     ChatRegistryUpdaterProcessor::class)` (processor/command classes may be
+     throw-away skeletons here, replaced by tasks 07).
+    - `config/menu.php` with the full default tree from §27.8 (superadmins,
+      session, throttle, roles, registry, grants, chunks — including
+      `chunks.dev_urls => []` per D57, i18n).
+   - Skeleton dirs matching §19bis (`Contracts/ Manifest/ Resources/ Auth/
+     Roles/ Chats/ Menu/ Support/ Console/ Http/Laravel/ tests/{Unit,Feature}/`).
+2. Root wiring: dev-mode autoload-dev mapping
+   `"BAGArt\\TelegramBotMenu\\": "misc/BAGArt/telegram-bot-menu-module/src/"`,
+   provider listed in `../../../../../bootstrap/providers.php`, path repository entry;
+   prod-mode entry only in `../../../../../composer.prod.json`. Run `../../../../../cmd/deps/check`.
+3. CI: package joins lint/test chain; INV-4 import rule extended to menu core
+    namespaces (from task 01's rule) — scope MUST include `Support\` (all
+    context/resource DTOs live there, §27.4/§27.5), not just
+    `Contracts\ Manifest\ Menu\ Auth\ Roles\`. Migration-bearing suites run on
+    SQLite **and** one production driver (Postgres or MySQL via Sail) —
+    §27.8 infra item; the partial-index/writer-lock branches are
+    driver-dependent and must not be sqlite-only (weekly cadence acceptable
+    for the second driver if per-push is too slow).
+4. Doctor integration: `tg:modules:list --json` shows the menu module.
+
+## Acceptance criteria
+
+- [ ] Host boots with the package enabled; no runtime errors; menu module
+      appears in discovery output with capabilities Command+Processor+Ui.
+- [ ] `php artisan test --compact --filter=Menu` green (skeleton smoke test:
+      descriptor shape, config defaults present, container singletons
+      resolvable).
+- [ ] `../../../../../cmd/deps/check` passes for both modes.
+- [ ] CI matrix includes the production-driver job (green on both drivers).
+- [ ] No routes registered by the package (assert via route:list in a test or
+      static check).
+
+## Verification
+
+```
+cmd/deps/check && composer test
+```
+
+## Deviations (execution record)
+
+- `../../../../../composer.prod.json` overlay entry (require + VCS repository) is DEFERRED:
+  the prod lock cannot reference an unpublished package
+  (`cmd/deps/update --mode=prod` fails on the missing VCS source). Add the
+  require entry + `https://github.com/bagart/telegram-bot-menu-module.git`
+  repo in the same PR that publishes the package. Dev-mode wiring (PSR-4,
+  path repo, providers.php, root suites, test chain) is complete and
+  `../../../../../cmd/deps/check` passes both modes.
+- Production-driver CI job (SQLite + Postgres/MySQL) is deferred to task 05 —
+  the first migration-bearing task; no driver-dependent branches exist in the
+  skeleton yet (§27.8 allows weekly cadence for the second driver).
+
+## Guardrails
+
+G10 pure core; library providers never load routes; descriptor capabilities
+must be honest (Command and Processor are really registered — D35 review
+point 4).

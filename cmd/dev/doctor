@@ -139,12 +139,12 @@ fi
 
 # --- Git hooks ---
 say "Git hooks"
-# Hooks ship inside bagart/telegram-devops-baseline (cmd/dev/setup points
+# Hooks ship inside bagart/telegram-platform-devops-baseline (cmd/dev/setup points
 # core.hooksPath at the vendor copy); the path-repo checkout is equivalent.
 CURRENT_HOOKS_PATH="$(git config core.hooksPath || true)"
-CANONICAL_HOOKS_PATH="vendor/bagart/telegram-devops-baseline/hooks"
+CANONICAL_HOOKS_PATH="vendor/bagart/telegram-platform-devops-baseline/hooks"
 case "$CURRENT_HOOKS_PATH" in
-  *"$CANONICAL_HOOKS_PATH"|*"misc/BAGArt/telegram-devops-baseline/hooks")
+  *"$CANONICAL_HOOKS_PATH"|*"misc/BAGArt/telegram-platform-devops-baseline/hooks")
     check_ok "core.hooksPath: $CURRENT_HOOKS_PATH"
     for hook in pre-commit commit-msg pre-push; do
       if [[ -x "$CURRENT_HOOKS_PATH/$hook" ]]; then

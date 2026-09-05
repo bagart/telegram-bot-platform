@@ -12,7 +12,7 @@ Dependabot (`.github/dependabot.yml`) + Dependency Review gate on PRs.
 | BAGArt library bumps | with each tagged lib release (`cmd/release/lib`) | lib owner | app CI + cross-lib contract suite |
 | PHP / Node major | quarterly evaluation window | platform-team | extended matrix (05 §69) |
 | Docker base images | monthly; digest-pinned | platform-team | docker workflow Trivy gate |
-| `bagart/telegram-devops-baseline` engine updates | with each tagged release; consumers bump via `composer update` + SHA re-pin of workflow callers | baseline owner | package selftest (`vendor/bin/baseline-selftest`) + consumer golden-run diff |
+| `bagart/telegram-platform-devops-baseline` engine updates | with each tagged release; consumers bump via `composer update` + SHA re-pin of workflow callers | baseline owner | package selftest (`vendor/bin/baseline-selftest`) + consumer golden-run diff |
 | `BAGArt/telegram-platform-workflows` bumps | one-line SHA-bump PR per consumer, scriptable | repo owners | central repo's own lint/pinning CI |
 
 ## Rules

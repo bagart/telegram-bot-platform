@@ -17,7 +17,7 @@ For backend-only work, the agent typically doesn't need this — use the targete
 php artisan test --compact
 
 # Filter to a single test
-php artisan test --compact --filter=TgOutboundDaemonCommandTest (lives in misc/BAGArt/telegram-bot-management)
+php artisan test --compact --filter=TgOutboundDaemonCommandTest (lives in misc/BAGArt/telegram-platform-management)
 
 # A library's tests (run inside the lib dir)
 cd misc/BAGArt/telegram-bot-lib && composer test

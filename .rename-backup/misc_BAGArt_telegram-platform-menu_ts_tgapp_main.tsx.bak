@@ -1,0 +1,284 @@
+/**
+ * SPA entry (§14): separate Vite input building to
+ * `public/vendor/menu/` with a manifest the published shell blade resolves.
+ *
+ * Build (from the host repo root, no extra installs — react/vite come from the
+ * host node_modules):
+ *   npx vite build --config misc/BAGArt/telegram-bot-menu-module/vite.tgapp.config.mjs
+ *   node misc/BAGArt/telegram-bot-menu-module/scripts/check-bundle-size.mjs
+ *
+ * Boot order (S5): splash renders immediately; theme tokens → ready()/expand()
+ * → locale chain (D47) → session handshake (bearer in memory only, D42) →
+ * bootstrap w/ ETag round trip → deep-link landing → render. Outside Telegram
+ * (?dev=1) the shell renders offline fixtures.
+ */
+import { createRoot } from 'react-dom/client';
+import './styles.css';
+import { App } from './App';
+import { BootstrapClient } from './api/bootstrapClient.ts';
+import { clearSession } from './api/bearer.ts';
+import { TgApiError } from './api/envelope.ts';
+import type { TgApiErrorShape } from './api/envelope.ts';
+import { handshake } from './api/session.ts';
+import type { ApiDeps } from './api/session.ts';
+import { DEV_BOOTSTRAP, DEV_SESSION } from './dev/fixtures.ts';
+import { createI18n } from './i18n/store.ts';
+import type { I18nStore } from './i18n/store.ts';
+import { NavigationController } from './nav/navigation.ts';
+import { ROOT_BOOTSTRAP_KEY, QueryStore } from './query/store.ts';
+import { applyChromeColors, applyThemeTokens, haptic } from './theme/tokens.ts';
+import { getWebApp } from './webapp/telegram.ts';
+import type { TelegramWebApp } from './webapp/telegram.ts';
+import { resolveInitialLocale } from './webapp/localeChain.ts';
+import { clearSessionMemos } from './state/sessionMemo.ts';
+import { ErrorCard } from './components/ErrorCard';
+import { MaintenanceCard } from './components/MaintenanceCard';
+import { SkeletonScreen } from './components/Skeleton';
+import type { ScreenDeps } from './screens/shared.ts';
+import type { BootstrapPayload, SessionResponse } from './wire.ts';
+
+const container = document.getElementById('tgapp-root');
+
+if (container === null) {
+    throw new Error('Shell mount node #tgapp-root is missing.');
+}
+
+const webapp: TelegramWebApp | null = getWebApp();
+const devMode = new URLSearchParams(window.location.search).has('dev');
+const startParam =
+    webapp?.initDataUnsafe.start_param ??
+    new URLSearchParams(window.location.search).get('tgWebAppStartParam') ??
+    '';
+
+applyThemeTokens(webapp?.themeParams ?? {});
+
+if (webapp !== null) {
+    applyChromeColors(webapp, chromeColor(webapp));
+    webapp.ready();
+    webapp.expand();
+    webapp.onEvent('themeChanged', () => {
+        applyThemeTokens(webapp.themeParams);
+        applyChromeColors(webapp, chromeColor(webapp));
+    });
+}
+
+function chromeColor(app: TelegramWebApp | null): string {
+    return app?.themeParams.bg_color ?? '#ffffff';
+}
+
+/** Error/maintenance cards for boot failures before any screen exists. */
+function renderBootError(error: unknown): void {
+    const apiError = error instanceof TgApiError ? error : toShape(error);
+
+    // D46 client mirror: 503 degraded + maintenance flag ⇒ card, never SPA.
+    if (apiError.code === 'degraded' && apiError.status === 503) {
+        appRoot.render(<MaintenanceCard />);
+
+        return;
+    }
+
+    appRoot.render(
+        <ErrorCard
+            code={apiError.code}
+            message={apiError.message}
+            requestId={apiError.requestId}
+            onRetry={() => window.location.reload()}
+        />,
+    );
+}
+
+function toShape(error: unknown): TgApiErrorShape {
+    const shape = error as { code?: unknown; status?: unknown; requestId?: unknown; message?: unknown };
+
+    return {
+        name: 'Error',
+        code: typeof shape?.code === 'string' ? shape.code : 'internal',
+        status: typeof shape?.status === 'number' ? shape.status : 0,
+        requestId: typeof shape?.requestId === 'string' ? shape.requestId : '',
+        message: typeof shape?.message === 'string' ? shape.message : String(error),
+    };
+}
+
+interface BootResult {
+    readonly payload: BootstrapPayload;
+    readonly session: SessionResponse | null;
+    readonly i18n: I18nStore;
+    readonly controller: NavigationController;
+    readonly deps: ApiDeps;
+    readonly bootstrap: BootstrapClient;
+}
+
+/**
+ * S5 landing: valid ctx jumps straight to its target with nothing below root;
+ * invalid/expired ctx lands on Root with a toast (D17/A6). The server's
+ * `hints.chat` echo is the validity signal — a signed ctx is navigation sugar,
+ * never a capability (§5.1).
+ */
+async function boot(): Promise<BootResult> {
+    let deps: ApiDeps;
+    let payload: BootstrapPayload;
+    let session: SessionResponse | null = null;
+
+    if (webapp !== null && !devMode) {
+        deps = {
+            fetchImpl: fetch.bind(globalThis),
+            initData: () => webapp.initData,
+        };
+
+        session = await handshake(deps);
+
+        const client = new BootstrapClient(deps);
+        payload = (await client.load()).payload;
+
+        if (payload.degraded === true) {
+            haptic(webapp, 'error');
+        }
+
+        const i18n = createI18n(payload.i18n, await resolveInitialLocale(webapp));
+        const controller = new NavigationController({
+            onExit: () => webapp.close(),
+            onToast: (key) => i18n.t('hub', key, 'Link expired'),
+        });
+
+        landDeepLink(controller, session);
+
+        return { payload, session, i18n, controller, deps, bootstrap: client };
+    }
+
+    clearSession();
+    clearSessionMemos();
+    payload = DEV_BOOTSTRAP;
+    deps = { fetchImpl: fetch.bind(globalThis), initData: () => '' };
+    const i18n = createI18n(payload.i18n, 'ru');
+    const controller = new NavigationController({ onExit: () => undefined });
+
+    if (startParam !== '') {
+        controller.landDeepLink({ chatId: DEV_SESSION.hints?.chat }, DEV_SESSION.hints?.chat !== undefined);
+    }
+
+    return { payload, session: DEV_SESSION, i18n, controller, deps, bootstrap: new BootstrapClient(deps) };
+}
+
+function landDeepLink(controller: NavigationController, session: SessionResponse): void {
+    if (startParam === '') {
+        return;
+    }
+
+    const chatId = session.hints?.chat;
+
+    controller.landDeepLink({ chatId }, chatId !== undefined);
+}
+
+function queryFromKey(key: readonly string[]): { chatId?: number } {
+    const chat = key[1] === 'chat' ? Number(key[2]) : undefined;
+
+    return chat === undefined || Number.isNaN(chat) ? {} : { chatId: chat };
+}
+
+/** §14 epoch drift: refetch on focus; version-vector change invalidates all. */
+function wireFocusDrift(store: QueryStore): void {
+    let inFlight = false;
+
+    const refocus = (): void => {
+        if (inFlight || document.visibilityState !== 'visible') {
+            return;
+        }
+
+        inFlight = true;
+        store.refetchActive([ROOT_BOOTSTRAP_KEY])
+            .then(async ({ drifted }) => {
+                if (drifted) {
+                    clearSessionMemos();
+                    store.invalidate(() => true);
+                    await store.fetch(ROOT_BOOTSTRAP_KEY);
+                }
+            })
+            .catch(() => undefined)
+            .finally(() => {
+                inFlight = false;
+            });
+    };
+
+    window.addEventListener('focus', refocus);
+    document.addEventListener('visibilitychange', refocus);
+}
+
+/** Telegram BackButton mirrors the ladder; hidden at depth 1 (§4.1). */
+function wireBackButton(app: TelegramWebApp | null, controller: NavigationController): void {
+    if (app === null) {
+        return;
+    }
+
+    const backButton = app.BackButton;
+
+    if (backButton !== undefined) {
+        controller.subscribe((snapshot) => {
+            if (snapshot.stack.length > 1 || snapshot.chunkModuleId !== null) {
+                backButton.show();
+            } else {
+                backButton.hide();
+            }
+        });
+
+        backButton.onClick(() => controller.handleBack());
+    }
+
+    // D49: native SettingsButton navigates through the controller.
+    const settingsButton = app.SettingsButton;
+
+    if (settingsButton !== undefined) {
+        settingsButton.onClick(() => controller.openProfile());
+        controller.subscribe((snapshot) => {
+            if (snapshot.settingsButtonVisible) {
+                settingsButton.show();
+            } else {
+                settingsButton.hide();
+            }
+        });
+    }
+}
+
+async function start(): Promise<void> {
+    appRoot.render(
+        <div className="tg-app" data-tgapp-state="boot">
+            <SkeletonScreen />
+        </div>,
+    );
+
+    try {
+        const result = await boot();
+        const store = new QueryStore((key) =>
+            key[0] === 'bootstrap'
+                ? result.bootstrap.load(queryFromKey(key)).then((loaded) => loaded.payload)
+                : Promise.reject(new Error(`No loader registered for ${key.join('/')}`)),
+        );
+
+        wireFocusDrift(store);
+
+        const screenDeps: ScreenDeps = {
+            controller: result.controller,
+            i18n: result.i18n,
+            webapp,
+            api: result.deps,
+            bootstrap: result.bootstrap,
+            store,
+            session: result.session,
+        };
+
+        wireBackButton(webapp, result.controller);
+        appRoot.render(
+            <App
+                payload={result.payload}
+                controller={result.controller}
+                i18n={result.i18n}
+                deps={screenDeps}
+            />,
+        );
+    } catch (error) {
+        renderBootError(error);
+    }
+}
+
+const appRoot = createRoot(container);
+
+void start();

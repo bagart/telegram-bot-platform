@@ -1,0 +1,85 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/dashboard',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+const AntispamDashboardController = { index }
+
+export default AntispamDashboardController

@@ -1,0 +1,192 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\TelegramBotMenu\Tests\Feature;
+
+use BAGArt\TelegramBot\Contracts\ApiCommunication\TgBotApiDTOClientContract;
+use BAGArt\TelegramBot\Modules\TgModuleDescriptor;
+use BAGArt\TelegramBot\Modules\TgModuleRegistry;
+use BAGArt\TelegramBot\Modules\TgWebApiRegistry;
+use BAGArt\TelegramBot\Modules\TgWebUiRegistry;
+use BAGArt\TelegramBotManagement\Models\TgBot;
+use BAGArt\TelegramBotMenu\Auth\SessionIssuer;
+use BAGArt\TelegramBotMenu\Auth\TgInitDataUser;
+use BAGArt\TelegramBotMenu\Contracts\RoleCacheStoreContract;
+use BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionMiddleware;
+use BAGArt\TelegramBotMenu\Http\Laravel\TgUiContextMiddleware;
+use BAGArt\TelegramBotMenu\Http\Laravel\TgWebApiDispatchController;
+use BAGArt\TelegramBotMenu\Roles\RoleCache;
+use BAGArt\TelegramBotMenu\Tests\Fixtures\Wire\WireFixtures;
+use BAGArt\TelegramBotMenu\Tests\Support\ArrayRoleStore;
+use BAGArt\TelegramBotMafia\Web\MafiaUi;
+use BAGArt\TelegramBotMafia\Web\MafiaUiHandler;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+const MAFIA_E2E_BOT_ID = '7001';
+
+const MAFIA_E2E_CHAT_ID = -100456;
+
+const MAFIA_E2E_USER_ID = 42;
+
+/**
+ * Task 18 — host-side chunk E2E: the REAL mafia webUi/webApi classes ride
+ * the real dispatcher (§27.9 ladder) exactly as the hub would serve them —
+ * chat-scope gating, context-only identity (G9), activation gating.
+ */
+describe('task 18 — mafia chunk E2E', function () {
+    beforeEach(function () {
+        config([
+            'app.key' => WireFixtures::APP_KEY_B64,
+            'cache.default' => 'array',
+            'menu.i18n.locales' => ['ru', 'en'],
+            'menu.superadmins' => [],
+        ]);
+        Cache::flush();
+
+        TgBot::query()->create(['bot_id' => MAFIA_E2E_BOT_ID, 'token' => '1234567890:AAEhBOweik6ad9r_QXMENQjcrGbqCr4K-5c']);
+        app()->instance(TgBotApiDTOClientContract::class, new \BAGArt\TelegramBotMenu\Tests\Support\FakeDtoApiClient());
+
+        // Real mafia surface into the container registries.
+        app(TgModuleRegistry::class)->add(new TgModuleDescriptor(id: 'mafia', name: 'Mafia', version: '0.1.0'));
+        app(TgWebUiRegistry::class)->add('mafia', MafiaUi::class);
+        app(TgWebApiRegistry::class)->add('mafia', MafiaUiHandler::class);
+
+        // The dispatcher consults the compiled catalog — build one that
+        // includes the real mafia manifest (same path as the fixture rig).
+        $refiner = \BAGArt\TelegramBotMenu\Tests\Fixtures\Catalog\CatalogFixtures::refiner(
+            uiPairs: [['mafia', MafiaUi::class]],
+            apiPairs: [['mafia', MafiaUiHandler::class]],
+        );
+        $this->app->singleton(\BAGArt\TelegramBotMenu\Menu\MenuCatalogRefiner::class, fn (): \BAGArt\TelegramBotMenu\Menu\MenuCatalogRefiner => $refiner);
+        $this->app->instance(\BAGArt\TelegramBotMenu\Menu\MenuCatalog::class, $refiner->catalog());
+
+        $this->store = new ArrayRoleStore();
+        $this->store->now = time();
+        app()->instance(RoleCacheStoreContract::class, $this->store);
+
+        $this->app->make(Router::class)->any(
+            'tgapp/api/v1/m/{moduleId}/{path?}',
+            TgWebApiDispatchController::class,
+        )->where('path', '.*')->middleware([
+            TgAppSessionMiddleware::class.':gate',
+            'throttle:tgapp-api',
+            TgAppSessionMiddleware::class,
+            TgUiContextMiddleware::class,
+        ]);
+
+        $this->token = app(SessionIssuer::class)
+            ->mint(new TgInitDataUser(MAFIA_E2E_USER_ID, 'Artur', null, 'ru', time()), MAFIA_E2E_BOT_ID, time())
+            ->token;
+    });
+
+    function mafiaE2eBearer(): array
+    {
+        return ['Authorization' => 'Bearer '.test()->token];
+    }
+
+    function seedMafiaE2eChat(): void
+    {
+        DB::table('tg_chats')->insert([
+            'bot_id' => MAFIA_E2E_BOT_ID,
+            'chat_id' => MAFIA_E2E_CHAT_ID,
+            'type' => 'supergroup',
+            'title' => 'Town Square',
+            'is_active' => true,
+            'last_seen_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /** Mafia is opt-in (descriptor defaultEnabled=false): an admin enabled it at bot level. */
+    function enableMafiaAtBot(): void
+    {
+        DB::table('tg_module_enablements')->insert([
+            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'bot_id' => MAFIA_E2E_BOT_ID,
+            'chat_id' => null,
+            'module_id' => 'mafia',
+            'is_enabled' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /** Member with a fresh standing snapshot (writes demand fresh standing, §12.3). */
+    function warmMafiaE2eMember(): void
+    {
+        test()->store->put(RoleCache::roleKey(MAFIA_E2E_BOT_ID, MAFIA_E2E_CHAT_ID, MAFIA_E2E_USER_ID), 'member', 300);
+        test()->store->put(RoleCache::adminsKey(MAFIA_E2E_BOT_ID, MAFIA_E2E_CHAT_ID), [
+            'admin_ids' => [],
+            'creator_ids' => [],
+            'fetched_at' => test()->store->now,
+            'ttl' => 300,
+        ], 3600);
+    }
+
+    it('serves the real mafia session/join through the full dispatch ladder', function () {
+        seedMafiaE2eChat();
+        warmMafiaE2eMember();
+        enableMafiaAtBot();
+
+        $response = $this->postJson(
+            'tgapp/api/v1/m/mafia/session/join?chat='.MAFIA_E2E_CHAT_ID,
+            [],
+            mafiaE2eBearer(),
+        );
+
+        $response->assertOk();
+        expect($response->json('ok'))->toBeTrue()
+            ->and($response->json('data.phase'))->toBe('stub')
+            ->and($response->json('data.chatId'))->toBe(MAFIA_E2E_CHAT_ID)
+            ->and($response->json('data.userId'))->toBe(MAFIA_E2E_USER_ID)
+            ->and($response->json('data.locale'))->toBe('ru');
+    });
+
+    it('enforces ChatScope::Required for the mafia join route before the handler runs', function () {
+        seedMafiaE2eChat();
+        warmMafiaE2eMember();
+        enableMafiaAtBot();
+
+        $response = $this->postJson('tgapp/api/v1/m/mafia/session/join', [], mafiaE2eBearer());
+
+        expect($response->status())->toBe(403)
+            ->and($response->json('error.code'))->toBe('forbidden_role');
+    });
+
+    it('answers module_disabled for mafia when its enablement row disables it (F6)', function () {
+        seedMafiaE2eChat();
+        warmMafiaE2eMember();
+        DB::table('tg_module_enablements')->insert([
+            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'bot_id' => MAFIA_E2E_BOT_ID,
+            'chat_id' => null,
+            'module_id' => 'mafia',
+            'is_enabled' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->postJson(
+            'tgapp/api/v1/m/mafia/session/join?chat='.MAFIA_E2E_CHAT_ID,
+            [],
+            mafiaE2eBearer(),
+        );
+
+        expect($response->status())->toBe(404)
+            ->and($response->json('error.code'))->toBe('module_disabled');
+    });
+
+    it('exposes a content-hashed chunk url that exists in the published package assets', function () {
+        $url = MafiaUi::manifest()->entry->url;
+
+        expect($url)->toMatch('#^/vendor/menu-modules/mafia/app\.[A-Za-z0-9_-]+\.js$#');
+
+        $publicDir = dirname(__DIR__, 3).'/telegram-game-mafia/public/vendor/menu-modules/mafia';
+
+        expect(is_file($publicDir.'/'.basename($url)))->toBeTrue();
+    });
+});

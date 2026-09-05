@@ -258,16 +258,16 @@
             "time": "2026-08-25T21:09:00+00:00"
         },
         {
-            "name": "bagart/telegram-bot-antispam-module",
+            "name": "bagart/tgbot-module-antispam",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-antispam-module.git",
+                "url": "git@github.com:bagart/tgbot-module-antispam.git",
                 "reference": "5f3be85bc46feeaf03e7ad22e5315a27059ea599"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-antispam-module/zipball/5f3be85bc46feeaf03e7ad22e5315a27059ea599",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-antispam/zipball/5f3be85bc46feeaf03e7ad22e5315a27059ea599",
                 "reference": "5f3be85bc46feeaf03e7ad22e5315a27059ea599",
                 "shasum": ""
             },
@@ -317,16 +317,16 @@
             "time": "2026-08-24T23:57:10+00:00"
         },
         {
-            "name": "bagart/telegram-bot-basic-lib",
+            "name": "bagart/telegram-bot-lib-basic",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-basic-lib.git",
+                "url": "git@github.com:bagart/telegram-bot-lib-basic.git",
                 "reference": "382144dc0ac4dad13956b3da87df57213f35e9bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-basic-lib/zipball/382144dc0ac4dad13956b3da87df57213f35e9bb",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-lib-basic/zipball/382144dc0ac4dad13956b3da87df57213f35e9bb",
                 "reference": "382144dc0ac4dad13956b3da87df57213f35e9bb",
                 "shasum": ""
             },
@@ -465,16 +465,16 @@
             "time": "2026-08-25T11:45:10+00:00"
         },
         {
-            "name": "bagart/telegram-bot-management",
+            "name": "bagart/telegram-platform-management",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-management.git",
+                "url": "git@github.com:bagart/telegram-platform-management.git",
                 "reference": "009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-management/zipball/009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-management/zipball/009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e",
                 "reference": "009d0ae02fb56fdf60e8707f0ab023ae46ff9e3e",
                 "shasum": ""
             },
@@ -531,16 +531,16 @@
             "time": "2026-08-25T17:49:22+00:00"
         },
         {
-            "name": "bagart/telegram-bot-nettools-module",
+            "name": "bagart/tgbot-module-nettools",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-nettools-module.git",
+                "url": "git@github.com:bagart/tgbot-module-nettools.git",
                 "reference": "7d8dd2d36d00c366f75b047c35c2e96f4c483c80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-nettools-module/zipball/7d8dd2d36d00c366f75b047c35c2e96f4c483c80",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-nettools/zipball/7d8dd2d36d00c366f75b047c35c2e96f4c483c80",
                 "reference": "7d8dd2d36d00c366f75b047c35c2e96f4c483c80",
                 "shasum": ""
             },
@@ -548,7 +548,7 @@
                 "php": "^8.5"
             },
             "require-dev": {
-                "bagart/telegram-devops-baseline": "@dev"
+                "bagart/telegram-platform-devops-baseline": "@dev"
             },
             "suggest": {
                 "bagart/telegram-bot-lib": "Telegram bot platform core (provided by the host app)",
@@ -595,16 +595,16 @@
             "time": "2026-08-26T08:59:08+00:00"
         },
         {
-            "name": "bagart/telegram-bot-stt-module",
+            "name": "bagart/tgbot-module-stt",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-stt-module.git",
+                "url": "git@github.com:bagart/tgbot-module-stt.git",
                 "reference": "d88d9c74f0879aa020abe982064fb38a056d581e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-stt-module/zipball/d88d9c74f0879aa020abe982064fb38a056d581e",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-stt/zipball/d88d9c74f0879aa020abe982064fb38a056d581e",
                 "reference": "d88d9c74f0879aa020abe982064fb38a056d581e",
                 "shasum": ""
             },
@@ -654,16 +654,16 @@
             "time": "2026-08-25T16:18:39+00:00"
         },
         {
-            "name": "bagart/telegram-bot-summarizer-module",
+            "name": "bagart/tgbot-module-summarizer",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-summarizer-module.git",
+                "url": "git@github.com:bagart/tgbot-module-summarizer.git",
                 "reference": "64835755d33ae470dc75b86f6a01215e7a7ac7fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-summarizer-module/zipball/64835755d33ae470dc75b86f6a01215e7a7ac7fc",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-summarizer/zipball/64835755d33ae470dc75b86f6a01215e7a7ac7fc",
                 "reference": "64835755d33ae470dc75b86f6a01215e7a7ac7fc",
                 "shasum": ""
             },
@@ -713,16 +713,16 @@
             "time": "2026-08-25T01:11:13+00:00"
         },
         {
-            "name": "bagart/telegram-bot-tts-module",
+            "name": "bagart/tgbot-module-tts",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-tts-module.git",
+                "url": "git@github.com:bagart/tgbot-module-tts.git",
                 "reference": "7d90e42f07ddf656cc4fab3ef090a317050a1dba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-tts-module/zipball/7d90e42f07ddf656cc4fab3ef090a317050a1dba",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-tts/zipball/7d90e42f07ddf656cc4fab3ef090a317050a1dba",
                 "reference": "7d90e42f07ddf656cc4fab3ef090a317050a1dba",
                 "shasum": ""
             },
@@ -780,16 +780,16 @@
             "time": "2026-08-25T19:53:51+00:00"
         },
         {
-            "name": "bagart/telegram-game-mafia",
+            "name": "bagart/tgbot-game-mafia",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-game-mafia.git",
+                "url": "git@github.com:bagart/tgbot-game-mafia.git",
                 "reference": "819e7db09a1335a8b750ea535ac1394c9c310b42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-game-mafia/zipball/819e7db09a1335a8b750ea535ac1394c9c310b42",
+                "url": "https://api.github.com/repos/bagart/tgbot-game-mafia/zipball/819e7db09a1335a8b750ea535ac1394c9c310b42",
                 "reference": "819e7db09a1335a8b750ea535ac1394c9c310b42",
                 "shasum": ""
             },
@@ -797,7 +797,7 @@
                 "php": "^8.5"
             },
             "require-dev": {
-                "bagart/telegram-devops-baseline": "@dev",
+                "bagart/telegram-platform-devops-baseline": "@dev",
                 "pestphp/pest": "^4.0"
             },
             "suggest": {
@@ -8853,14 +8853,14 @@
         "bagart/ask-client": 20,
         "bagart/ask-client-redis": 20,
         "bagart/telegram-bot-lib": 20,
-        "bagart/telegram-bot-basic-lib": 20,
-        "bagart/telegram-bot-management": 20,
-        "bagart/telegram-bot-antispam-module": 20,
-        "bagart/telegram-bot-summarizer-module": 20,
-        "bagart/telegram-bot-nettools-module": 20,
-        "bagart/telegram-bot-tts-module": 20,
-        "bagart/telegram-bot-stt-module": 20,
-        "bagart/telegram-game-mafia": 20
+        "bagart/telegram-bot-lib-basic": 20,
+        "bagart/telegram-platform-management": 20,
+        "bagart/tgbot-module-antispam": 20,
+        "bagart/tgbot-module-summarizer": 20,
+        "bagart/tgbot-module-nettools": 20,
+        "bagart/tgbot-module-tts": 20,
+        "bagart/tgbot-module-stt": 20,
+        "bagart/tgbot-game-mafia": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

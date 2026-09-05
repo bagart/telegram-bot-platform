@@ -1,0 +1,38 @@
+# Ручная обработка — результат автоматизации
+
+Сгенерировано: 2026-09-05 13:47:15
+
+## Требует ручной проверки
+
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/php-async-kernel-client`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/php-async-kernel-client-redis`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/php-async-kernel-lib`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-lib`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-module-engine`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-antispam-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-example-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-nettools-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-proxy-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-stt-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-summarizer-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-tts-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-game-mafia`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-access-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-basic-lib`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-audit-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-menu-module`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-management`
+- Репозиторий dirty, пропущен: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-devops-baseline`
+- Неверный origin: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-audit-module` -> `git@github.com:bagart/tgbot-module-audit.git` (ожидался `git@github.com:bagart/telegram-platform-audit.git`)
+- Неверный origin: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-menu-module` -> `git@github.com:bagart/tgbot-module-menu.git` (ожидался `git@github.com:bagart/telegram-platform-menu.git`)
+- Неверный origin: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-bot-management` -> `git@github.com:bagart/telegram-bot-platform-management.git` (ожидался `git@github.com:bagart/telegram-platform-management.git`)
+- Неверный origin: `/home/bagart/code/telegram-bot-platform/misc/BAGArt/telegram-devops-baseline` -> `git@github.com:bagart/telegram-bot-platform-devops-baseline.git` (ожидался `git@github.com:bagart/telegram-platform-devops-baseline.git`)
+
+## Всегда проверить вручную
+- PHP namespace и публичные API.
+- Composer package names.
+- module identifiers.
+- динамически формируемые пути.
+- config/tg_modules.php и runtime-конфигурацию.
+- CI/CD, Docker и workflow.
+- внешние проекты, использующие эти библиотеки.

@@ -1,0 +1,376 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/violations',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:26
+* @route '/antispam/violations'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::bulkAction
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:92
+* @route '/antispam/violations/bulk-action'
+*/
+export const bulkAction = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkAction.url(options),
+    method: 'post',
+})
+
+bulkAction.definition = {
+    methods: ["post"],
+    url: '/antispam/violations/bulk-action',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::bulkAction
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:92
+* @route '/antispam/violations/bulk-action'
+*/
+bulkAction.url = (options?: RouteQueryOptions) => {
+    return bulkAction.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::bulkAction
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:92
+* @route '/antispam/violations/bulk-action'
+*/
+bulkAction.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkAction.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::bulkAction
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:92
+* @route '/antispam/violations/bulk-action'
+*/
+const bulkActionForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: bulkAction.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::bulkAction
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:92
+* @route '/antispam/violations/bulk-action'
+*/
+bulkActionForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: bulkAction.url(options),
+    method: 'post',
+})
+
+bulkAction.form = bulkActionForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::action
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:71
+* @route '/antispam/violations/{violationId}/action'
+*/
+export const action = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: action.url(args, options),
+    method: 'post',
+})
+
+action.definition = {
+    methods: ["post"],
+    url: '/antispam/violations/{violationId}/action',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::action
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:71
+* @route '/antispam/violations/{violationId}/action'
+*/
+action.url = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { violationId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            violationId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        violationId: args.violationId,
+    }
+
+    return action.definition.url
+            .replace('{violationId}', parsedArgs.violationId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::action
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:71
+* @route '/antispam/violations/{violationId}/action'
+*/
+action.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: action.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::action
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:71
+* @route '/antispam/violations/{violationId}/action'
+*/
+const actionForm = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: action.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::action
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:71
+* @route '/antispam/violations/{violationId}/action'
+*/
+actionForm.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: action.url(args, options),
+    method: 'post',
+})
+
+action.form = actionForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::replay
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+export const replay = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: replay.url(args, options),
+    method: 'post',
+})
+
+replay.definition = {
+    methods: ["post"],
+    url: '/antispam/violations/{violationId}/replay',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::replay
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+replay.url = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { violationId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            violationId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        violationId: args.violationId,
+    }
+
+    return replay.definition.url
+            .replace('{violationId}', parsedArgs.violationId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::replay
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+replay.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: replay.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::replay
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+const replayForm = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: replay.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::replay
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+replayForm.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: replay.url(args, options),
+    method: 'post',
+})
+
+replay.form = replayForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+export const history = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: history.url(options),
+    method: 'get',
+})
+
+history.definition = {
+    methods: ["get","head"],
+    url: '/antispam/violations/history',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+history.url = (options?: RouteQueryOptions) => {
+    return history.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: history.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: history.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: history.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: history.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamViolationsController::history
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php:130
+* @route '/antispam/violations/history'
+*/
+historyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: history.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+history.form = historyForm
+
+const violations = {
+    index: Object.assign(index, index),
+    bulkAction: Object.assign(bulkAction, bulkAction),
+    action: Object.assign(action, action),
+    replay: Object.assign(replay, replay),
+    history: Object.assign(history, history),
+}
+
+export default violations

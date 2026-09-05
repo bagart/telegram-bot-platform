@@ -113,6 +113,70 @@ for m in $MODULE_DIRS; do
   fi
 done
 
+# --- (d2) provider wiring: every misc/BAGArt package shipping a top-level
+# Laravel service provider must be listed in bootstrap/providers.php, and
+# every listed provider must exist on disk (dev-mode PSR-4 mapping).
+PROVIDER_OUT="$(php -r '
+$providersFile = "bootstrap/providers.php";
+$listed = [];
+if (is_file($providersFile)) {
+    preg_match_all("/([A-Za-z0-9_\\\\]+(?:\\\\[A-Za-z0-9_\\\\]+)+)::class/", file_get_contents($providersFile), $m);
+    $listed = $m[1] ?? [];
+}
+// Phase 3 bootstrap takeover: module providers may alternatively be declared
+// in config/tg_modules.php (laravelProvider:) — the engine registers them.
+$tgModulesFile = "config/tg_modules.php";
+if (is_file($tgModulesFile)) {
+    preg_match_all("/laravelProvider:\\s*([A-Za-z0-9_\\\\]+(?:\\\\[A-Za-z0-9_\\\\]+)+)::class/", file_get_contents($tgModulesFile), $mm);
+    foreach (($mm[1] ?? []) as $cls) { $listed[] = $cls; }
+}
+
+$prefixes = [];
+foreach (glob("misc/BAGArt/*/composer.json") ?: [] as $cjPath) {
+    $dir = dirname($cjPath);
+    $c = json_decode(file_get_contents($cjPath), true);
+    foreach (($c["autoload"]["psr-4"] ?? []) as $ns => $path) {
+        if (!str_ends_with(rtrim($path, "/"), "src")) { continue; }
+        $prefixes[rtrim($ns, "\\")] = $dir."/".rtrim($path, "/");
+    }
+}
+
+$problems = [];
+foreach ($listed as $class) {
+    if (!str_starts_with($class, "BAGArt\\")) { continue; }
+    $best = "";
+    foreach (array_keys($prefixes) as $pfx) {
+        if (str_starts_with($class, $pfx."\\") && strlen($pfx) > strlen($best)) { $best = $pfx; }
+    }
+    if ($best === "") { $problems[] = "listed-but-unmapped:".urlencode($class); continue; }
+    $rel = str_replace("\\", "/", substr($class, strlen($best) + 1));
+    if (!is_file($prefixes[$best]."/".$rel.".php")) {
+        $problems[] = "listed-but-missing:".urlencode($class);
+    }
+}
+
+foreach ($prefixes as $pfx => $dir) {
+    // Only top-level src/*ServiceProvider.php classes are host-bootable;
+    // namespaced subproviders are internal wiring of their own package.
+    foreach (glob($dir."/*ServiceProvider.php") ?: [] as $sp) {
+        $fqcn = $pfx."\\".basename($sp, ".php");
+        if (!in_array($fqcn, $listed, true)) { $problems[] = "unregistered-provider:".urlencode($fqcn); }
+    }
+}
+
+if ($problems) {
+    echo trim(implode(";", $problems));
+} else {
+    echo "ok";
+}
+' 2>/dev/null)"
+if [[ "$PROVIDER_OUT" == "ok" ]]; then
+  pass_or_fail "provider-wiring" 1
+else
+  pass_or_fail "provider-wiring" 0 "${PROVIDER_OUT:-unreadable providers.php}"
+fi
+
+
 # --- (e) mode purity: PSR-4-mapped bagart packages must not be required -----
 PURITY_OUT="$(php -r '
 $c = json_decode(file_get_contents("composer.json"), true);

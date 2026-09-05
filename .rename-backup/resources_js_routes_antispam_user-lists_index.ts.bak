@@ -1,0 +1,292 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/user-lists',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:22
+* @route '/antispam/user-lists'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:73
+* @route '/antispam/user-lists'
+*/
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/antispam/user-lists',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:73
+* @route '/antispam/user-lists'
+*/
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:73
+* @route '/antispam/user-lists'
+*/
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:73
+* @route '/antispam/user-lists'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::store
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:73
+* @route '/antispam/user-lists'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::toggleBlocklistSync
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:40
+* @route '/antispam/user-lists/blocklist-sync'
+*/
+export const toggleBlocklistSync = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggleBlocklistSync.url(options),
+    method: 'post',
+})
+
+toggleBlocklistSync.definition = {
+    methods: ["post"],
+    url: '/antispam/user-lists/blocklist-sync',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::toggleBlocklistSync
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:40
+* @route '/antispam/user-lists/blocklist-sync'
+*/
+toggleBlocklistSync.url = (options?: RouteQueryOptions) => {
+    return toggleBlocklistSync.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::toggleBlocklistSync
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:40
+* @route '/antispam/user-lists/blocklist-sync'
+*/
+toggleBlocklistSync.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggleBlocklistSync.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::toggleBlocklistSync
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:40
+* @route '/antispam/user-lists/blocklist-sync'
+*/
+const toggleBlocklistSyncForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: toggleBlocklistSync.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::toggleBlocklistSync
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:40
+* @route '/antispam/user-lists/blocklist-sync'
+*/
+toggleBlocklistSyncForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: toggleBlocklistSync.url(options),
+    method: 'post',
+})
+
+toggleBlocklistSync.form = toggleBlocklistSyncForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:103
+* @route '/antispam/user-lists/{entry}'
+*/
+export const destroy = (args: { entry: string | { id: string } } | [entry: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+destroy.definition = {
+    methods: ["delete"],
+    url: '/antispam/user-lists/{entry}',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:103
+* @route '/antispam/user-lists/{entry}'
+*/
+destroy.url = (args: { entry: string | { id: string } } | [entry: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { entry: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { entry: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            entry: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        entry: typeof args.entry === 'object'
+        ? args.entry.id
+        : args.entry,
+    }
+
+    return destroy.definition.url
+            .replace('{entry}', parsedArgs.entry.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:103
+* @route '/antispam/user-lists/{entry}'
+*/
+destroy.delete = (args: { entry: string | { id: string } } | [entry: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: destroy.url(args, options),
+    method: 'delete',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:103
+* @route '/antispam/user-lists/{entry}'
+*/
+const destroyForm = (args: { entry: string | { id: string } } | [entry: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamUserListsController::destroy
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamUserListsController.php:103
+* @route '/antispam/user-lists/{entry}'
+*/
+destroyForm.delete = (args: { entry: string | { id: string } } | [entry: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
+
+const userLists = {
+    index: Object.assign(index, index),
+    store: Object.assign(store, store),
+    toggleBlocklistSync: Object.assign(toggleBlocklistSync, toggleBlocklistSync),
+    destroy: Object.assign(destroy, destroy),
+}
+
+export default userLists

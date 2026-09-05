@@ -13,14 +13,19 @@
         "bagart/ask-client": "@dev",
         "bagart/ask-client-redis": "@dev",
         "bagart/telegram-bot-lib": "@dev",
-        "bagart/telegram-bot-basic-lib": "@dev",
-        "bagart/telegram-bot-management": "@dev",
-        "bagart/telegram-bot-antispam-module": "@dev",
-        "bagart/telegram-bot-summarizer-module": "@dev",
-        "bagart/telegram-bot-nettools-module": "@dev",
-        "bagart/telegram-bot-tts-module": "@dev",
-        "bagart/telegram-bot-stt-module": "@dev",
-        "bagart/telegram-game-mafia": "@dev",
+        "bagart/telegram-bot-lib-basic": "@dev",
+        "bagart/telegram-platform-management": "@dev",
+        "bagart/tgbot-module-antispam": "@dev",
+        "bagart/tgbot-module-summarizer": "@dev",
+        "bagart/tgbot-module-nettools": "@dev",
+        "bagart/tgbot-module-tts": "@dev",
+        "bagart/tgbot-module-stt": "@dev",
+        "bagart/tgbot-game-mafia": "@dev",
+        "bagart/telegram-platform-module": "@dev",
+        "bagart/telegram-platform-menu": "@dev",
+        "bagart/tgbot-module-proxy": "@dev",
+        "bagart/telegram-platform-access": "@dev",
+        "bagart/telegram-platform-audit": "@dev",
         "darkaonline/l5-swagger": "^8.6",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.34",
@@ -48,35 +53,55 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-basic-lib.git"
+            "url": "https://github.com/bagart/telegram-bot-lib-basic.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-management.git"
+            "url": "https://github.com/bagart/telegram-platform-management.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-antispam-module.git"
+            "url": "https://github.com/bagart/tgbot-module-antispam.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-summarizer-module.git"
+            "url": "https://github.com/bagart/tgbot-module-summarizer.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-nettools-module.git"
+            "url": "https://github.com/bagart/tgbot-module-nettools.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-tts-module.git"
+            "url": "https://github.com/bagart/tgbot-module-tts.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-bot-stt-module.git"
+            "url": "https://github.com/bagart/tgbot-module-stt.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/bagart/telegram-game-mafia.git"
+            "url": "https://github.com/bagart/telegram-platform-audit.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/tgbot-game-mafia.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/telegram-platform-module.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/telegram-platform-menu.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/tgbot-module-proxy.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/telegram-platform-access.git"
         }
     ],
     "autoload": {
@@ -105,5 +130,10 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    }
 }

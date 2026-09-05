@@ -1,0 +1,124 @@
+---
+id: 18
+phase: P3
+est: 5h
+depends: [17]
+rfc: "§14.1, A13"
+status: done
+---
+
+# Task 18 — Mafia stub chunk (Phase 3, 5h)
+
+Rfc anchors: §14.1, A13, M3.2. Proves the chunk protocol end-to-end with a
+real consumer package.
+
+> **Two-repo note (v2.2):** this task spans `telegram-game-mafia` (own
+> git repo, own plan: `docs/tasks/mafia/todo.mafia.md`) and the host/menu side
+> (hub test rig). Sequence explicitly: (1) mafia-repo PR ships build setup +
+> stub + webApi handler behind its own suite; (2) host-side PR wires the rig +
+> E2E. A single cross-repo "PR" is impossible — record both PR links in this
+> task's acceptance evidence; coordinate with the mafia plan so the stub does
+> not collide with its game-logic milestones.
+>
+> **Implementation note (2026-08-30):** executed as a single workspace change
+> set across both repos (user reviews/commits per repo). Both sides of the
+> evidence below landed together.
+
+## Goal
+
+A minimal but honest game screen in `telegram-game-mafia` that mounts
+through the loader, uses every bridge capability, and degrades correctly.
+
+## Read first
+
+- Task 17's loader (installed behavior), §18 chunk skeleton, §14.1 features
+   vocabulary; mafia repo conventions (`docs/tasks/mafia/todo.mafia.md`
+   context, module layout rules from AGENTS.md).
+
+## Deliverables
+
+1. Build setup in the mafia module producing a content-hashed chunk bundle
+   (`app.<hash>.js`), publish tag `<module>-assets`, manifest updated to
+   `UiEntry::Chunk(url)` + declared `features: ['context','navigation',
+   'resources','haptics','fullscreen']`.
+2. Stub game screen: renders themed board placeholder from theme(); uses
+   bridge.fetch against a stub mafia webApi route (`POST 'session/join'`,
+   minRole member, chatScope Required); one `bridge.searchResources('chat')`
+   call rendering the result as a plain list (proves the D41 resources path
+   end-to-end); requests fullscreen via the granted `'fullscreen'` surface +
+   landscape orientation lock (degrades to text when the feature is absent);
+   back handler ownership demo (exits fullscreen first if active);
+   haptic on actions; graceful text when any granted feature is missing
+   (degraded in-chunk copy, not crash).
+3. WebApi handler in mafia module implementing routes()/handle() with
+   TgUiContext usage only (no session/DB identity reads — G9 exemplar).
+4. E2E/browser test wiring: mount through real loader in the hub test rig;
+   A13 checklist executed and archived (credentials isolation, navigation via
+   bridge only, degraded path by forcing feature removal).
+
+## Acceptance criteria
+
+- [x] A13 passes as written in §21.3.
+- [x] Doctor (task 22 smoke mode acceptable) reports no chunk findings:
+      asset present, hash-name consistent, protocol id ok — asserted
+      mechanically by `tests/browser/mafia-chunk.e2e.test.ts` (single hashed
+      bundle, handshake id/api/features) and the
+      `exposes a content-hashed chunk url` Pest case.
+- [x] Chunk size within NFR-5 soft budget: 2.97 kB (1.28 kB gzip) — no
+      warning possible.
+
+## Evidence (2026-08-30)
+
+- Mafia repo: `vite.mafia-chunk.config.mjs` + `tools/build-chunk.mjs`
+  (`npm run build`, vite resolved from the host node_modules — same
+  convention as the menu module) → `public/vendor/menu-modules/mafia/app.<hash>.js`
+  + `resources/chunk/build-manifest.json`; publish tag `mafia-assets`
+  (`MafiaServiceProvider::boot`). `MafiaUi` (chunk manifest, UiKind::Game)
+  and `MafiaUiHandler` (POST session/join, Member, ChatScope::Required,
+  TgUiContext-only — G9 exemplar) registered via
+  `MafiaModule::register()` (+ capability `Ui`, `requiresModules: menu`).
+  Stub screen `resources/chunk/main.ts`: themed board, bridge.fetch join,
+  searchResources('chat') list, fullscreen toggle + landscape degrade,
+  exclusive back handler (fullscreen first), haptics, per-feature degraded
+  copy. Mafia suite: 104 passed / 1002 assertions.
+- §14.1 v2.4 seam fix (host side, documented in menu.md §14.1): the chunk
+  cannot author the bridge — `chunkLoader.loadChunk` now takes
+  `ChunkLoaderDeps {mountEl, createBridge}` and `ready()` RETURNS the frozen
+  host bridge; `ChunkRuntime` mounts into the always-rendered viewport and
+  `bridge-mock.ts` mirrors the contract. `App.tsx` passes the full host
+  feature vocabulary (the loader intersects with the chunk handshake).
+- Host E2E: `tests/browser/mafia-chunk.e2e.test.ts` (real loader × real
+  bundle: handshake, frozen bridge, fetch/resources/haptics, degraded paths,
+  unknown-token rejection) and `tests/Feature/MafiaChunkE2ETest.php` (real
+  MafiaUi/MafiaUiHandler through the real dispatcher: chat-scope 403, join
+  200, module_disabled 404, hashed-asset presence).
+
+## Verification
+
+```
+# mafia repo (its own npm setup, per the two-repo note):
+cd misc/BAGArt/telegram-bot-mafia-module && npm run build
+# host side:
+php artisan test --compact --filter='Mafia|ChunkE2E'
+```
+
+## Guardrails
+
+The stub must not grow into game logic — that lives in the mafia module's own
+plan; this task proves transport only.
+
+## Engine alignment notes
+
+- **Module enablement gates chunk availability:** the mafia module's
+  `UiEntry::Chunk(url)` manifest is only served by the hub when the module is
+  enabled via `ModuleActivationService` (engine). The hub's assembler (task 09)
+  checks activation state before including the module's `UiEntry` in the
+  bootstrap response. A disabled module never yields a chunk entry.
+- **Dependency chain validation:** the engine's `EffectiveDependencyResolver`
+  verifies that mafia's `requiresModules` dependencies are satisfied before
+  activation. If dependencies are unmet, the chunk entry is absent from the
+  bootstrap — the hub never attempts to load a chunk for a module whose
+  prerequisites are missing.
+- **Engine does NOT load chunks:** chunk loading (script injection, lifecycle)
+  is entirely hub-side (task 17). The engine's role is limited to activation
+  gating; it never touches `<script>` elements or the `TgMenuBridge`.

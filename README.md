@@ -1,7 +1,7 @@
 #todo
--telegram-bot-management - Postamt
+-telegram-platform-management - Postamt
 -telegram-bot-lib - Postbote
--telegram-bot-basic lib - PostboteLaravel
+-telegram-bot-lib-basic - PostboteLaravel
 # Telegram Bot Manager
 
 ## Table of Contents
@@ -55,8 +55,8 @@ git clone git@github.com:bagart/async-kernel.git php-async-kernel-lib
 git clone git@github.com:bagart/ask-client.git php-async-kernel-client
 git clone git@github.com:bagart/ask-client-redis.git php-async-kernel-client-redis
 git clone git@github.com:bagart/telegram-bot-lib.git
-git clone git@github.com:bagart/telegram-bot-basic-lib.git
-git clone git@github.com:bagart/telegram-bot-management.git
+git clone git@github.com:bagart/telegram-bot-lib-basic.git
+git clone git@github.com:bagart/telegram-platform-management.git
 ```
 
 Then run setup — it auto-detects local libs and configures Composer path repositories:
@@ -159,8 +159,8 @@ usage/configuration · `3` missing tool · `4` infrastructure failure ·
 
 ### Git Hooks
 
-Hooks ship with the `bagart/telegram-devops-baseline` package; `./cmd/dev/setup`
-activates them via `core.hooksPath=vendor/bagart/telegram-devops-baseline/hooks`:
+Hooks ship with the `bagart/telegram-platform-devops-baseline` package; `./cmd/dev/setup`
+activates them via `core.hooksPath=vendor/bagart/telegram-platform-devops-baseline/hooks`:
 `pre-commit` (LF + secrets + Pint on staged files), `commit-msg`
 (conventional prefixes: `feat fix refactor perf test docs build ci chore
 security`), `pre-push` (delegates to `cmd/git/prepush`).

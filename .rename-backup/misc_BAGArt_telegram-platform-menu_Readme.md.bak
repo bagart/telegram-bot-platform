@@ -1,0 +1,34 @@
+# bagart/telegram-bot-menu-module
+
+Standalone Telegram Mini App "menu" module (`TgModuleContract` plugin) for the
+telegram-bot-platform: SPA shell + Web API + chat registry + roles/grants +
+resource registry, per RFC `docs/tasks/menu.md` (v2.7).
+
+## CONTRACT FREEZE (D40 — Phase 0.5)
+
+The cross-boundary surface is **frozen** as of task 04 and guarded by golden
+fixtures (`tests/Fixtures/Wire/`):
+
+- PHP contracts namespace `BAGArt\TelegramBotMenu\Contracts\` (incl. the
+  `SettingsWriterContract` draft; implementation lands in task 05)
+- DTO/enum namespaces `Manifest\` and `Support\` (`TgUiContext`, refs,
+  `Envelope`, resource DTOs, `TgWebApiRoute`)
+- Wire formats §27.6: HTTP envelope, session bearer key set, `startapp` ctx
+  signing, ETag triple (`fingerprint:epoch:permHash`, D59), version token,
+  cursor
+- Chunk surface `ts/bridge.d.ts` (api: 1) incl. feature token union and
+  `searchResources()` (D41/D48); dev harness `ts/bridge-mock.ts`
+
+Any signature or wire-format change from here on requires an explicit RFC
+delta PR referencing D40 and must update the golden fixtures in the same PR.
+CI runs this gate as the `contract-freeze` job (`.github/workflows/tests.yml`
+→ `vendor/bin/pest --testsuite menu-unit --filter=Wire`).
+
+## Development
+
+- Dev mode: PSR-4 mapped from the host root composer.json into `src/`;
+  provider listed in host `bootstrap/providers.php`; module self-registers
+  into `config('telegram.modules_providers')`.
+- Test: `composer test` (or from host root: `vendor/bin/pest --testsuite menu-unit`).
+- Prod mode wiring (composer.prod.json overlay) is intentionally deferred
+  until this package is published to its VCS home.

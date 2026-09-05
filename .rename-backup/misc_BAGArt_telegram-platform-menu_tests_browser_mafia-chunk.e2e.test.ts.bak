@@ -1,0 +1,279 @@
+/**
+ * Mafia stub chunk E2E through the REAL loader (menu module task 18 / §14.1
+ * / A13). Runnable with `node --test tests/browser/` — no browser, no new
+ * deps: a micro-DOM shim stands in for `document`/`window`, and the built
+ * `app.<hash>.js` bundle from telegram-game-mafia is executed in a vm
+ * context when the loader's injected `<script>` fires onload.
+ *
+ * Proves: handshake capture/clear, id + api verification, feature
+ * negotiation (granted subset, degraded copy, unknown-token rejection),
+ * bridge-only access (fetch / searchResources / haptic / fullscreen), and
+ * the ready()-returns-bridge seam.
+ */
+import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { before, describe, it } from 'node:test';
+import vm from 'node:vm';
+import { ChunkLoadError, HOST_SUPPORTED_FEATURES, loadChunk } from '../../ts/tgapp/chunks/chunkLoader.ts';
+import type { TgMenuBridge, TgMenuFeatureToken } from '../../ts/bridge.d.ts';
+
+const moduleRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
+const mafiaPublic = join(moduleRoot, '../telegram-game-mafia/public/vendor/menu-modules/mafia');
+
+interface StubNode {
+    className: string;
+    textContent: string;
+    children: StubNode[];
+    attributes: Record<string, string>;
+    listeners: Map<string, (() => void)[]>;
+    dataset: Record<string, string>;
+    src: string;
+    onload: (() => void) | null;
+    onerror: (() => void) | null;
+    appendChild(child: StubNode): StubNode;
+    setAttribute(name: string, value: string): void;
+    addEventListener(type: string, cb: () => void): void;
+    click(): void;
+    remove(): void;
+    textAll(): string;
+}
+
+function stubNode(): StubNode {
+    const node: StubNode = {
+        className: '',
+        textContent: '',
+        children: [],
+        attributes: {},
+        listeners: new Map(),
+        dataset: {},
+        src: '',
+        onload: null,
+        onerror: null,
+        appendChild(child) {
+            node.children.push(child);
+
+            return child;
+        },
+        setAttribute(name, value) {
+            node.attributes[name] = value;
+        },
+        addEventListener(type, cb) {
+            const list = node.listeners.get(type) ?? [];
+
+            list.push(cb);
+            node.listeners.set(type, list);
+        },
+        click() {
+            for (const cb of node.listeners.get('click') ?? []) {
+                cb();
+            }
+        },
+        remove() {
+            // Detach is a no-op in the shim.
+        },
+        textAll() {
+            return `${node.textContent} ${node.children.map((child) => child.textAll()).join(' ')}`;
+        },
+    };
+
+    return node;
+}
+
+interface BridgeCalls {
+    fetch: string[];
+    resources: string[];
+    haptic: string[];
+    navigations: string[];
+    fullscreen: string[];
+}
+
+function recordingBridge(features: readonly TgMenuFeatureToken[], calls: BridgeCalls): TgMenuBridge {
+    const granted = (token: TgMenuFeatureToken): boolean => features.includes(token);
+
+    return {
+        version: 1,
+        features,
+        session: { botId: '7001', userId: 42, locale: 'en' },
+        chat: { id: -100123, title: 'Town Square' },
+
+        fetch: async (path) => {
+            calls.fetch.push(path);
+
+            return { message: 'Stub table joined (bot 7001)' };
+        },
+
+        searchResources: granted('resources')
+            ? (async (domain: string) => {
+                calls.resources.push(domain);
+
+                return { items: [{ id: 'c1', label: 'Town Square' }, { id: 'c2', label: 'Mafia Club' }] };
+            })
+            : (undefined as never),
+
+        navigate: (to) => {
+            calls.navigations.push(typeof to === 'string' ? to : `chat:${to.chat}`);
+        },
+        close: () => {
+            calls.navigations.push('close');
+        },
+
+        haptic: (style) => {
+            calls.haptic.push(style);
+        },
+        setBackHandler: () => undefined,
+        theme: () => ({ bg_color: '#17212b', text_color: '#ffffff' }),
+
+        requestFullscreen: granted('fullscreen')
+            ? (async () => {
+                calls.fullscreen.push('enter');
+            })
+            : (undefined as never),
+        exitFullscreen: granted('fullscreen')
+            ? (async () => {
+                calls.fullscreen.push('exit');
+            })
+            : (undefined as never),
+    };
+}
+
+interface MountOutcome {
+    readonly features: readonly TgMenuFeatureToken[];
+    readonly bridge: TgMenuBridge;
+    readonly calls: BridgeCalls;
+    readonly mountEl: StubNode;
+}
+
+/** Runs the real loader against the real bundle in a fresh shim world. */
+function mountMafia(hostFeatures: readonly TgMenuFeatureToken[], bundleSource: string): Promise<MountOutcome> {
+    const head = stubNode();
+    const calls: BridgeCalls = { fetch: [], resources: [], haptic: [], navigations: [], fullscreen: [] };
+    const mountEl = stubNode();
+    const documentShim = { head, createElement: () => stubNode() };
+    const windowShim: Record<string, unknown> = { setTimeout, clearTimeout };
+    const context = vm.createContext({ document: documentShim, window: windowShim });
+
+    // The loader resolves document/window from its own globals — install the
+    // shims there too, and restore the (absent) originals afterwards.
+    const globalTarget = globalThis as unknown as Record<string, unknown>;
+    const savedDocument = globalTarget.document;
+    const savedWindow = globalTarget.window;
+
+    globalTarget.document = documentShim;
+    globalTarget.window = windowShim;
+
+    const pending = loadChunk(
+        { moduleId: 'mafia', url: '/vendor/menu-modules/mafia/app.test.js' },
+        hostFeatures,
+        {
+            mountEl: mountEl as unknown as HTMLElement,
+            createBridge: (granted) => recordingBridge(granted, calls),
+        },
+    );
+
+    const script = head.children.at(-1);
+
+    try {
+        assert.ok(script, 'loader must inject a script element');
+        vm.runInContext(bundleSource, context);
+        script.onload?.();
+    } finally {
+        globalTarget.document = savedDocument;
+        globalTarget.window = savedWindow;
+    }
+
+    return pending.then((result) => ({ ...result, calls, mountEl }));
+}
+
+function flushMicrotasks(): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(resolve, 10);
+    });
+}
+
+let bundle = '';
+
+before(() => {
+    const files = readdirSync(mafiaPublic).filter((name) => /^app\.[A-Za-z0-9_-]+\.js$/.test(name));
+
+    assert.equal(files.length, 1, `expected one hashed mafia bundle in ${mafiaPublic}`);
+    bundle = readFileSync(join(mafiaPublic, files[0]), 'utf8');
+});
+
+describe('mafia stub chunk — real loader E2E (A13)', () => {
+    it('declares a valid handshake: id mafia, api 1, subset of the host vocabulary', () => {
+        const head = stubNode();
+        const windowShim: Record<string, unknown> = {};
+        const context = vm.createContext({
+            document: { head, createElement: () => stubNode() },
+            window: windowShim,
+        });
+
+        vm.runInContext(bundle, context);
+
+        const handshake = windowShim.__TG_MENU_CHUNK__ as { id: string; api: number; features: string[] };
+
+        assert.deepEqual(
+            [...handshake.features].sort(),
+            ['context', 'fullscreen', 'haptics', 'navigation', 'resources'],
+        );
+        assert.equal(handshake.id, 'mafia');
+        assert.equal(handshake.api, 1);
+        assert.equal(typeof (windowShim.TgMenu as { mount: unknown }).mount, 'function');
+    });
+
+    it('mounts through the real loader: frozen host bridge granted, board rendered into the viewport', async () => {
+        const outcome = await mountMafia(['context', 'navigation', 'resources', 'haptics', 'fullscreen'], bundle);
+
+        assert.deepEqual(
+            [...outcome.features].sort(),
+            ['context', 'fullscreen', 'haptics', 'navigation', 'resources'],
+        );
+        assert.ok(Object.isFrozen(outcome.bridge), 'bridge must be frozen before handoff');
+        assert.match(outcome.mountEl.textAll(), /Mafia — stub game screen/);
+        assert.match(outcome.mountEl.textAll(), /Town square \(placeholder board\)/);
+    });
+
+    it('joins via bridge.fetch, renders the chat resource list (D41) and haptics success', async () => {
+        const outcome = await mountMafia(['context', 'navigation', 'resources', 'haptics', 'fullscreen'], bundle);
+
+        await flushMicrotasks();
+
+        assert.deepEqual(outcome.calls.fetch, ['/session/join']);
+        assert.deepEqual(outcome.calls.resources, ['chat']);
+        assert.ok(outcome.calls.haptic.includes('success'), 'join success fires a success haptic');
+    });
+
+    it('degrades to in-chunk copy when features are absent — no crash, no gated calls', async () => {
+        // Older chunk build: handshake declares only context+navigation; the
+        // loader grants exactly that subset and the chunk degrades in place.
+        const olderChunk = bundle.replaceAll('`context`,`navigation`,`resources`,`haptics`,`fullscreen`', '`context`,`navigation`');
+
+        assert.notEqual(olderChunk, bundle, 'tamper must alter the handshake for this case');
+
+        const outcome = await mountMafia(HOST_SUPPORTED_FEATURES, olderChunk);
+
+        await flushMicrotasks();
+
+        assert.deepEqual([...outcome.features], ['context', 'navigation']);
+        assert.deepEqual(outcome.calls.resources, [], 'searchResources must not be called without the token');
+        assert.deepEqual(outcome.calls.fetch, ['/session/join'], 'fetch is unconditional surface');
+        // Granted ⊆ declared always, so the in-chunk degraded banner renders
+        // only for the fallback-bridge path; what this case proves is the
+        // per-surface degradation copy for every gated capability.
+        assert.match(outcome.mountEl.textAll(), /Fullscreen unavailable/);
+        assert.match(outcome.mountEl.textAll(), /Chat search unavailable/);
+    });
+
+    it('rejects a chunk declaring unknown feature tokens (degraded card path, never a white screen)', async () => {
+        const tampered = bundle.replaceAll('`fullscreen`', '`hyperspace`');
+
+        assert.notEqual(tampered, bundle, 'tamper must alter the bundle for this case');
+
+        await assert.rejects(
+            mountMafia(HOST_SUPPORTED_FEATURES, tampered),
+            (error: unknown) => error instanceof ChunkLoadError && error.code === 'unknown-features',
+        );
+    });
+});

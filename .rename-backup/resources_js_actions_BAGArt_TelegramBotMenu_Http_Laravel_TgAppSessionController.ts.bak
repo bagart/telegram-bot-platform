@@ -1,0 +1,60 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionController::store
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppSessionController.php:36
+* @route '/tgapp/api/v1/session'
+*/
+export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+store.definition = {
+    methods: ["post"],
+    url: '/tgapp/api/v1/session',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionController::store
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppSessionController.php:36
+* @route '/tgapp/api/v1/session'
+*/
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionController::store
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppSessionController.php:36
+* @route '/tgapp/api/v1/session'
+*/
+store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionController::store
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppSessionController.php:36
+* @route '/tgapp/api/v1/session'
+*/
+const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionController::store
+* @see misc/BAGArt/telegram-bot-menu-module/src/Http/Laravel/TgAppSessionController.php:36
+* @route '/tgapp/api/v1/session'
+*/
+storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+const TgAppSessionController = { store }
+
+export default TgAppSessionController

@@ -28,7 +28,7 @@ Route::prefix('tg')->group(function () {
 });
 ```
 
-**Routes are loaded from the main app, NOT from library service providers.** `telegram-bot-management/routes/web.php` is essentially empty. If you add a webhook route, add it to the host app's `routes/web.php`.
+**Routes are loaded from the main app, NOT from library service providers.** `telegram-platform-management/routes/web.php` is essentially empty. If you add a webhook route, add it to the host app's `routes/web.php`.
 
 > ⚠️ The older `AGENTS.md` "Webhook Endpoints" block listed `TgWebhookExample` and `POST /tg/{token}` / `POST /tg/example/{token}`. Those classes/routes do not exist. Trust the definitions above.
 

@@ -1,0 +1,131 @@
+---
+id: 06
+phase: P1
+est: 9h
+depends: [04]
+rfc: "§11, §13.5, §27.8"
+status: done
+---
+
+# Task 06 — Auth: initData → session (Phase 1, 9h)
+
+RFC anchors: §11 (auth chain + edge cases), §27.6 (bearer payload format),
+§13.1 session endpoint, §13.5 throttles, D21/D32.
+
+## Goal
+
+`POST /tgapp/api/v1/session` exchanges Telegram initData for a 12 h encrypted
+bearer; middleware guards `/tgapp/api/v1/*` and resolves `TgUiContext`'s
+identity half.
+
+## Read first
+
+- `menu.md` §11 verbatim (validation steps, freshness windows,
+  edge-case table, revocation ladder), §27.6 items 2–3, §27.8 throttle
+  buckets, §27.9 dispatch ladder steps 1–3.
+
+## Deliverables
+
+1. `Auth\InitDataValidator` — pure PHP: parse initData; recompute
+   `secret = HMAC_SHA256(bot_token, "WebAppData")`,
+   `hash = HMAC_SHA256(initData, secret)`; constant-time compare;
+   freshness `auth_date ≥ now−24h` and `≤ now+120s`; reject missing user /
+   present-but-invalid desktop `signature`. Official Telegram test vectors +
+   negative matrix (tampered hash, stale, future, foreign-bot token, missing
+   user, bad signature) as unit tests.
+2. `Auth\SessionIssuer` — mints `Crypt::encryptString` bearer with EXACT key
+   set from §27.6 item 2 (`bot, uid, name, photo, locale, iat, ep, exp`),
+   `exp = min(now+12h, auth_date+24h)`, `ep = tg.app.sessionEpoch.{bot}`.
+   Verify signed `startappCtx` per D32 algorithm from golden fixtures (task
+   04); bind chatId as navigation hint only. Session response `hints.bots`
+   block (§13.2) reads `tg_menu_bot_settings` NULL-safely — row/table may be
+   absent pre-install ⇒ username/appSlug returned as null; NEVER call getMe
+   on this path (F7 discipline extends to session: no auxiliary TG calls on
+   auth hot path either).
+3. `Console\SessionsRevokeCommand` (`tg:menu:sessions:revoke {bot}`) → epoch
+   INCR.
+4. `Http\Laravel\TgAppSessionMiddleware` — decrypt bearer on every
+   `/tgapp/api/v1/*`; bot binding (IDOR guard); epoch compare (mismatch ⇒ 401,
+   SPA re-handshakes); attach attributes + resolved refs onto the request so
+   the context middleware (task 09, §27.9 step 3) assembles `TgUiContext`;
+   echo `X-TgApp-Request-Id` — client-supplied ids echoed only when matching
+   `^[A-Za-z0-9._-]{1,64}$`, otherwise replaced by a server-generated id
+   (log-injection safety, §11). First check in the pipeline (§27.9 step 0):
+   `config('menu.maintenance')` true ⇒ 503 `degraded` envelope before any
+   session work (D46) — asserted by test with the flag on.
+5. Controller endpoint wiring in host `../../../../../routes/web.php` group (session route +
+   limiter registration in AppServiceProvider reading `config('menu.throttle.*')`)
+   — ALL FOUR named buckets from §27.8, not just the session one:
+   `tgapp-session` keyed by client IP + sha256-prefix of initData (pre-auth),
+   `tgapp-read` / `tgapp-write` / `tgapp-api` keyed by authenticated tg uid.
+   Later tasks (09/11) only reference these buckets — nobody re-registers.
+6. Tests: `InitDataValidatorTest`, `SessionTokenTest` (roundtrip/expiry/
+    foreign-bot/APP_KEY rotation/epoch bump), feature test for the endpoint
+    incl. throttle and edge cases from §11 table (photo_url scheme check is a
+    frontend/CSP concern — server only validates https prefix if present;
+    requestId sanitization matrix: valid id echoed, junk regenerated), plus a
+    bucket matrix test asserting all four limiters exist with configured
+    limits and correct keys.
+
+## Acceptance criteria
+
+- [ ] Golden fixture vectors from task 04 pass through the real validator.
+- [ ] Session cannot outlive initData validity (boundary tests at both caps).
+- [ ] Epoch bump invalidates outstanding tokens immediately (401 → client
+      re-handshake path asserted).
+- [ ] Throttle returns 429 with Retry-After after limit.
+
+## Verification
+
+```
+php artisan test --compact --filter='InitData|Session'
+```
+
+## Guardrails
+
+Secrets never logged; `hash_equals` everywhere; §11 honest-model notes are
+contract comments where relevant (D21).
+
+## Completion notes (2026-08-26)
+
+- All deliverables landed: `Auth\InitDataValidator` (pure PHP, INV-4),
+  `Auth\SessionIssuer` (+ `BearerPayload`/`TgIssuedSession`/`TgInitDataUser`
+  DTOs), `Auth\StartappCtxVerifier` (D32), `Http\Laravel` adapters
+  (`CryptBearerEncrypter`, `CacheSessionEpochStore`, `TgAppSessionMiddleware`,
+  `TgAppSessionController`), `Console\SessionsRevokeCommand`, host route
+  block + four named throttle buckets in AppServiceProvider.
+- INV-4 purity kept: Auth core receives encryption and epoch storage through
+  menu-package contracts (`TgBearerEncrypterContract`,
+  `TgSessionEpochStoreContract`); Laravel types live only in Http/Laravel.
+- Ladder fidelity (§27.9): the middleware alias supports two modes — `gate`
+  (step 0 maintenance + request-id bookkeeping) and `auth` (bearer decrypt,
+  bot binding, epoch compare). Host stacks run `tgapp.session:gate` →
+  `throttle:*` → `tgapp.session:auth` so maintenance precedes throttling
+  which precedes bearer work. Request-id attribute is reused across passes.
+- Telegram algorithm notes verified against core.telegram.org/bots/webapps:
+  bot-side HMAC keeps the desktop `signature` field INSIDE the check-string;
+  third-party signature is base64url Ed25519 over "{bot_id}:WebAppData\n" +
+  fields minus hash/signature; production pubkey
+  `e7bf03a2…caed242d` shipped as `menu.session.thirdparty_public_key`
+  default (empty ⇒ fail-open tolerance documented in §11). The docs carry no
+  concrete HMAC vector, so the unit suite pins a self-computed golden vector
+  (WireFixtures-style) plus an independent builder cross-check.
+- Config delta: `session.thirdparty_public_key` added to the §27.8 tree
+  (additive; needed to make desktop-signature verification configurable per
+  environment).
+- Multi-bot session minting: initData does not name its bot; candidates are
+  tried in bot_id order, first verifying token wins. Tokens never logged.
+- Acceptance evidence: golden ctx vectors pass the real verifier; boundary
+  tests at both exp caps (12 h / auth_date+24 h); epoch bump → immediate 401
+  then re-mint; APP_KEY rotation → 401 (container+facade re-resolve);
+  throttle 429 with Retry-After; maintenance flag → 503 degraded before any
+  session work; requestId sanitize matrix. Suites: menu-unit + menu-feature
+  91 passed (266 assertions); combined lib+menu+management run 704 passed.
+- Pre-existing repairs made to keep tooling runnable: phpstan.neon.dist /
+  phpstan-baseline.neon paths updated for the telegram-bot-mafia-module →
+  telegram-game-mafia directory rename (all referenced files verified
+  present). Remaining known-red (untouched, out of scope): host phpstan
+  reports Route::inertia() stub gaps + routes/console.php undefined var;
+  deps/check flags proxy-module layout, game-mafia composer-name/suite and a
+  stale composer.prod.lock.
+

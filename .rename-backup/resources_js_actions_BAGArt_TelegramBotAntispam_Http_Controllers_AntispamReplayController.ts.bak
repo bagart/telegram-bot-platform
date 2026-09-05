@@ -1,0 +1,78 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::compare
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+export const compare = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: compare.url(args, options),
+    method: 'post',
+})
+
+compare.definition = {
+    methods: ["post"],
+    url: '/antispam/violations/{violationId}/replay',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::compare
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+compare.url = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { violationId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            violationId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        violationId: args.violationId,
+    }
+
+    return compare.definition.url
+            .replace('{violationId}', parsedArgs.violationId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::compare
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+compare.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: compare.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::compare
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+const compareForm = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: compare.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamReplayController::compare
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamReplayController.php:22
+* @route '/antispam/violations/{violationId}/replay'
+*/
+compareForm.post = (args: { violationId: string | number } | [violationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: compare.url(args, options),
+    method: 'post',
+})
+
+compare.form = compareForm
+
+const AntispamReplayController = { compare }
+
+export default AntispamReplayController

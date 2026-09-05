@@ -1516,643 +1516,643 @@ parameters:
 			message: '#^Using nullsafe method call on non\-nullable type BAGArt\\AsyncKernel\\Wrappers\\ASKLogWrapper\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 3
-			path: misc/BAGArt/telegram-bot-antispam-module/src/AntispamPipeline.php
+			path: misc/BAGArt/tgbot-module-antispam/src/AntispamPipeline.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>riskVersion" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/AntispamPipeline.php
+			path: misc/BAGArt/tgbot-module-antispam/src/AntispamPipeline.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Appeals/AppealManager.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Appeals/AppealManager.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberTypeDTO\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Captcha/CaptchaService.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Captcha/CaptchaService.php
 
 		-
 			message: '#^Using nullsafe method call on non\-nullable type BAGArt\\AsyncKernel\\Wrappers\\ASKLogWrapper\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Captcha/CaptchaService.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Captcha/CaptchaService.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotAntispam\\Counters\\MemoryBatchCounter\:\:\$graceSeconds is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Counters/MemoryBatchCounter.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Counters/MemoryBatchCounter.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Counters/MessageFingerprint.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Counters/MessageFingerprint.php
 
 		-
 			message: '#^Constant BAGArt\\TelegramBotAntispam\\Counters\\RedisBatchCounter\:\:DIMENSIONS \(array\<string, array\<int\>\>\) does not accept value array\<string, list\<int\|list\<int\>\>\>\.$#'
 			identifier: classConstant.value
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Counters/RedisBatchCounter.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Counters/RedisBatchCounter.php
 
 		-
 			message: '#^PHPDoc type for property BAGArt\\TelegramBotAntispam\\Counters\\RedisBatchCounter\:\:\$connectionResolver with type \(callable\)\|null is not subtype of native type Closure\|null\.$#'
 			identifier: property.phpDocType
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Counters/RedisBatchCounter.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Counters/RedisBatchCounter.php
 
 		-
 			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Counters/RedisBatchCounter.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Counters/RedisBatchCounter.php
 
 		-
 			message: '#^Class BAGArt\\TelegramBotAntispam\\Rules\\AntiSpamRule referenced with incorrect case\: BAGArt\\TelegramBotAntispam\\Rules\\AntispamRule\.$#'
 			identifier: class.nameCase
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Engine/RuleEngine.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Engine/RuleEngine.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAppealsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamAppealsController.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\:\:\$violation\.$#'
 			identifier: property.notFound
 			count: 8
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAppealsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamAppealsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{botId\: string, chatId\: int, enabled\: bool, settings\: array\<string, mixed\>, rulesetVersion\: string\}, Closure\(BAGArt\\TelegramBotManagement\\Models\\TgModuleEnablement\)\: array\{botId\: string, chatId\: int, enabled\: bool, settings\: array\<string, mixed\>, rulesetVersion\: string\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamChatsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamChatsController.php
 
 		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamStatsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamStatsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{date\: mixed, detections\: int, violations\: int\}, Closure\(BAGArt\\TelegramBotAntispam\\Models\\AntispamStat\)\: array\{date\: mixed, detections\: int, violations\: int\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamStatsController.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotAntispam\\Models\\AntispamStrikeEvent\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<int, stdClass\>\:\:modelKeys\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Cannot call method refresh\(\) on stdClass\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Match expression does not handle remaining value\: string$#'
 			identifier: match.unhandled
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Pagination\\AbstractPaginator\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:through\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: string, botId\: string, chatId\: int, userId\: int, messageId\: int, messageText\: string, matchedRules\: array, groupBreakdown\: array, score\: int, enforcementAction\: string, status\: string, evaluationSnapshot\: array, riskContext\: array\|null, createdAt\: string\}, Closure\(BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation\)\: array\{id\: string, botId\: string, chatId\: int, userId\: int, messageId\: int, messageText\: string, matchedRules\: array, groupBreakdown\: array, score\: int, enforcementAction\: string, status\: string, evaluationSnapshot\: array, riskContext\: array\|null, createdAt\: string\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{type\: ''strike'', id\: string, chatId\: int, consequence\: string, active\: bool, expiresAt\: string\|null, violationId\: string, at\: mixed\}, Closure\(BAGArt\\TelegramBotAntispam\\Models\\AntispamStrikeEvent\)\: array\{type\: ''strike'', id\: string, chatId\: int, consequence\: string, active\: bool, expiresAt\: string\|null, violationId\: string, at\: mixed\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{type\: ''violation'', id\: string, chatId\: int, messageId\: int, score\: int, enforcementAction\: string, status\: string, rules\: list, at\: mixed\}, Closure\(BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation\)\: array\{type\: ''violation'', id\: string, chatId\: int, messageId\: int, score\: int, enforcementAction\: string, status\: string, rules\: list, at\: mixed\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Parameter \#1 \$violation of method BAGArt\\TelegramBotAntispam\\Http\\Controllers\\AntispamViolationsController\:\:act\(\) expects BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation, stdClass given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamViolationsController.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamViolationsController.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\:\:\$violation\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Moderation/AntispamModerationService.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Moderation/AntispamModerationService.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\:\:\$decided_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
 			identifier: assign.propertyType
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Moderation/AntispamModerationService.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Moderation/AntispamModerationService.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/AntispamStatusCommand.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/AntispamStatusCommand.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/AppealCommand.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/AppealCommand.php
 
 		-
 			message: '#^Access to constant MODULE_ID on an unknown class BAGArt\\TelegramBotAntispam\\Processors\\AntispamPipeline\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/CaptchaCallbackProcessor.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/CaptchaCallbackProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberTypeDTO\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/CaptchaJoinProcessor.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/CaptchaJoinProcessor.php
 
 		-
 			message: '#^Access to constant MODULE_ID on an unknown class BAGArt\\TelegramBotAntispam\\Processors\\AntispamPipeline\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/CaptchaJoinProcessor.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/CaptchaJoinProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between false and true will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Processors/MessageNormalizer.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Processors/MessageNormalizer.php
 
 		-
 			message: '#^Comparison operation "\<\=" between \-1\|0 and 0 is always true\.$#'
 			identifier: smallerOrEqual.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Risk/RiskContextBuilder.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Risk/RiskContextBuilder.php
 
 		-
 			message: '#^Access to constant Medium on an unknown class BAGArt\\TelegramBotAntispam\\Rules\\Behavior\\DetectionSeverity\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Rules/Behavior/ForwardFloodRule.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Rules/Behavior/ForwardFloodRule.php
 
 		-
 			message: '#^Offset 0 on array\{list\<string\>\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Rules/Content/PhoneEmailRule.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Rules/Content/PhoneEmailRule.php
 
 		-
 			message: '#^Parameter \$messageRateRule of method BAGArt\\TelegramBotAntispam\\Rules\\RuleRegistry\:\:__construct\(\) has invalid type BAGArt\\TelegramBotAntispam\\Rules\\MessageRateRule\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Rules/RuleRegistry.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Rules/RuleRegistry.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotAntispam\\Models\\AntispamStrikeEvent\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Strike/StrikeManager.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Strike/StrikeManager.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotAntispam\\Models\\AntispamUserStrikes\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Strike/StrikeManager.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Strike/StrikeManager.php
 
 		-
 			message: '#^Cannot call method save\(\) on stdClass\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Strike/StrikeManager.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Strike/StrikeManager.php
 
 		-
 			message: '#^Parameter \#1 \$activeStrikes of method BAGArt\\TelegramBotAntispam\\Strike\\EscalationPolicy\:\:calculate\(\) expects iterable\<array\{created_at\?\: DateTimeInterface\|string\|null\}\>, Illuminate\\Support\\Collection\<int, stdClass\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Strike/StrikeManager.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Strike/StrikeManager.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/src/Violation/ViolationRecorder.php
+			path: misc/BAGArt/tgbot-module-antispam/src/Violation/ViolationRecorder.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AdminHelpers.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AdminHelpers.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AdminHelpers.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AdminHelpers.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AdminHelpers.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AdminHelpers.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AdminHelpers.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AdminHelpers.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AdminPagesRenderTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AdminPagesRenderTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$dtos\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 7
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
 
 		-
 			message: '#^Function antispamPendingAppeal\(\) should return array\{string, BAGArt\\TelegramBotAntispam\\Models\\AntispamAppeal\} but returns array\{string, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model\}\.$#'
 			identifier: return.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/AppealsDecisionTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:from\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ChatSettingsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ChatSettingsTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:put\(\)\.$#'
 			identifier: method.notFound
 			count: 6
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ChatSettingsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ChatSettingsTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/DryRunTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/DryRunTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ReplayTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ReplayTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:put\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ReplayTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ReplayTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:delete\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/RulesCrudTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/RulesCrudTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:patch\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/RulesCrudTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/RulesCrudTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:post\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/RulesCrudTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/RulesCrudTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
 			identifier: method.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/StatsExportTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/StatsExportTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/StatsExportTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/StatsExportTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:delete\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/UserListsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/UserListsTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:post\(\)\.$#'
 			identifier: method.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/UserListsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/UserListsTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ViolationModerationTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ViolationModerationTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ViolationModerationTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ViolationModerationTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ViolationModerationTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ViolationModerationTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 9
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ViolationModerationTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ViolationModerationTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
 			identifier: method.notFound
 			count: 6
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/Admin/ViolationsListTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/Admin/ViolationsListTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$dtos\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Argument of an invalid type BAGArt\\TelegramBot\\Contracts\\Processing\\Processors\\TgTypeDTOProcessorContract supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Parameter \#1 \$value of function expect contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamCommandsE2ETest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamCommandsE2ETest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamFullCycleTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamFullCycleTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:blacklisted\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamFullCycleTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamFullCycleTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamFullCycleTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamFullCycleTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:whitelisted\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamFullCycleTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamFullCycleTest.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AntispamFullCycleTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AntispamFullCycleTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$dtos\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Argument of an invalid type BAGArt\\TelegramBot\\Contracts\\Processing\\Processors\\TgTypeDTOProcessorContract supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forScope\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Parameter \#1 \$value of function expect contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/AppealsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/AppealsTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DbRuleOverridesTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DbRuleOverridesTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DbRuleOverridesTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DbRuleOverridesTest.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DbRuleOverridesTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DbRuleOverridesTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:seed\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DefaultsSeederTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DefaultsSeederTest.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DryRunReplayTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DryRunReplayTest.php
 
 		-
 			message: '#^Parameter \#1 \$violation of method BAGArt\\TelegramBotAntispam\\Replay\\ReplayEvaluator\:\:replay\(\) expects BAGArt\\TelegramBotAntispam\\Models\\AntispamViolation, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/DryRunReplayTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/DryRunReplayTest.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\Contracts\\Outbound\\TgSenderContract\:\:\$sent\.$#'
 			identifier: property.notFound
 			count: 8
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/ModerationActionsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/ModerationActionsTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Factories\\Factory\:\:forScope\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-antispam-module/tests/Feature/Antispam/ModerationActionsTest.php
+			path: misc/BAGArt/tgbot-module-antispam/tests/Feature/Antispam/ModerationActionsTest.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between string and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 2
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/Demo/DemoSendPollCommand.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/Demo/DemoSendPollCommand.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\AsyncKernel\\Contracts\\ASKPromiseContract\:\:await\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/Demo/ExampleTransportComparisonCommand.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/Demo/ExampleTransportComparisonCommand.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotBasic\\Commands\\Processors\\ConsoleEchoUpdateProcessor\:\:executionKey\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/Processors/ConsoleEchoUpdateProcessor.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/Processors/ConsoleEchoUpdateProcessor.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotBasic\\Commands\\Processors\\TuiChattingUpdateProcessor\:\:executionKey\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/Processors/TuiChattingUpdateProcessor.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/Processors/TuiChattingUpdateProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgBotSetup\:\:\$daemons\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/TgPollerCommand.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/TgPollerCommand.php
 
 		-
 			message: '#^Parameter \#1 \$botConfig of method BAGArt\\TelegramBot\\TgIntegration\\WebhookManager\:\:delete\(\) expects BAGArt\\TelegramBot\\Configs\\TgBotConfig, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/TgPollerCommand.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/TgPollerCommand.php
 
 		-
 			message: '#^Parameter \#1 \$botConfig of method BAGArt\\TelegramBot\\TgIntegration\\WebhookManager\:\:get\(\) expects BAGArt\\TelegramBot\\Configs\\TgBotConfig, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/src/Commands/TgPollerCommand.php
+			path: misc/BAGArt/telegram-bot-lib-basic/src/Commands/TgPollerCommand.php
 
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$command\.$#'
 			identifier: property.notFound
 			count: 8
-			path: misc/BAGArt/telegram-bot-basic-lib/tests/Unit/Commands/Traits/ArtisanExtraTraitTest.php
+			path: misc/BAGArt/telegram-bot-lib-basic/tests/Unit/Commands/Traits/ArtisanExtraTraitTest.php
 
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$command\.$#'
 			identifier: property.notFound
 			count: 17
-			path: misc/BAGArt/telegram-bot-basic-lib/tests/Unit/Commands/Traits/TokenResolverTraitTest.php
+			path: misc/BAGArt/telegram-bot-lib-basic/tests/Unit/Commands/Traits/TokenResolverTraitTest.php
 
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$output\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-basic-lib/tests/Unit/Commands/Traits/TokenResolverTraitTest.php
+			path: misc/BAGArt/telegram-bot-lib-basic/tests/Unit/Commands/Traits/TokenResolverTraitTest.php
 
 		-
 			message: '#^Access to an undefined property Pest\\PendingCalls\\TestCall\:\:\$command\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-basic-lib/tests/Unit/Commands/WebhookCommandTest.php
+			path: misc/BAGArt/telegram-bot-lib-basic/tests/Unit/Commands/WebhookCommandTest.php
 
 		-
 			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:with\(\)\.$#'
 			identifier: method.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-basic-lib/tests/Unit/Commands/WebhookCommandTest.php
+			path: misc/BAGArt/telegram-bot-lib-basic/tests/Unit/Commands/WebhookCommandTest.php
 
 		-
 			message: '#^Access to property \$message on an unknown class UpdateTypeDTO\.$#'
@@ -12970,736 +12970,736 @@ parameters:
 			message: '#^Parameter \#2 \$replace of function str_replace expects array\<string\>\|string, array\<int, int\|string\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Bots/NicknameFactory.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Bots/NicknameFactory.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Core/GameSnapshot.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Core/GameSnapshot.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotMafia\\Core\\NightResolver\:\:resolveInfo\(\) should return array\<string, array\<int, string\>\> but returns array\<int, array\<string, array\<int, string\>\>\>\.$#'
 			identifier: return.type
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Core/NightResolver.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Core/NightResolver.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:members\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
+			path: misc/BAGArt/tgbot-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 2
-			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
+			path: misc/BAGArt/tgbot-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>userId" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/GameCoordinator.php
+			path: misc/BAGArt/tgbot-game-mafia/src/GameCoordinator.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotMafia\\Presentation\\GroupPresenter\:\:\$cards is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Presentation/GroupPresenter.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Presentation/GroupPresenter.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-game-mafia/src/Presentation/GroupPresenter.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Presentation/GroupPresenter.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-game-mafia/src/Presentation/InterfacePresenter.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Presentation/InterfacePresenter.php
 
 		-
 			message: '#^Parameter \#1 \$array \(list\<BAGArt\\TelegramBotMafia\\Rooms\\Member\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Rooms/RoomService.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Rooms/RoomService.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/CallbackRouterProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/CallbackRouterProcessor.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:findByChat\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/KickCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/KickCommandProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/KickCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/KickCommandProcessor.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\Enum\\ChatPropTypeEnum and ''private'' will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/MafiaMessageProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/MafiaMessageProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO\:\:\$first_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO\:\:\$last_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotMafia\\Rooms\\RoomService\:\:findByChat\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>first_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>last_name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-game-mafia/src/Telegram/PlayCommandProcessor.php
+			path: misc/BAGArt/tgbot-game-mafia/src/Telegram/PlayCommandProcessor.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotManagement\\Commands\\Processors\\BmPollerEchoUpdateProcessor\:\:executionKey\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/Processors/BmPollerEchoUpdateProcessor.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/Processors/BmPollerEchoUpdateProcessor.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgBMMonitorCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBMMonitorCommand.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgBotSetup\:\:\$daemons\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgBMPollerCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBMPollerCommand.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:find\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgBMPollerCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBMPollerCommand.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgBotManagerInit.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBotManagerInit.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgBotManagerInit.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBotManagerInit.php
 
 		-
 			message: '#^Match arm comparison between ''\='' and ''\='' is always true\.$#'
 			identifier: match.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgModulesDoctorCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgModulesDoctorCommand.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{string, ''bot''\|''chat''\|''platform'', string, ''\-''\|int, ''no''\|''yes''\}, Closure\(BAGArt\\TelegramBotManagement\\Models\\TgModuleEnablement\)\: array\{string, ''bot''\|''chat''\|''platform'', string, ''\-''\|int, ''no''\|''yes''\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgModulesDoctorCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgModulesDoctorCommand.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between BAGArt\\ASKClient\\HttpClient\\PoolWarmer and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDaemonCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDaemonCommand.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract\:\:push\(\)\.$#'
 			identifier: method.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Expression "\$queue instanceof \\BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract" on a separate line does not do anything\.$#'
 			identifier: expr.resultUnused
 			count: 3
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Expression "\$queue instanceof \\BAGArt\\TelegramBot\\Contracts\\Outbound\\PurgeableQueueContract" on a separate line does not do anything\.$#'
 			identifier: expr.resultUnused
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract and BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 3
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\PurgeableQueueContract and BAGArt\\TelegramBot\\Contracts\\Outbound\\PurgeableQueueContract will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Parameter \#1 \$queue of method BAGArt\\TelegramBotManagement\\Commands\\TgOutboundDlqCommand\:\:listDlq\(\) expects BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract, BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\OutboundQueueContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Parameter \#1 \$queue of method BAGArt\\TelegramBotManagement\\Commands\\TgOutboundDlqCommand\:\:purgeDlq\(\) expects BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\PurgeableQueueContract, BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\OutboundQueueContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Parameter \#1 \$queue of method BAGArt\\TelegramBotManagement\\Commands\\TgOutboundDlqCommand\:\:retryAll\(\) expects BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract, BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\OutboundQueueContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Parameter \#1 \$queue of method BAGArt\\TelegramBotManagement\\Commands\\TgOutboundDlqCommand\:\:retryEntry\(\) expects BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\ChannelDiscoverableQueueContract, BAGArt\\TelegramBot\\Contracts\\Outbound\\AtomicDlqQueueContract&BAGArt\\TelegramBot\\Contracts\\Outbound\\OutboundQueueContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundDlqCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundDlqCommand.php
 
 		-
 			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundMetricsCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundMetricsCommand.php
 
 		-
 			message: '#^While loop condition is always true\.$#'
 			identifier: while.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Commands/TgOutboundMetricsCommand.php
+			path: misc/BAGArt/telegram-platform-management/src/Commands/TgOutboundMetricsCommand.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between string and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Models/TgDbTokenResolver.php
+			path: misc/BAGArt/telegram-platform-management/src/Models/TgDbTokenResolver.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:count\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Registries/TgBotDbRegistry.php
+			path: misc/BAGArt/telegram-platform-management/src/Registries/TgBotDbRegistry.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 3
-			path: misc/BAGArt/telegram-bot-management/src/Registries/TgBotDbRegistry.php
+			path: misc/BAGArt/telegram-platform-management/src/Registries/TgBotDbRegistry.php
 
 		-
 			message: '#^Parameter \#1 \$row of method BAGArt\\TelegramBotManagement\\Services\\TgModuleEnablementService\:\:rowLevel\(\) expects BAGArt\\TelegramBotManagement\\Models\\TgModuleEnablement, stdClass given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/src/Services/TgModuleEnablementService.php
+			path: misc/BAGArt/telegram-platform-management/src/Services/TgModuleEnablementService.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBotManagement\\Models\\TgBotOwner\:\:bot\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-management/tests/Models/TgBotOwnerTest.php
+			path: misc/BAGArt/telegram-platform-management/tests/Models/TgBotOwnerTest.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO and BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Access/AccessService.php
+			path: misc/BAGArt/tgbot-module-stt/src/Access/AccessService.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotStt\\Models\\SttToken\:\:\$bot_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Console/SttDoctorCommand.php
+			path: misc/BAGArt/tgbot-module-stt/src/Console/SttDoctorCommand.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotStt\\Models\\SttToken\:\:\$provider_key\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Console/SttDoctorCommand.php
+			path: misc/BAGArt/tgbot-module-stt/src/Console/SttDoctorCommand.php
 
 		-
 			message: '#^PHPDoc type list\<string\> of property BAGArt\\TelegramBotStt\\Console\\SttDoctorCommand\:\:\$signature is not covariant with PHPDoc type string of overridden property Illuminate\\Console\\Command\:\:\$signature\.$#'
 			identifier: property.phpDocType
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Console/SttDoctorCommand.php
+			path: misc/BAGArt/tgbot-module-stt/src/Console/SttDoctorCommand.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotStt\\Console\\SttDoctorCommand\:\:\$signature \(list\<string\>\) does not accept default value of type "stt\:doctor\\n        …"\.$#'
 			identifier: property.defaultValue
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Console/SttDoctorCommand.php
+			path: misc/BAGArt/tgbot-module-stt/src/Console/SttDoctorCommand.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotStt\\Guard\\ChatSemaphore\:\:\$held is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Guard/ChatSemaphore.php
+			path: misc/BAGArt/tgbot-module-stt/src/Guard/ChatSemaphore.php
 
 		-
 			message: '#^Parameter \#1 \$array \(array\{non\-falsy\-string, ''\-version''\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
 			identifier: arrayFilter.same
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Media/FfmpegConverter.php
+			path: misc/BAGArt/tgbot-module-stt/src/Media/FfmpegConverter.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UserTypeDTO and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/MenuProcessor.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/MenuProcessor.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\MessageTypeDTO and BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\MessageTypeDTO will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/PendingInputProcessor.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/PendingInputProcessor.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type BAGArt\\TelegramBot\\TgApi\\Types\\Enum\\ChatPropTypeEnum\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/TextCommandProcessor.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/TextCommandProcessor.php
 
 		-
 			message: '#^Using nullsafe property access on non\-nullable type BAGArt\\TelegramBot\\TgApi\\Types\\Enum\\ChatPropTypeEnum\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/TranscribeProcessor.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/TranscribeProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotStt\\Models\\SttTranscription\:\:\$result_text\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/VoiceTranscriptionService.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/VoiceTranscriptionService.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotStt\\Models\\SttTranscription\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/VoiceTranscriptionService.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/VoiceTranscriptionService.php
 
 		-
 			message: '#^Anonymous function with return type void returns null but should not return anything\.$#'
 			identifier: return.void
 			count: 3
-			path: misc/BAGArt/telegram-bot-stt-module/src/Processing/VoiceTranscriptionService.php
+			path: misc/BAGArt/tgbot-module-stt/src/Processing/VoiceTranscriptionService.php
 
 		-
 			message: '#^Class BAGArt\\TelegramBotStt\\SttSettingsService not found\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/TelegramBotSttServiceProvider.php
+			path: misc/BAGArt/tgbot-module-stt/src/TelegramBotSttServiceProvider.php
 
 		-
 			message: '#^Offset ''emoji''\|''message''\|''silent'' on array\{silent\: ''🤫 silent'', emoji\: ''😕 emoji'', message\: ''💬 message''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Ui/MenuRenderer.php
+			path: misc/BAGArt/tgbot-module-stt/src/Ui/MenuRenderer.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between array\{\} and array\{\} will always evaluate to false\.$#'
 			identifier: notIdentical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Ui/MenuRenderer.php
+			path: misc/BAGArt/tgbot-module-stt/src/Ui/MenuRenderer.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/src/Ui/MenuRenderer.php
+			path: misc/BAGArt/tgbot-module-stt/src/Ui/MenuRenderer.php
 
 		-
 			message: '#^Parameter \#1 \$stream of function stream_get_contents expects resource, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/tests/Unit/LoopbackWireTest.php
+			path: misc/BAGArt/tgbot-module-stt/tests/Unit/LoopbackWireTest.php
 
 		-
 			message: '#^Call to function method_exists\(\) with Illuminate\\Contracts\\Cache\\Store and ''touch'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/tests/Unit/ThrowingStore.php
+			path: misc/BAGArt/tgbot-module-stt/tests/Unit/ThrowingStore.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with bool and ''first transcription…'' will always evaluate to true\.$#'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-stt-module/tests/Unit/VoiceTranscriptionOrchestrationTest.php
+			path: misc/BAGArt/tgbot-module-stt/tests/Unit/VoiceTranscriptionOrchestrationTest.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO and BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Access/SummarizerAccessService.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Access/SummarizerAccessService.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerRun\:\:\$transcript_path\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Console/SummarizerDigestsCommand.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Console/SummarizerDigestsCommand.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:withTrashed\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Console/SummarizerDigestsCommand.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Console/SummarizerDigestsCommand.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\:\:\$display_name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\:\:\$sent_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\:\:\$text\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\:\:\$user_tg_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\:\:\$username\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Parameter \#1 \$messages of method BAGArt\\TelegramBotSummarizer\\Digest\\DigestBuilder\:\:renderTranscript\(\) expects iterable\<BAGArt\\TelegramBotSummarizer\\Models\\SummarizerMessage\>, Illuminate\\Support\\Collection\<int, stdClass\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestBuilder.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestBuilder.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestRunner.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestRunner.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$token\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestRunner.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestRunner.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotSummarizer\\Models\\SummarizerRun\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Digest/DigestRunner.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Digest/DigestRunner.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$token\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Models/SummarizerToken.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Models/SummarizerToken.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$created_by_tg_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$provider_key\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotSummarizer\\Processing\\AdminMenuProcessor\:\:tokensOf\(\) should return list\<BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\> but returns array\<int, stdClass\>\.$#'
 			identifier: return.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#1 \$botConfig of method BAGArt\\TelegramBotSummarizer\\Processing\\AdminMenuProcessor\:\:answer\(\) expects BAGArt\\TelegramBot\\Configs\\TgBotConfig, BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\CallbackQueryTypeDTO given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#1 of callable callable\(BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings, list\<BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\>\)\: array\{text\: string, keyboard\: BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardMarkupTypeDTO\} expects BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$query of method BAGArt\\TelegramBotSummarizer\\Processing\\AdminMenuProcessor\:\:answer\(\) expects BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\CallbackQueryTypeDTO, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$settings of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:intervals\(\) expects BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$settings of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:main\(\) expects BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$settings of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:providers\(\) expects BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$settings of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:templates\(\) expects BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \#2 \$settings of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:tokens\(\) expects BAGArt\\TelegramBotSummarizer\\Settings\\SummarizerSettings, BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings given\.$#'
 			identifier: argument.type
 			count: 3
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Parameter \$pageBuilder of method BAGArt\\TelegramBotSummarizer\\Processing\\AdminMenuProcessor\:\:renderPage\(\) has invalid type BAGArt\\TelegramBotSummarizer\\Processing\\SummarizerSettings\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotSummarizer\\Processing\\AdminMenuProcessor\:\:\$pending is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/AdminMenuProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/AdminMenuProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerPendingAction\:\:\$action\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/CollectMessageProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/CollectMessageProcessor.php
 
 		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:create\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/CollectMessageProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/CollectMessageProcessor.php
 
 		-
 			message: '#^Method BAGArt\\TelegramBotSummarizer\\Processing\\CollectMessageProcessor\:\:extractText\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/CollectMessageProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/CollectMessageProcessor.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/CollectMessageProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/CollectMessageProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberTypeDTO\:\:\$user\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/MyChatMemberProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/MyChatMemberProcessor.php
 
 		-
 			message: '#^Parameter \#3 \$tokens of method BAGArt\\TelegramBotSummarizer\\Ui\\AdminMenuRenderer\:\:main\(\) expects list\<BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\>, array\<int, stdClass\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Processing/SummarizerCommandProcessor.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Processing/SummarizerCommandProcessor.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$created_by_tg_id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$created_by_username\.$#'
 			identifier: property.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 4
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Access to an undefined property BAGArt\\TelegramBotSummarizer\\Models\\SummarizerToken\:\:\$provider_key\.$#'
 			identifier: property.notFound
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^PHPDoc tag @param references unknown parameter\: \$tokens$#'
 			identifier: parameter.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between array\{BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardButtonTypeDTO, BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardButtonTypeDTO, BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\InlineKeyboardButtonTypeDTO\} and array\{\} will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 2
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/AdminMenuRenderer.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/AdminMenuRenderer.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<BAGArt\\TelegramBotSummarizer\\Models\\SummarizerPendingAction\>\:\:valid\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-summarizer-module/src/Ui/PendingInputService.php
+			path: misc/BAGArt/tgbot-module-summarizer/src/Ui/PendingInputService.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO and BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\ChatMemberAdministratorTypeDTO will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Access/AccessService.php
+			path: misc/BAGArt/tgbot-module-tts/src/Access/AccessService.php
 
 		-
 			message: '#^Method Redis\:\:eval\(\) invoked with 4 parameters, 1\-3 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Guard/RedisGuardStore.php
+			path: misc/BAGArt/tgbot-module-tts/src/Guard/RedisGuardStore.php
 
 		-
 			message: '#^Method Redis\:\:set\(\) invoked with 5 parameters, 2\-3 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Guard/RedisGuardStore.php
+			path: misc/BAGArt/tgbot-module-tts/src/Guard/RedisGuardStore.php
 
 		-
 			message: '#^Parameter \#2 \$args of method Redis\:\:eval\(\) expects array, int given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-tts-module/src/Guard/RedisGuardStore.php
+			path: misc/BAGArt/tgbot-module-tts/src/Guard/RedisGuardStore.php
 
 		-
 			message: '#^Parameter \#3 \$num_keys of method Redis\:\:eval\(\) expects int, string given\.$#'
 			identifier: argument.type
 			count: 2
-			path: misc/BAGArt/telegram-bot-tts-module/src/Guard/RedisGuardStore.php
+			path: misc/BAGArt/tgbot-module-tts/src/Guard/RedisGuardStore.php
 
 		-
 			message: '#^Parameter \#3 \$options of method Redis\:\:set\(\) expects array\|int, string given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Guard/RedisGuardStore.php
+			path: misc/BAGArt/tgbot-module-tts/src/Guard/RedisGuardStore.php
 
 		-
 			message: '#^Parameter \#2 \$pattern of method Redis\:\:scan\(\) expects string\|null, array\<string, int\|string\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Observability/TtsMetricsExporter.php
+			path: misc/BAGArt/tgbot-module-tts/src/Observability/TtsMetricsExporter.php
 
 		-
 			message: '#^PHPDoc tag @param references unknown parameter\: \$page$#'
 			identifier: parameter.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Processing/MenuProcessor.php
+			path: misc/BAGArt/tgbot-module-tts/src/Processing/MenuProcessor.php
 
 		-
 			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Provider/VoiceCatalog.php
+			path: misc/BAGArt/tgbot-module-tts/src/Provider/VoiceCatalog.php
 
 		-
 			message: '#^Property BAGArt\\TelegramBotTts\\Models\\TtsAudioCache\:\:\$last_used_at \(Illuminate\\Support\\Carbon\|null\) does not accept Carbon\\CarbonInterface\.$#'
 			identifier: assign.propertyType
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Support/SynthesisRecorder.php
+			path: misc/BAGArt/tgbot-module-tts/src/Support/SynthesisRecorder.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/src/Ui/MenuRenderer.php
+			path: misc/BAGArt/tgbot-module-tts/src/Ui/MenuRenderer.php
 
 		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/tests/Unit/TtsSettingsTest.php
+			path: misc/BAGArt/tgbot-module-tts/tests/Unit/TtsSettingsTest.php
 
 		-
 			message: '#^Instanceof between BAGArt\\TelegramBotTts\\Settings\\TtsSettings and BAGArt\\TelegramBotTts\\Settings\\TtsSettings will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-tts-module/tests/Unit/TtsSettingsTest.php
+			path: misc/BAGArt/tgbot-module-tts/tests/Unit/TtsSettingsTest.php

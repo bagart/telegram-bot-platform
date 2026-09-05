@@ -1,0 +1,112 @@
+{{-- Menu Mini App shell (§14/§19bis, task 13): the SPA mount point published
+     to resources/views/vendor/menu/tgapp-shell.blade.php.
+
+     Expected variables (all optional — supplied by the shell controller):
+       $locale       string  html lang + i18n seed (default 'en')
+       $botName      string  header hint for S0
+       $maintenance  bool    D46: render the static maintenance card INSTEAD
+                             of the SPA (dispatch-step-0 short-circuit)
+
+     Response obligations of the shell controller (backend task, §16/§27.8):
+       - CSP header, verbatim policy from RFC §16 (script-src 'self'; this
+         view ships zero inline JS; the inline <style> is covered by
+         style-src 'unsafe-inline' which also hosts themeParams injection)
+       - Cache-Control: no-cache (HTML revalidates; hashed assets immutable)
+
+     Asset build (from the host repo root; resolves host node_modules):
+       npx vite build --config misc/BAGArt/telegram-bot-menu-module/vite.tgapp.config.mjs
+       node misc/BAGArt/telegram-bot-menu-module/scripts/check-bundle-size.mjs
+
+     Browser preview without Telegram or the backend:
+       /tgapp/{botId}?dev=1  (offline fixtures) --}}
+<!DOCTYPE html>
+<html lang="{{ $locale ?? 'en' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>{{ $botName ?? 'Menu' }}</title>
+    @php
+        $tgappManifestPath = public_path('vendor/menu/.vite/manifest.json');
+        $tgappManifest = is_file($tgappManifestPath)
+            ? json_decode(file_get_contents($tgappManifestPath), true)
+            : null;
+        $tgappEntry = is_array($tgappManifest) ? $tgappManifest['ts/tgapp/main.tsx'] ?? null : null;
+    @endphp
+    @if (is_array($tgappEntry))
+        @foreach ($tgappEntry['css'] ?? [] as $tgappCss)
+            <link rel="stylesheet" href="{{ asset('vendor/menu/'.$tgappCss) }}">
+        @endforeach
+        <script type="module" src="{{ asset('vendor/menu/'.$tgappEntry['file']) }}" defer></script>
+    @else
+        {{-- Assets not built yet: skeleton still renders below; build per the
+             command in the header comment. No fallback CDN/inline script by
+             design (CSP script-src 'self'). --}}
+    @endif
+    {{-- Critical themed-shell CSS: tokens (§5.2 defaults), safe areas,
+         pre-hydration skeleton shimmer. Telegram themeParams override the
+         custom properties at boot and on themeChanged. --}}
+    <style>
+        :root {
+            --tg-bg: #ffffff;
+            --tg-text: #000000;
+            --tg-hint: #999999;
+            --tg-card: #efeff4;
+            --tg-section: #ffffff;
+            --tg-safe-top: env(safe-area-inset-top, 0px);
+            --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
+            color-scheme: light dark;
+        }
+        body {
+            margin: 0;
+            background: var(--tg-bg);
+            color: var(--tg-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: calc(16px + var(--tg-safe-top)) 16px calc(16px + var(--tg-safe-bottom));
+        }
+        .tg-skel {
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--tg-card) 25%, var(--tg-section) 50%, var(--tg-card) 75%);
+            background-size: 200% 100%;
+            animation: tg-shimmer 1.2s linear infinite;
+        }
+        .tg-skel-tile { display: inline-block; width: 44%; height: 96px; margin: 0 12px 12px 0; }
+        .tg-skel-row { height: 56px; margin-bottom: 8px; }
+        .tg-maintenance {
+            background: var(--tg-card);
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+        }
+        .tg-maintenance p { margin: 4px 0; }
+        .tg-muted { color: var(--tg-hint); font-size: 13px; }
+        @keyframes tg-shimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tg-skel { animation: none; }
+        }
+    </style>
+</head>
+<body data-tgapp-bot="{{ $botName ?? '' }}">
+    <div id="tgapp-root" data-tgapp-state="{{ ($maintenance ?? false) ? 'maintenance' : 'loading' }}">
+        @if ($maintenance ?? false)
+            {{-- D46 server path: maintenance card instead of the SPA mount. --}}
+            <div class="tg-maintenance" role="alert">
+                <p><strong>Scheduled maintenance</strong></p>
+                <p class="tg-muted">The menu is temporarily unavailable. Please try again later.</p>
+            </div>
+        @else
+            {{-- Pre-hydration skeleton: themed before any JS runs (S0 shape). --}}
+            <div aria-hidden="true">
+                <span class="tg-skel tg-skel-tile"></span><span class="tg-skel tg-skel-tile"></span>
+                <div class="tg-skel tg-skel-row"></div>
+                <div class="tg-skel tg-skel-row"></div>
+                <div class="tg-skel tg-skel-row"></div>
+            </div>
+            <noscript>The menu requires JavaScript inside Telegram.</noscript>
+        @endif
+    </div>
+</body>
+</html>

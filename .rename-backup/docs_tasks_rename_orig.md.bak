@@ -1,0 +1,139 @@
+# Plan: Rename misc/BAGArt/ repos — full automation via `gh` CLI
+
+## Target state
+
+| # | Old dir (local) | New dir (local) | GitHub origin |
+|---|-----------------|-----------------|---------------|
+| 1 | php-async-kernel-client | — | git@github.com:bagart/php-async-kernel-client.git |
+| 2 | php-async-kernel-client-redis | — | git@github.com:bagart/php-async-kernel-client-redis.git |
+| 3 | php-async-kernel-lib | — | git@github.com:bagart/php-async-kernel-lib.git |
+| 4 | telegram-bot-lib | — | git@github.com:bagart/telegram-bot-lib.git |
+| 5 | telegram-module-engine | — | git@github.com:bagart/telegram-module-engine.git |
+| 6 | telegram-platform-workflows | — | git@github.com:BAGArt/telegram-platform-workflows.git |
+| 7 | telegram-bot-antispam-module | tgbot-module-antispam | git@github.com:bagart/tgbot-module-antispam.git |
+| 8 | telegram-bot-audit-module | telegram-platform-audit | git@github.com:bagart/telegram-platform-audit.git |
+| 9 | telegram-bot-example-module | tgbot-module-example | git@github.com:bagart/tgbot-module-example.git |
+| 10 | telegram-bot-menu-module | telegram-platform-menu | git@github.com:bagart/telegram-platform-menu.git |
+| 11 | telegram-bot-nettools-module | tgbot-module-nettools | git@github.com:bagart/tgbot-module-nettools.git |
+| 12 | telegram-bot-proxy-module | tgbot-module-proxy | git@github.com:bagart/tgbot-module-proxy.git |
+| 13 | telegram-bot-stt-module | tgbot-module-stt | git@github.com:bagart/tgbot-module-stt.git |
+| 14 | telegram-bot-summarizer-module | tgbot-module-summarizer | git@github.com:bagart/tgbot-module-summarizer.git |
+| 15 | telegram-bot-tts-module | tgbot-module-tts | git@github.com:bagart/tgbot-module-tts.git |
+| 16 | telegram-game-mafia | tgbot-game-mafia | git@github.com:bagart/tgbot-game-mafia.git |
+| 17 | telegram-bot-access-module | telegram-bot-lib-access | git@github.com:bagart/telegram-bot-lib-access.git |
+| 18 | telegram-bot-basic-lib | telegram-bot-lib-basic | git@github.com:bagart/telegram-bot-lib-basic.git |
+| 19 | telegram-bot-management | telegram-platform-management | git@github.com:bagart/telegram-platform-management.git |
+| 20 | telegram-devops-baseline | telegram-platform-devops-baseline | git@github.com:bagart/telegram-platform-devops-baseline.git |
+
+## Phase 1: GitHub rename existing repos
+
+Repos that exist on GitHub and need renaming:
+
+```bash
+gh repo rename tgbot-module-antispam -R bagart/telegram-bot-antispam-module -y
+gh repo rename tgbot-module-nettools -R bagart/telegram-bot-nettools-module -y
+gh repo rename tgbot-module-proxy -R bagart/telegram-bot-proxy-module -y
+gh repo rename tgbot-module-stt -R bagart/telegram-bot-stt-module -y
+gh repo rename tgbot-module-summarizer -R bagart/telegram-bot-summarizer-module -y
+gh repo rename tgbot-module-tts -R bagart/telegram-bot-tts-module -y
+gh repo rename tgbot-game-mafia -R bagart/telegram-game-mafia -y
+gh repo rename telegram-bot-lib-access -R bagart/telegram-bot-access-module -y
+gh repo rename telegram-bot-lib-basic -R bagart/telegram-bot-basic-lib -y
+gh repo rename telegram-platform-management -R bagart/telegram-bot-management -y
+gh repo rename telegram-platform-devops-baseline -R bagart/telegram-devops-baseline -y
+```
+
+## Phase 2: GitHub create new repos
+
+Repos that don't exist on GitHub yet:
+
+```bash
+gh repo create bagart/tgbot-module-audit --public
+gh repo create bagart/tgbot-module-example --public
+gh repo create bagart/telegram-platform-menu --public
+```
+
+## Phase 3: Local git origin update (before dir rename)
+
+```bash
+# Modules
+git -C misc/BAGArt/telegram-bot-antispam-module remote set-url origin git@github.com:bagart/tgbot-module-antispam.git
+git -C misc/BAGArt/telegram-bot-nettools-module remote set-url origin git@github.com:bagart/tgbot-module-nettools.git
+git -C misc/BAGArt/telegram-bot-proxy-module remote set-url origin git@github.com:bagart/tgbot-module-proxy.git
+git -C misc/BAGArt/telegram-bot-stt-module remote set-url origin git@github.com:bagart/tgbot-module-stt.git
+git -C misc/BAGArt/telegram-bot-summarizer-module remote set-url origin git@github.com:bagart/tgbot-module-summarizer.git
+git -C misc/BAGArt/telegram-bot-tts-module remote set-url origin git@github.com:bagart/tgbot-module-tts.git
+
+# Exceptions
+git -C misc/BAGArt/telegram-game-mafia remote set-url origin git@github.com:bagart/tgbot-game-mafia.git
+git -C misc/BAGArt/telegram-bot-basic-lib remote set-url origin git@github.com:bagart/telegram-bot-lib-basic.git
+git -C misc/BAGArt/telegram-bot-management remote set-url origin git@github.com:bagart/telegram-platform-management.git
+git -C misc/BAGArt/telegram-devops-baseline remote set-url origin git@github.com:bagart/telegram-platform-devops-baseline.git
+
+# Init + add remote for repos without git
+cd misc/BAGArt/telegram-bot-access-module && git init && git remote add origin git@github.com:bagart/telegram-bot-lib-access.git
+cd misc/BAGArt/telegram-bot-audit-module && git init && git remote add origin git@github.com:bagart/telegram-platform-audit.git
+cd misc/BAGArt/telegram-bot-example-module && git init && git remote add origin git@github.com:bagart/tgbot-module-example.git
+cd misc/BAGArt/telegram-bot-menu-module && git init && git remote add origin git@github.com:bagart/telegram-platform-menu.git
+cd misc/BAGArt/telegram-module-engine && git remote add origin git@github.com:bagart/telegram-module-engine.git
+```
+
+## Phase 4: Local directory rename
+
+```bash
+cd misc/BAGArt
+
+# Modules
+git mv telegram-bot-antispam-module tgbot-module-antispam
+git mv telegram-bot-audit-module telegram-platform-audit
+git mv telegram-bot-example-module tgbot-module-example
+git mv telegram-bot-menu-module telegram-platform-menu
+git mv telegram-bot-nettools-module tgbot-module-nettools
+git mv telegram-bot-proxy-module tgbot-module-proxy
+git mv telegram-bot-stt-module tgbot-module-stt
+git mv telegram-bot-summarizer-module tgbot-module-summarizer
+git mv telegram-bot-tts-module tgbot-module-tts
+
+# Exceptions
+git mv telegram-game-mafia tgbot-game-mafia
+git mv telegram-bot-access-module telegram-bot-lib-access
+git mv telegram-bot-basic-lib telegram-bot-lib-basic
+git mv telegram-bot-management telegram-platform-management
+git mv telegram-devops-baseline telegram-platform-devops-baseline
+```
+
+For dirs without git: plain `mv`.
+
+## Phase 5: Update references
+
+After rename, update all references across the codebase:
+
+1. **composer.json** (root + per-module) — PSR-4 namespaces, path repositories, autoload
+2. **config/tg_modules.php** — module paths, namespace references
+3. **config/telegram.php** — any module path references
+4. **bootstrap/providers.php** — if any providers reference old paths
+5. **routes/web.php** — if any routes reference module paths
+6. **README.md / docs/** — all documentation references
+7. **AGENTS.md** — project conventions section (module list)
+8. **scripts/sync-skills.sh** — if it references module paths
+9. **cmd/deps/** scripts — composer path repo references
+10. **phpunit.xml** — test suite paths
+11. **vite.config.js** — if any module frontend paths are referenced
+12. **Docker/docker-compose** — if any volume mounts reference old paths
+13. **Internal module cross-references** — one module requiring another via path repo
+
+## Phase 6: Verification
+
+```bash
+# Check no old names remain in tracked files
+grep -r "telegram-bot-antispam-module\|telegram-bot-audit-module\|telegram-bot-nettools-module" --include="*.php" --include="*.json" --include="*.md" .
+
+# Verify all origins point to new names
+for dir in misc/BAGArt/*/; do
+  echo "=== $(basename $dir) ==="
+  git -C "$dir" remote -v 2>/dev/null | grep origin || echo "NO REMOTE"
+done
+
+# Run tests
+php artisan test --compact
+```

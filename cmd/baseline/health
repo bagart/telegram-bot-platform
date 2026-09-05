@@ -56,11 +56,11 @@ else
 fi
 
 # --- Hooks active ---------------------------------------------------------------
-# Hooks ship inside bagart/telegram-devops-baseline; accept either the vendor
+# Hooks ship inside bagart/telegram-platform-devops-baseline; accept either the vendor
 # copy (what cmd/dev/setup configures) or the path-repo checkout (equivalent).
 HOOKS_PATH="$(git config core.hooksPath || echo "")"
 case "$HOOKS_PATH" in
-  *"vendor/bagart/telegram-devops-baseline/hooks"|*"misc/BAGArt/telegram-devops-baseline/hooks")
+  *"vendor/bagart/telegram-platform-devops-baseline/hooks"|*"misc/BAGArt/telegram-platform-devops-baseline/hooks")
     report_result "git-hooks" passed ""
     ;;
   *)

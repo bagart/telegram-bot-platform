@@ -4,7 +4,7 @@
 # Prerequisites: both GitHub repos exist and are empty (created via web UI,
 # no auto-init):
 #   git@github.com:BAGArt/telegram-platform-workflows.git
-#   git@github.com:BAGArt/telegram-devops-baseline.git
+#   git@github.com:BAGArt/telegram-platform-devops-baseline.git
 # (repo creation needs gh/API credentials this machine does not have — that
 # click stays manual; everything after it is automated here).
 #
@@ -46,7 +46,7 @@ for arg in "$@"; do
 done
 
 WORKFLOWS_DIR="$REPO_ROOT/misc/BAGArt/telegram-platform-workflows"
-BASELINE_DIR="$REPO_ROOT/misc/BAGArt/telegram-devops-baseline"
+BASELINE_DIR="$REPO_ROOT/misc/BAGArt/telegram-platform-devops-baseline"
 EXAMPLES="$WORKFLOWS_DIR/examples/telegram-bot-platform"
 HOST_CI="$REPO_ROOT/.github/workflows"
 
@@ -55,7 +55,7 @@ HOST_CI="$REPO_ROOT/.github/workflows"
 [[ -d "$EXAMPLES" ]] || { fail "missing examples dir: $EXAMPLES"; exit "$EX_ENV"; }
 
 WF_URL="git@github.com:BAGArt/telegram-platform-workflows.git"
-BL_URL="git@github.com:BAGArt/telegram-devops-baseline.git"
+BL_URL="git@github.com:BAGArt/telegram-platform-devops-baseline.git"
 
 remote_ready() {
   timeout 20 git ls-remote "$1" HEAD >/dev/null 2>&1

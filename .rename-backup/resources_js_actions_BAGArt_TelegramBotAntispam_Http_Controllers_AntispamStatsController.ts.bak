@@ -1,0 +1,166 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+index.definition = {
+    methods: ["get","head"],
+    url: '/antispam/stats',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::index
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:38
+* @route '/antispam/stats'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+exportMethod.definition = {
+    methods: ["get","head"],
+    url: '/antispam/stats/export',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+exportMethod.url = (options?: RouteQueryOptions) => {
+    return exportMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportMethod.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamStatsController::exportMethod
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamStatsController.php:45
+* @route '/antispam/stats/export'
+*/
+exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportMethod.form = exportMethodForm
+
+const AntispamStatsController = { index, exportMethod, export: exportMethod }
+
+export default AntispamStatsController

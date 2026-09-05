@@ -1,0 +1,177 @@
+---
+id: 25
+phase: P4
+est: 0h
+depends: []
+rfc: "§8.2"
+status: done
+---
+
+# Task 25 — Module settings screens in the Telegram menu
+
+> **Status: DONE — contribution contracts created, resolver implemented,**
+> assembler integrated, access control wired, 9 passing tests.
+
+## What was delivered
+
+### 1. Engine contribution contracts (telegram-module-engine)
+- `src/Resources/MenuContributionResource.php` — menu item descriptor
+- `src/Resources/SettingsScreenContribution.php` — settings screen descriptor
+- `src/Resources/ResourceContract.php` — marker contract
+
+### 2. Menu module integration (telegram-bot-menu-module)
+- `src/Menu/ContributionResolver.php` — resolves engine contributions per bot
+- `src/Menu/ResolvedMenuContribution.php` — filtered menu contribution DTO
+- `src/Menu/ResolvedSettingsContribution.php` — filtered settings contribution DTO
+- `src/Menu/MenuAssembler.php` — extended with `contributedItems` + `contributedSettings` payload
+- `src/TelegramBotMenuServiceProvider.php` — wired ContributionResolver singleton
+
+### 3. Tests
+- `tests/Unit/Menu/ContributionResolverTest.php` — 9 tests covering:
+  - Enabled/disabled module filtering
+  - Access control allow/deny
+  - Ordering sort
+  - Settings contributions
+  - Null access control fallback
+
+## Context
+
+- Engine architecture doc: `../../telegram-module-engine/docs/architecture/33.md`
+  (§4.11 Menu resources, §4.12 Admin resources — the contribution contract).
+- Engine architecture doc: `../../telegram-module-engine/docs/architecture/00-overview.md`
+  (§26 Module Contributions — the conceptual model).
+- Engine phase 5 shipped `telegram-bot-lib-access` with
+  `AccessControlContract` for authorization filtering.
+- Engine phase 6 diagnostics (`tg:modules:diagnose`) provide runtime
+  module state — the doctor (task 22) should consume these.
+
+## Intent
+
+1. Menu receives `MenuContributionResource` descriptors from the engine's
+   resource registry (per-bot, chat-scoped visibility) and renders them as
+   Telegram Mini App screens. The engine owns contribution discovery,
+   ownership, and collision detection; menu owns rendering and navigation.
+
+2. Settings screen contributions follow the same pattern:
+   - Engine registers a `SettingsScreenContribution` (per-bot, chat-scoped)
+     with a typed PHP-DTO field list (same five-language rule as the rest
+     of the menu).
+   - Menu renders via the existing `SchemaForm` lifecycle (task 15) or a
+     custom chunk escape hatch via `TelegramScreenBinding`.
+   - Access filtering uses `AccessControlContract` (access module), never
+     visibility alone.
+
+3. Nothing module-specific may appear in menu code — the contribution
+   registry is the only source of screens.
+
+## Key contracts from the engine
+
+### MenuContributionResource (doc 33 §4.11)
+
+```php
+// Registered by module, resolved by engine, consumed by menu
+MenuContributionResource(
+    contributionId: 'mafia.menu.main',
+    moduleId: 'mafia',
+    location: 'games',        // menu section
+    label: 'Mafia',
+    icon: '🎯',
+    route: null,              // or action/route pair
+    ordering: 100,
+    requiredPermission: null,
+    translationKey: 'modules.mafia.menu.label',
+    visibility: 'ACTIVE',
+)
+```
+
+### SettingsScreenContribution (proposed)
+
+```php
+SettingsScreenContribution(
+    contributionId: 'mafia.settings',
+    moduleId: 'mafia',
+    location: 'skills',       // or 'settings'
+    label: 'Mafia Settings',
+    fields: [...],            // typed PHP-DTO field list
+    customScreenBuilder: null, // or TelegramScreenBinding::class
+    requiredPermission: 'mafia.manage',
+)
+```
+
+### AccessControlContract (access module)
+
+```php
+interface AccessControlContract
+{
+    public function decide(AccessRequest $request): AccessDecision;
+}
+```
+
+Menu's rendering pipeline filters contributions through:
+```
+installed → platform enabled → bot effective enabled → access control → visible
+```
+
+## Preconditions
+
+1. Engine task 03a shipped: contribution contracts, per-bot/chat resolution,
+   settings storage with scope resolution (platform → bot → chat).
+2. RFC `menu.md` updated: §8 integration API gains the settings-screen
+   registration; §27 Appendix A snapshot refreshed.
+3. Engine's `MenuContributionResource` typed descriptor exists in
+   `src/Resources/` and is registered by modules via `$registrar->webResource(...)`.
+4. Engine's resource registry provides `$engine->resources()->menuContributions()`
+   query API.
+
+## Deliverables (when this task becomes executable)
+
+1. **Contribution resolution pipeline**: Menu's `MenuCatalogRefiner` (task 10)
+   extends to consume engine's `MenuContributionResource` descriptors:
+   - Engine returns effective menu contributions per bot (filtered by
+     activation, platform policy, and dependency state).
+   - Menu applies its own rendering filter (audience, minRole, permission).
+   - The existing `TgWebUiContract` manifests coexist with engine-contributed
+     menu items — the manifest's `menuLocation` field becomes a
+     `MenuContributionResource.location` hint.
+
+2. **Settings screen rendering**: For each `SettingsScreenContribution`:
+   - Default path: `SchemaForm` renderer from the contribution's typed
+     field list (same as task 15, but sourced from the engine's
+     contribution descriptor instead of the manifest's `settingsSchema`).
+   - Custom path: `TelegramScreenBinding` escape hatch for modules needing
+     full control.
+   - Settings round-trip goes through the single-writer API (task 05).
+
+3. **Access module integration**: The contribution rendering pipeline
+   queries `AccessControlContract::decide()` for each contribution before
+   rendering. Denied contributions produce no screen (not even a 403 card —
+   the menu item simply doesn't appear, matching §5.4's "hidden" behavior
+   for unauthorized surfaces).
+
+4. **Engine diagnostic hooks**: Menu's doctor (task 22) consumes engine's
+   `tg:modules:diagnose` output for:
+   - Module activation state per bot
+   - Dependency validation status
+   - Capability availability
+   - Resource registry health
+
+5. **Tests**: contribution resolution end-to-end (module registers
+   contribution → engine resolves per-bot → menu renders → access
+   filter applied); settings round-trip through engine contribution
+   path; custom screen binding coexistence.
+
+## Acceptance criteria (when executable)
+
+- [ ] Engine-contributed menu items appear in the hub for bots with the
+      module enabled; hidden for bots without.
+- [ ] Settings screens render via SchemaForm from engine contributions.
+- [ ] Access module filtering prevents unauthorized screens.
+- [ ] Doctor integrates engine diagnostics.
+- [ ] `composer test` green for menu + engine + access module combined suite.
+
+## Guardrails
+
+- Menu never imports module-specific code — contributions are the only
+  source (INV-3 direction check).
+- Engine never renders UI — it provides metadata only (engine non-goal).
+- Access module is the single authorization layer — no ad-hoc checks in menu.

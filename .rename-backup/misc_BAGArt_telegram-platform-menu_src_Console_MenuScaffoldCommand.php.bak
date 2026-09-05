@@ -1,0 +1,278 @@
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\TelegramBotMenu\Console;
+
+use Illuminate\Console\Command;
+use RuntimeException;
+
+/**
+ * DX generator (task 20 / module-api-guide §7): writes a minimal but
+ * refinement-clean module skeleton — descriptor (requiresModules: menu),
+ * TgWebUiContract manifest (one bool field + one UiAction), the matching
+ * webApi handler (an unpaired action would refine INVALID), a permission
+ * resolver stub and a Pest case running the reusable contract battery.
+ *
+ * Refuses to overwrite ANY existing target file; writes nothing in that case.
+ */
+final class MenuScaffoldCommand extends Command
+{
+    protected $signature = 'tg:menu:scaffold
+        {module : Module id, lowercase ^[a-z][a-z0-9_]{1,31}$ — becomes <id>-module/}
+        {--dir= : Target root directory (default: base_path("misc/BAGArt"))}';
+
+    protected $description = 'Scaffold a menu-module starter package: descriptor, UI manifest, API handler, permission stub, contract test';
+
+    public function handle(): int
+    {
+        $moduleId = strval($this->argument('module'));
+
+        if (preg_match('/^[a-z][a-z0-9_]{1,31}$/', $moduleId) !== 1) {
+            $this->error("Module id '{$moduleId}' violates ^[a-z][a-z0-9_]{1,31}\$.");
+
+            return self::FAILURE;
+        }
+
+        $studly = self::studly($moduleId);
+        $dirOption = $this->option('dir');
+        $root = is_string($dirOption) && $dirOption !== '' ? rtrim($dirOption, '/') : strval(base_path('misc/BAGArt'));
+        $packageDir = $root.'/'.$moduleId.'-module';
+
+        $files = [
+            'src/'.$studly.'Module.php' => $this->moduleClass($moduleId, $studly),
+            'src/'.$studly.'Ui.php' => $this->uiClass($moduleId, $studly),
+            'src/'.$studly.'Api.php' => $this->apiClass($studly),
+            'src/'.$studly.'Permissions.php' => $this->permissionsClass($moduleId, $studly),
+            'tests/'.$studly.'UiContractTest.php' => $this->pestCase($moduleId, $studly),
+        ];
+
+        $existing = [];
+
+        foreach (array_keys($files) as $path) {
+            if (is_file($packageDir.'/'.$path)) {
+                $existing[] = $path;
+            }
+        }
+
+        if ($existing !== []) {
+            $this->error('Refusing to overwrite existing file(s): '.implode(', ', $existing).' under '.$packageDir);
+
+            return self::FAILURE;
+        }
+
+        foreach ($files as $path => $content) {
+            $target = $packageDir.'/'.$path;
+            $dir = dirname($target);
+
+            if (! is_dir($dir) && ! mkdir($dir, 0777, true) && ! is_dir($dir)) {
+                throw new RuntimeException("Cannot create directory [{$dir}]");
+            }
+
+            file_put_contents($target, $content);
+            $this->line('Created '.$target);
+        }
+
+        foreach ($this->nextSteps($moduleId, $studly) as $step) {
+            $this->line('Next: '.$step);
+        }
+
+        return self::SUCCESS;
+    }
+
+    private static function studly(string $moduleId): string
+    {
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $moduleId)));
+    }
+
+    private function moduleClass(string $moduleId, string $studly): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\\{$studly};
+
+use BAGArt\\TelegramBot\\Modules\\TgModuleCapability;
+use BAGArt\\TelegramBot\\Modules\\TgModuleContract;
+use BAGArt\\TelegramBot\\Modules\\TgModuleDescriptor;
+use BAGArt\\TelegramBot\\Modules\\TgModuleRegistrar;
+
+final class {$studly}Module implements TgModuleContract
+{
+    public const string ID = '{$moduleId}';
+
+    public static function descriptor(): TgModuleDescriptor
+    {
+        return new TgModuleDescriptor(
+            id: self::ID,
+            name: '{$studly}',
+            version: '0.1.0',
+            requiresModules: ['menu' => '^1.0'],
+            capabilities: [TgModuleCapability::Ui],
+        );
+    }
+
+    public static function register(TgModuleRegistrar \$registrar): void
+    {
+        \$registrar
+            ->webUi({$studly}Ui::class)
+            ->webApi({$studly}Api::class)
+            ->webPermissions({$studly}Permissions::class);
+    }
+}
+
+PHP;
+    }
+
+    private function uiClass(string $moduleId, string $studly): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\\{$studly};
+
+use BAGArt\\TelegramBotMenu\\Contracts\\TgWebUiContract;
+use BAGArt\\TelegramBotMenu\\Manifest\\EffectiveRole;
+use BAGArt\\TelegramBotMenu\\Manifest\\TgWebUiManifest;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiAction;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiAudience;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiEntry;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiField;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiGroup;
+use BAGArt\\TelegramBotMenu\\Manifest\\UiKind;
+
+final class {$studly}Ui implements TgWebUiContract
+{
+    public static function manifest(): TgWebUiManifest
+    {
+        return new TgWebUiManifest(
+            moduleId: '{$moduleId}',
+            title: '{$studly}',
+            icon: '🧩',
+            kind: UiKind::Tool,
+            minAudience: UiAudience::Admin,
+            entry: UiEntry::schema([
+                UiGroup::of('general', 'General', [
+                    UiField::bool('enabled', 'Enabled', default: true),
+                ]),
+            ]),
+            actions: [
+                new UiAction(id: 'reset', label: 'Reset stats', minRole: EffectiveRole::Admin, permission: '{$moduleId}.reset'),
+            ],
+        );
+    }
+
+    public static function translations(): array
+    {
+        return [];
+    }
+}
+
+PHP;
+    }
+
+    private function apiClass(string $studly): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\\{$studly};
+
+use BAGArt\\TelegramBotMenu\\Contracts\\TgWebApiHandlerContract;
+use BAGArt\\TelegramBotMenu\\Manifest\\EffectiveRole;
+use BAGArt\\TelegramBotMenu\\Support\\TgWebApiRoute;
+use BAGArt\\TelegramBotMenu\\Support\\TgWebRequest;
+use BAGArt\\TelegramBotMenu\\Support\\TgWebResponse;
+use LogicException;
+
+final class {$studly}Api implements TgWebApiHandlerContract
+{
+    public static function routes(): array
+    {
+        return [
+            new TgWebApiRoute('POST', 'actions/reset', EffectiveRole::Admin),
+        ];
+    }
+
+    public function handle(TgWebRequest \$request, array \$path): TgWebResponse
+    {
+        throw new LogicException('Not implemented yet — RFC menu.md §18 step 5.');
+    }
+}
+
+PHP;
+    }
+
+    private function permissionsClass(string $moduleId, string $studly): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace BAGArt\\{$studly};
+
+use BAGArt\\TelegramBotMenu\\Contracts\\TgPermissionResolverContract;
+use BAGArt\\TelegramBotMenu\\Support\\TgUiContext;
+
+final class {$studly}Permissions implements TgPermissionResolverContract
+{
+    public static function permissions(): array
+    {
+        return ['{$moduleId}.reset'];
+    }
+
+    public function resolve(array \$permissionIds, TgUiContext \$context): array
+    {
+        return array_fill_keys(\$permissionIds, false);
+    }
+
+    public function revision(): string
+    {
+        return '1';
+    }
+}
+
+PHP;
+    }
+
+    private function pestCase(string $moduleId, string $studly): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+use BAGArt\\TelegramBotMenu\\Testing\\TgWebUiContractTest;
+use BAGArt\\{$studly}\\{$studly}Ui;
+
+it('satisfies the menu UI contract battery', function () {
+    TgWebUiContractTest::assertContractShape({$studly}Ui::class, '{$moduleId}');
+});
+
+PHP;
+    }
+
+    /**
+     * RFC menu.md §18 integration checklist, reduced to what this skeleton
+     * still leaves open.
+     *
+     * @return list<string>
+     */
+    private function nextSteps(string $moduleId, string $studly): array
+    {
+        return [
+            "composer.json: require bagart/telegram-bot-menu-module and map PSR-4 BAGArt\\\\{$studly} => src/",
+            'List your Laravel service provider in bootstrap/providers.php; it appends '.$studly.'Module::class to config telegram.modules_providers',
+            'Implement '.$studly.'Api::handle() for POST actions/reset',
+            'Fill translations() with t:<key> literals once the copy is stable',
+            "Run your Pest case, then tg:menu:manifest {$moduleId} --json to see what the host sees",
+        ];
+    }
+}

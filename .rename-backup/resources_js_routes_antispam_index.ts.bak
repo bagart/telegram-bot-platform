@@ -1,0 +1,238 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import rules from './rules'
+import chats from './chats'
+import violations from './violations'
+import appeals from './appeals'
+import userLists from './user-lists'
+import stats from './stats'
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+dashboard.definition = {
+    methods: ["get","head"],
+    url: '/antispam/dashboard',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+dashboard.url = (options?: RouteQueryOptions) => {
+    return dashboard.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: dashboard.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDashboardController::dashboard
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDashboardController.php:14
+* @route '/antispam/dashboard'
+*/
+dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+dashboard.form = dashboardForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+export const analytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: analytics.url(options),
+    method: 'get',
+})
+
+analytics.definition = {
+    methods: ["get","head"],
+    url: '/antispam/analytics',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+analytics.url = (options?: RouteQueryOptions) => {
+    return analytics.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+analytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: analytics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: analytics.url(options),
+    method: 'head',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+const analyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: analytics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+analyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: analytics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamAnalyticsController::analytics
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamAnalyticsController.php:14
+* @route '/antispam/analytics'
+*/
+analyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: analytics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+analytics.form = analyticsForm
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::dryRun
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+export const dryRun = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: dryRun.url(options),
+    method: 'post',
+})
+
+dryRun.definition = {
+    methods: ["post"],
+    url: '/antispam/dry-run',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::dryRun
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+dryRun.url = (options?: RouteQueryOptions) => {
+    return dryRun.definition.url + queryParams(options)
+}
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::dryRun
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+dryRun.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: dryRun.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::dryRun
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+const dryRunForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dryRun.url(options),
+    method: 'post',
+})
+
+/**
+* @see \BAGArt\TelegramBotAntispam\Http\Controllers\AntispamDryRunController::dryRun
+* @see misc/BAGArt/telegram-bot-antispam-module/src/Http/Controllers/AntispamDryRunController.php:24
+* @route '/antispam/dry-run'
+*/
+dryRunForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dryRun.url(options),
+    method: 'post',
+})
+
+dryRun.form = dryRunForm
+
+const antispam = {
+    dashboard: Object.assign(dashboard, dashboard),
+    analytics: Object.assign(analytics, analytics),
+    rules: Object.assign(rules, rules),
+    chats: Object.assign(chats, chats),
+    violations: Object.assign(violations, violations),
+    appeals: Object.assign(appeals, appeals),
+    dryRun: Object.assign(dryRun, dryRun),
+    userLists: Object.assign(userLists, userLists),
+    stats: Object.assign(stats, stats),
+}
+
+export default antispam
