@@ -19,6 +19,6 @@ permissions:
 
 jobs:
   tests:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/tests.yml@4ffda10ef6ac38b29fdea25729fd18a6a5296a10 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/tests.yml@262b6fbf75e2d7c0262b13a79c0cb7b8393fac05 # pin!
     with:
       php-version: '8.5'
