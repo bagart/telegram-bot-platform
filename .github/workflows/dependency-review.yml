@@ -13,4 +13,4 @@ permissions:
 
 jobs:
   dependency-review:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/dependency-review.yml@eae9e6052c176080880935e854d9b60c07a7b007 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/dependency-review.yml@ea5dc5eaa75f64c09b5937c38a9429821574c08f # pin!
