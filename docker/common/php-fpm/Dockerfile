@@ -53,24 +53,12 @@ RUN rm -f /usr/bin/composer /usr/local/bin/composer \
 
 
 RUN --mount=type=cache,target=/root/.composer/cache \
-    if [ -f composer.prod.json ]; then \
-        cp composer.json composer.json.dev && \
-        cp composer.prod.json composer.json && \
-        composer install \
-            --no-dev \
-            --optimize-autoloader \
-            --no-interaction \
-            --no-progress \
-            --prefer-dist && \
-        mv composer.json.dev composer.json; \
-    else \
-        composer install \
-            --no-dev \
-            --optimize-autoloader \
-            --no-interaction \
-            --no-progress \
-            --prefer-dist; \
-    fi
+    composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist
 
 
 
