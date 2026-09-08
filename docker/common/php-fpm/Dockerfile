@@ -55,10 +55,10 @@ RUN rm -f /usr/bin/composer /usr/local/bin/composer \
 RUN --mount=type=cache,target=/root/.composer/cache \
     composer install \
     --no-dev \
-    --optimize-autoloader \
     --no-interaction \
     --no-progress \
-    --prefer-dist
+    --prefer-dist \
+    --no-scripts
 
 
 

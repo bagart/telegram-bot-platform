@@ -22,9 +22,10 @@ rm -rf /var/www/storage-init
 php artisan migrate --force
 
 # Clear and cache configurations
-# -----------------------------------------------------------
+# ---------------------------------------------------------
 # Improves performance by caching config and routes.
-# -----------------------------------------------------------
+# ---------------------------------------------------------
+php artisan package:discover --ansi
 php artisan config:cache
 php artisan route:cache
 
