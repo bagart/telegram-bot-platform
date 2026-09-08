@@ -8,7 +8,9 @@
  * pages. Re-run `php artisan modules:pages` after changing the registry.
  */
 const loaders = {
-        ...import.meta.glob('../../misc/BAGArt/tgbot-module-antispam/resources/js/pages/**/*.tsx'),
+    ...import.meta.glob(
+        '../../misc/BAGArt/tgbot-module-antispam/resources/js/pages/**/*.tsx',
+    ),
 };
 
 export const modulePageLoaders = Object.fromEntries(

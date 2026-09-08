@@ -38,6 +38,9 @@ jobs:
       - name: Clone baseline package
         run: git clone --depth 1 https://github.com/bagart/telegram-platform-devops-baseline.git misc/BAGArt/telegram-platform-devops-baseline 2>/dev/null || true
 
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-scripts
+
       - name: Shell syntax (every cmd/ and tools/ script)
         run: |
           find cmd tools/baseline tools/git-hooks deploy -type f \( -name '*.sh' -o -perm -111 \) -print0 |

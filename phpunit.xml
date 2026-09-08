@@ -78,7 +78,7 @@
         </include>
     </source>
     <php>
-        <env name="APP_KEY" value="base64:RnJhaWprbm93bkRldm9wc1Rlc3RLZXlGb3JUZXN0aW5nMTI"/>
+        <env name="APP_KEY" value="base64:hXCqSpJes6sbHUmZfLT13ZToxKY7d9zowDiKV1hjlZM="/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
