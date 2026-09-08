@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   docker:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/docker.yml@eec4b204ccff62e0a9f68d5fdb5581db315947b7 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/docker.yml@36856d23c1100f2f6f5ca207ecf018662c57fb1e # pin!
     permissions:
       contents: read
       packages: write # image push on main/master/tags
