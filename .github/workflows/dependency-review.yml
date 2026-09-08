@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: dependency-review-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   dependency-review:
     uses: BAGArt/telegram-platform-workflows/.github/workflows/dependency-review.yml@36856d23c1100f2f6f5ca207ecf018662c57fb1e # pin!

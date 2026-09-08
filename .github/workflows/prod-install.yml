@@ -26,6 +26,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: prod-install-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   prod-install:
     runs-on: ubuntu-latest

@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   security:
     uses: BAGArt/telegram-platform-workflows/.github/workflows/security.yml@36856d23c1100f2f6f5ca207ecf018662c57fb1e # pin!
