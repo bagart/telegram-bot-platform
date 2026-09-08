@@ -35,6 +35,14 @@ WORKDIR /var/www
 COPY . /var/www
 
 
+# Path-repo packages live in misc/BAGArt/ which is gitignored and absent
+# from CI checkout.  Clone them so composer.json path repositories resolve.
+RUN mkdir -p misc/BAGArt \
+    && REPOS="php-async-kernel-lib php-async-kernel-client php-async-kernel-client-redis telegram-bot-lib telegram-bot-lib-basic telegram-platform-management tgbot-module-antispam tgbot-module-summarizer tgbot-module-nettools tgbot-module-tts tgbot-module-stt tgbot-game-mafia telegram-platform-module telegram-platform-menu tgbot-module-proxy telegram-platform-access telegram-platform-audit telegram-platform-devops-baseline" \
+    && for r in $REPOS; do git clone --depth 1 "https://github.com/bagart/${r}.git" "misc/BAGArt/${r}" 2>/dev/null & done \
+    && wait
+
+
 # Install Composer
 RUN rm -f /usr/bin/composer /usr/local/bin/composer \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
