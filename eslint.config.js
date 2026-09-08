@@ -76,6 +76,7 @@ export default [
                     groups: [
                         'builtin',
                         'external',
+                        'type',
                         'internal',
                         'parent',
                         'sibling',

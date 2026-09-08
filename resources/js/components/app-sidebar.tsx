@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { BookOpen, FolderGit2, LayoutGrid, ShieldAlert } from 'lucide-react';
+import type { NavItem } from '@/types';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as antispamDashboard } from '@/routes/antispam';
-import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
