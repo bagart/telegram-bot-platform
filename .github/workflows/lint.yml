@@ -23,6 +23,6 @@ concurrency:
 
 jobs:
   quality:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/lint.ymlef135f0b4502b5d075968e046c1534e3a8bf6fc7 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/lint.yml@ef135f0b4502b5d075968e046c1534e3a8bf6fc7 # pin!
     with:
       php-version: '8.5'
