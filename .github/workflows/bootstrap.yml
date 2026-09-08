@@ -43,8 +43,8 @@ jobs:
 
       - name: Stub baseline vendor/autoload.php for controls
         run: |
-          mkdir -p misc/BAGArt/telegram-platform-devops-baseline/vendor
-          echo '<?php' > misc/BAGArt/telegram-platform-devops-baseline/vendor/autoload.php
+          mkdir -p misc/BAGArt/vendor
+          echo "<?php require '$(pwd)/vendor/autoload.php';" > misc/BAGArt/vendor/autoload.php
 
       - name: Shell syntax (every cmd/ and tools/ script)
         run: |
