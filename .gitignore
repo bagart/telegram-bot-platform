@@ -35,6 +35,7 @@ yarn-error.log
 storage/backups/
 /dist/
 /misc/BAGArt/
+.rename-backup/
 
 # OmniRoute runtime data (sqlite, logs, env) — never in git
 docker/omniroute/data/
