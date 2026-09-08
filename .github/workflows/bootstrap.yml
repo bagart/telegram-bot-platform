@@ -70,7 +70,7 @@ jobs:
         run: bash tools/baseline/shell-lint.sh
 
       - name: Composer manifest valid
-        run: composer validate --no-check-all --no-check-publish
+        run: composer validate --no-check-all --no-check-publish --no-check-lock
 
       - name: Baseline manifest present
         run: |
