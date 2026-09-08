@@ -11,6 +11,6 @@ permissions:
 
 jobs:
   nightly:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/nightly.yml@ef135f0b4502b5d075968e046c1534e3a8bf6fc7 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/nightly.yml@5be3a8de34658b5d09d8d04986c0576eb872c0f9 # pin!
     with:
       php-version: '8.5'

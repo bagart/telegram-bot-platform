@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   security:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/security.yml@ef135f0b4502b5d075968e046c1534e3a8bf6fc7 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/security.yml@5be3a8de34658b5d09d8d04986c0576eb872c0f9 # pin!
     permissions:
       contents: read
       security-events: write # SARIF upload when export-sarif is enabled
