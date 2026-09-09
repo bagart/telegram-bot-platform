@@ -57,6 +57,7 @@ Canonical location: **`.agents/skills/`** (this is where you edit). The other di
 
 | Doc | Purpose |
 |---|---|
+| `docs/STATUS.md` | Compact project status: module states, integration phases, devOps progress |
 | `docs/notes/outbound-pipeline-order.md` | Records that real pipeline order is `Expiry → RetryBudget → RateLimit → Executor`, and that ordering lives at the queue level (not a middleware) |
 
 ## Code layout
@@ -75,6 +76,9 @@ misc/BAGArt/
 ├── tgbot-game-mafia/     → Mafia game module (BAGArt\TelegramBotMafia, TgModuleContract plugin)
 ├── tgbot-module-stt/       → STT module, planned (BAGArt\TelegramBotStt) — voice→text
 ├── tgbot-module-tts/       → TTS module (BAGArt\TelegramBotTts, TgModuleContract plugin) — text→voice
+├── telegram-platform-module/   → module engine: declarative registry, config policy, activation, routing, capabilities, diagnostics (BAGArt\TelegramModuleEngine)
+├── telegram-platform-access/   → access control: AccessControlContract, ChatRole, Grant, AccessDecision (BAGArt\TelegramBotAccess)
+├── telegram-platform-audit/    → audit: AuditSinkContract, AuditEntry DTO (BAGArt\TelegramBotAudit)
 ├── telegram-platform-menu/      → Web Menu hub module (Plugin UI Host) (BAGArt\TelegramBotMenu) — tasks/menu/menu.md + tasks/menu/01–23 prompt-tasks; cross-module integration plan: tasks/menu_integration.md (M-1…M-6 implemented, M-7 deferred)
 ├── telegram-platform-devops-baseline/               → reusable DevOps/security baseline ENGINE (bagart/telegram-platform-devops-baseline, v0.1.0): controls/, hooks/, bin/baseline-*, defaults/ — host consumes via shims; policy JSONs stay per-repo
 ```
@@ -95,7 +99,7 @@ In dev mode `vendor/bagart/` symlinks into `misc/BAGArt/` — library edits are 
 | Run benchmarks | `docs/benchmarks.md` |
 | Know what an acronym means | `docs/glossary.md` |
 | Find the canonical project rules | `AGENTS.md` §"Project Conventions" |
-| See the socket perf plan | `tasks/socket.md` |
+| See project status | `docs/STATUS.md` |
 | Avoid duplicating IDE work | skill `phpstorm-workflow` |
 
 ## Missing / future

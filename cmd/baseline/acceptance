@@ -6,7 +6,7 @@
 # through the standard dependency/wave machinery — the same gate CI and a
 # release use. Out of scope here by construction: human-only criteria
 # (drills, host day, kernel telemetry), `GH` toggles and `INFRA`-dependent
-# criteria — they are tracked in docs/tasks/devops3.md with blocker tags.
+# criteria — they are tracked in docs/STATUS.md.
 #
 # Usage:
 #   cmd/baseline/acceptance [--format=text|json] [--verbose]
