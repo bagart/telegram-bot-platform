@@ -42,21 +42,24 @@
 | 3.3 | 🔴 | Route loading cleanup — all routes via engine |
 | 3.4 | 🔴 | Verify nettools commands work through engine dispatch |
 
-## Phase 4 — Enablement Driver Flip 🔴
+## Phase 4 — Enablement Driver Flip ✅
 
 **Goal:** Switch from legacy enablement to engine-managed activation.
 
 | Task | Status | What |
 |---|---|---|
-| 4.1 | 🔴 | Flip `enablement_driver` from `legacy` to `engine` |
+| 4.1 | ✅ | Flip `enablement_driver` from `legacy` to `engine` |
 | 4.2 | 🔴 | Migrate seeders from provider-level to config-level |
 | 4.3 | 🔴 | Verify engine activation reader works for all modules |
-| 4.4 | 🔴 | Remove legacy enablement service bindings |
+| 4.4 | 🔴 | Remove legacy enablement service bindings (deferred — settings stay in legacy table) |
 
-**Notes:**
-- `legacy` = `TgModuleEnablementService` over `tg_module_enablements` table
-- `engine` = engine adapter over `bot_module_activations` table
-- Requires careful migration path — no data loss
+**What was done:**
+- Management provider's `ModuleEnablementContract` binding is now conditional — skipped when `enablement_driver='engine'`, allowing engine's `EngineModuleEnablement` binding to win
+- `ModuleSettingsContract` always stays bound to legacy service (settings column only exists in `tg_module_enablements`)
+- `TgModuleToggleCommand` (used by `tg:module:enable`/`tg:module:disable`) now supports both drivers:
+  - Engine mode: uses `ModuleActivationService`, requires `--bot`, rejects `--chat`
+  - Legacy mode: uses `TgModuleEnablementService`, supports 3-tier scope
+- Config flipped to `'enablement_driver' => 'engine'`
 
 ## Phase 5 — Manifest-Driven Page Generation 🔴
 

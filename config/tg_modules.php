@@ -46,7 +46,7 @@ return [
     // Dispatch driver for the lib ModuleEnablementContract (doc 05):
     // 'legacy' = management service over tg_module_enablements (default),
     // 'engine' = engine adapter over bot_module_activations.
-    'enablement_driver' => 'legacy',
+    'enablement_driver' => 'engine',
 
     'modules' => [
         'antispam' => new TgModuleConfig(
