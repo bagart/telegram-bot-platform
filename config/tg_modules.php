@@ -296,15 +296,26 @@ return [
             ],
         ),
 
-        // Proxy Operations (menu_integration.md M-6): platform wrapper
-        // registered but disabled and bot-silent — the Mini App slice is next.
-        // Bootstrap provider exemption: ProxyOperationsServiceProvider is in
-        // bootstrap/providers.php for config/migrations/bindings (always-on).
-        // Engine calls TgModuleContract::register() when enabled for
-        // processors/commands/web-api only.
+        // Proxy Operations (menu_integration.md M-6): platform wrapper,
+        // enabled for engine-managed registration. Bootstrap provider
+        // exemption remains for config/migrations/bindings (always-on).
         'proxy' => new TgModuleConfig(
-            enabled: false,
+            enabled: true,
             provider: BAGArt\ProxyOperations\ProxyOperationsModule::class,
+            laravelProvider: BAGArt\ProxyOperations\ProxyOperationsServiceProvider::class,
+            commands: [
+                BAGArt\ProxyOperations\Transport\RunCapabilityProbesCommand::class,
+                BAGArt\ProxyOperations\Audit\LeaseReaperCommand::class,
+            ],
+            schedule: [
+                new TgModuleSchedule(command: 'proxy:lease:reap', expression: '* * * * *'),
+            ],
+            routes: [
+                new RouteDeclaration('command', '/proxy', payload: [
+                    'processor' => BAGArt\ProxyOperations\Bot\ProxyCommand::class,
+                    'description' => 'Proxy operations (private chats only)',
+                ]),
+            ],
         ),
     ],
 ];
