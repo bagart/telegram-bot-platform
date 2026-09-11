@@ -21,7 +21,7 @@
 | 2.3 | ✅ | Declare `commands` (RunCapabilityProbesCommand, LeaseReaperCommand) |
 | 2.4 | ✅ | Declare `schedule` (proxy:lease:reap cron) |
 | 2.5 | ✅ | Declare `routes` (/proxy command, private chats) |
-| 2.6 | 🔴 | Audit streams consumer (event projection to DB) |
+| 2.6 | ✅ | Audit streams consumer (event projection to DB) |
 | 2.7 | 🔴 | Frontend side-channels (ProxyUi Mini App chunk) |
 | 2.8 | ✅ | Settings screens contribution (§8.3 settings surface) |
 | 2.9 | ✅ | Remove commands from ServiceProvider boot() — moved to config |
