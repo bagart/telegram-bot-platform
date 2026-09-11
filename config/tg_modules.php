@@ -39,6 +39,12 @@ declare(strict_types=1);
 use BAGArt\TelegramModuleEngine\Config\TgModuleConfig;
 use BAGArt\TelegramModuleEngine\Config\TgModuleSchedule;
 use BAGArt\TelegramModuleEngine\Routing\RouteDeclaration;
+use BAGArt\TelegramModuleEngine\Settings\SettingsDescriptor;
+use BAGArt\TelegramModuleEngine\Settings\SettingsField;
+use BAGArt\TelegramModuleEngine\Settings\SettingsFieldType;
+use BAGArt\TelegramModuleEngine\Settings\SettingsScreenContribution;
+use BAGArt\TelegramModuleEngine\Settings\WebAccessLevel;
+use BAGArt\TelegramModuleEngine\Settings\WebScreenBinding;
 
 return [
     'strict' => false,
@@ -315,6 +321,84 @@ return [
                     'processor' => BAGArt\ProxyOperations\Bot\ProxyCommand::class,
                     'description' => 'Proxy operations (private chats only)',
                 ]),
+            ],
+            settingsScreens: [
+                new SettingsScreenContribution(
+                    screenId: 'proxy.settings',
+                    descriptor: new SettingsDescriptor(fields: [
+                        new SettingsField(
+                            fieldId: 'proxy.selection_strategy',
+                            type: SettingsFieldType::Enum,
+                            default: 'round_robin',
+                            labelKey: 'proxy::settings.selection_strategy',
+                            descriptionKey: 'proxy::settings.selection_strategy_desc',
+                            options: [
+                                ['value' => 'round_robin', 'labelKey' => 'proxy::settings.strategy_round_robin'],
+                                ['value' => 'random', 'labelKey' => 'proxy::settings.strategy_random'],
+                                ['value' => 'least_used', 'labelKey' => 'proxy::settings.strategy_least_used'],
+                                ['value' => 'weighted', 'labelKey' => 'proxy::settings.strategy_weighted'],
+                            ],
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.lease_ttl_seconds',
+                            type: SettingsFieldType::Int,
+                            default: 300,
+                            labelKey: 'proxy::settings.lease_ttl',
+                            descriptionKey: 'proxy::settings.lease_ttl_desc',
+                            min: 60,
+                            max: 3600,
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.reaper_batch_size',
+                            type: SettingsFieldType::Int,
+                            default: 200,
+                            labelKey: 'proxy::settings.reaper_batch_size',
+                            descriptionKey: 'proxy::settings.reaper_batch_size_desc',
+                            min: 10,
+                            max: 1000,
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.max_concurrent_probes',
+                            type: SettingsFieldType::Int,
+                            default: 50,
+                            labelKey: 'proxy::settings.max_concurrent_probes',
+                            descriptionKey: 'proxy::settings.max_concurrent_probes_desc',
+                            min: 1,
+                            max: 500,
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.hysteresis_degrade',
+                            type: SettingsFieldType::Int,
+                            default: 2,
+                            labelKey: 'proxy::settings.hysteresis_degrade',
+                            descriptionKey: 'proxy::settings.hysteresis_degrade_desc',
+                            min: 1,
+                            max: 10,
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.hysteresis_failing',
+                            type: SettingsFieldType::Int,
+                            default: 5,
+                            labelKey: 'proxy::settings.hysteresis_failing',
+                            descriptionKey: 'proxy::settings.hysteresis_failing_desc',
+                            min: 1,
+                            max: 20,
+                        ),
+                        new SettingsField(
+                            fieldId: 'proxy.hysteresis_dead',
+                            type: SettingsFieldType::Int,
+                            default: 10,
+                            labelKey: 'proxy::settings.hysteresis_dead',
+                            descriptionKey: 'proxy::settings.hysteresis_dead_desc',
+                            min: 1,
+                            max: 50,
+                        ),
+                    ]),
+                    web: new WebScreenBinding(
+                        component: 'Settings/Proxy',
+                        accessLevel: WebAccessLevel::PlatformAdmin,
+                    ),
+                ),
             ],
         ),
     ],
