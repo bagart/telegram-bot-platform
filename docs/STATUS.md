@@ -6,7 +6,7 @@
 
 | Module | Package | Status | Notes |
 |---|---|---|---|
-| Module Engine | `telegram-platform-module` | ✅ 98% | Registry, activation, routing, capabilities, diagnostics, settings contracts, contribution system. Side-channels eliminated. |
+| Module Engine | `telegram-platform-module` | ✅ 99% | Registry, activation, routing, capabilities, diagnostics, settings contracts, contribution system. Side-channels eliminated. |
 | Multi-bot Management | `telegram-platform-management` | ✅ 75% | Models, commands, webhook routing, settings web renderer, i18n (5 locales), inline access enforcement |
 | Menu Hub | `telegram-platform-menu` | ✅ 98% | Full Telegram Mini App: auth, chats, roles, assembler, SchemaForm, chunk loader, frontend SPA. i18n 5 locales. |
 | Access Control | `telegram-platform-access` | ✅ 70% | Domain DTOs + InMemory + **DatabaseAccessControl** (DB-backed). Grant/precedence logic complete. |
@@ -41,8 +41,7 @@
 
 ## What's Left (Priority Order)
 
-1. **Engine 4.4**: Settings column migration (add `module_settings` to `bot_module_activations`, migrate `patch()` methods from 3 modules)
-2. **Engine 6.2**: CI workflow for module validation (no `.github/workflows/`)
-3. **Mafia API-first redesign**: 80+ tasks (needs plan document first)
-4. **Proxy**: ~75 remaining tasks across parser, transport, checker, export, API
-5. **DevOps §2**: GitHub hardening (manual)
+1. **Engine 6.2**: CI workflow for module validation (no `.github/workflows/`)
+2. **Mafia API-first redesign**: 80+ tasks (needs plan document first)
+3. **Proxy**: ~75 remaining tasks across parser, transport, checker, export, API
+4. **DevOps §2**: GitHub hardening (manual)
