@@ -322,6 +322,9 @@ return [
                     'description' => 'Proxy operations (private chats only)',
                 ]),
             ],
+            frontendPages: [
+                base_path('misc/BAGArt/tgbot-module-proxy/resources/js/pages'),
+            ],
             settingsScreens: [
                 new SettingsScreenContribution(
                     screenId: 'proxy.settings',
