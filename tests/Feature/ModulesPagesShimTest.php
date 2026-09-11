@@ -2,15 +2,35 @@
 
 declare(strict_types=1);
 
+use BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry;
+use BAGArt\TelegramModuleEngine\Registry\ModuleRegistryBuilder;
 use Illuminate\Support\Facades\Config;
 
 /**
  * Host shim for module-owned frontend tooling: `modules:pages` iterates the
- * telegram.modules_page_generators registry (self-registered by module
- * service providers), so package.json / CI never name a module command.
+ * EngineModuleRegistry::pageGenerators() so package.json / CI never name
+ * a module command directly.
  */
 test('modules:pages delegates to every registered generator command', function () {
-    Config::set('telegram.modules_page_generators', ['fake:gen-a', 'fake:gen-b']);
+    Config::set('tg_modules.modules', []);
+    app()->forgetInstance(ModuleRegistryBuilder::class);
+    app()->forgetInstance(EngineModuleRegistry::class);
+
+    // Register two fake generator commands via the config that the builder reads.
+    $config = Config::get('tg_modules.modules', []);
+    $config['fake-a'] = new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
+        enabled: true,
+        provider: \BAGArt\TelegramModuleEngine\Tests\Fixtures\TestModule::class,
+        pageGenerators: ['fake:gen-a'],
+    );
+    $config['fake-b'] = new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
+        enabled: true,
+        provider: \BAGArt\TelegramModuleEngine\Tests\Fixtures\TestModule::class,
+        pageGenerators: ['fake:gen-b'],
+    );
+    Config::set('tg_modules.modules', $config);
+
+    $registry = app(EngineModuleRegistry::class);
 
     Artisan::command('fake:gen-a {--output= : path}', function (): int {
         config(['test.gen-a-called' => true]);
@@ -30,15 +50,16 @@ test('modules:pages delegates to every registered generator command', function (
 });
 
 test('modules:pages succeeds without registered generators', function () {
-    Config::set('telegram.modules_page_generators', []);
+    Config::set('tg_modules.modules', []);
+    app()->forgetInstance(ModuleRegistryBuilder::class);
+    app()->forgetInstance(EngineModuleRegistry::class);
 
     $this->artisan('modules:pages')->assertExitCode(0);
 });
 
 test('menu module registers its generator into the registry on boot', function () {
-    // Refresh the in-memory registry to what a full boot would produce.
-    $registered = in_array('menu:pages', array_map(strval(...), (array) config('telegram.modules_page_generators')), true);
+    $registry = app(EngineModuleRegistry::class);
+    $generators = $registry->pageGenerators();
 
-    // In the booted test app the provider has already merged its entry.
-    expect($registered)->toBeTrue();
+    expect($generators)->toContain('menu:pages');
 });

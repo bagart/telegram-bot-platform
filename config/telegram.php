@@ -125,12 +125,10 @@ $configTelegram = [
         ],
     ],
 
-    // Module cron tasks, frontend page dirs and page-generator commands are
-    // declared per module in config/tg_modules.php; the module engine
-    // registers them (schedule-overrides.php user overrides honoured) and
-    // relays the frontend interchange keys (telegram.modules_frontend_pages /
-    // telegram.modules_page_generators) consumed by `modules:pages` and the
-    // menu module's `menu:pages` generator.
+    // Module cron tasks, commands and routes are declared per module in
+    // config/tg_modules.php; the module engine registers them (schedule-overrides
+    // user overrides honoured). Frontend interchange keys (frontendPages,
+    // pageGenerators) are consumed directly from the EngineModuleRegistry.
 ];
 
 return $configTelegram;
