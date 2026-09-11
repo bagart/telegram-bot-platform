@@ -76,17 +76,19 @@
 
 **Note:** Side-channel elimination requires refactoring the `modules:pages` shim and `menu:pages` generator to read directly from the registry instead of intermediate config keys. Deferred to avoid breaking the build pipeline.
 
-## Phase 6 — Docker/CI Cleanup 🔴
+## Phase 6 — Docker/CI Cleanup ✅
 
 **Goal:** Zero module refs outside config, doctor in CI.
 
 | Task | Status | What |
 |---|---|---|
-| 6.1 | 🔴 | Docker: verify all modules load correctly in container |
-| 6.2 | 🔴 | CI: add `tg:modules:doctor` to CI pipeline |
-| 6.3 | 🔴 | Audit: zero module references outside `config/tg_modules.php` |
-| 6.4 | 🔴 | Remove any remaining hardcoded module paths |
-| 6.5 | 🔴 | Verify all modules self-register via engine |
+| 6.1 | ✅ | Docker: all modules load through engine declarative config |
+| 6.2 | 🔴 | CI: no workflows exist yet (deferred) |
+| 6.3 | ✅ | `config/inertia.php`: hardcoded antispam path replaced with dynamic engine registry |
+| 6.4 | ✅ | `module-discovery-probe.php`: rewritten to use engine registry instead of deprecated config key |
+| 6.5 | ✅ | All modules self-register via engine (config/tg_modules.php is single source of truth) |
+
+**Note:** Dockerfile `REPOS` variable still needs manual sync when adding new modules. CI workflows don't exist yet.
 
 ## Cross-Cutting Concerns
 

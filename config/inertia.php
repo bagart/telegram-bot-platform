@@ -37,13 +37,17 @@ return [
 
         'ensure_pages_exist' => true,
 
-        'page_paths' => [
-            resource_path('js/pages'),
+        'page_paths' => function (): array {
+            $paths = [resource_path('js/pages')];
 
-            // Module packages own their pages (P4 self-containment): the
-            // antispam module ships resources/js/pages/antispam/*.
-            base_path('misc/BAGArt/tgbot-module-antispam/resources/js/pages'),
-        ],
+            // Module packages own their pages (P4 self-containment):
+            // the engine collects frontendPages from config/tg_modules.php.
+            if (class_exists(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class) && app()->bound(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class)) {
+                $paths = array_merge($paths, array_values(app(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class)->frontendPages()));
+            }
+
+            return $paths;
+        },
 
         'page_extensions' => [
             'js',

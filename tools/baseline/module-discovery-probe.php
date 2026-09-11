@@ -6,31 +6,19 @@ declare(strict_types=1);
  * Module discovery probe (devops3.md §B, landed 2026-08-24).
  *
  * Boots the host app from the current working directory and asserts that all
- * six composer-installed modules are discovered (registered into
- * telegram.modules_providers by their Laravel providers) and present in the
- * TgModuleRegistry singleton populated during bootstrap. Works identically in
- * dev mode (misc/ PSR-4) and prod mode (vendor packages), which is what makes
- * it usable as the prod-install acceptance probe.
+ * modules declared in config/tg_modules.php are registered in the engine
+ * registry and available for dispatch. Works identically in dev mode
+ * (misc/ PSR-4) and prod mode (vendor packages).
  *
  * Usage (cwd must be the app root):
  *   php tools/baseline/module-discovery-probe.php [--format=text|json]
  *
- * Exit codes: 0 all modules discovered and booted, 1 discovery gap,
- * 2 usage/boot error.
+ * Exit codes: 0 all modules discovered, 1 discovery gap, 2 usage/boot error.
  */
 
 const EXIT_OK = 0;
 const EXIT_CHECK = 1;
 const EXIT_USAGE = 2;
-
-const EXPECTED_MODULE_PROVIDERS = [
-    'antispam' => \BAGArt\TelegramBotAntispam\AntispamModule::class,
-    'summarizer' => \BAGArt\TelegramBotSummarizer\SummarizerModule::class,
-    'nettools' => \BAGArt\TelegramBotNettools\NettoolsModule::class,
-    'stt' => \BAGArt\TelegramBotStt\SttModule::class,
-    'tts' => \BAGArt\TelegramBotTts\TtsModule::class,
-    'mafia' => \BAGArt\TelegramBotMafia\MafiaModule::class,
-];
 
 $format = 'text';
 foreach (array_slice($argv, 1) as $arg) {
@@ -58,59 +46,69 @@ require getcwd().'/vendor/autoload.php';
 $app = require getcwd().'/bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-$registered = (array) config('telegram.modules_providers', []);
-$missing = [];
-foreach (EXPECTED_MODULE_PROVIDERS as $id => $moduleClass) {
-    if (! in_array($moduleClass, $registered, true)) {
-        $missing[$id] = $moduleClass;
-    }
-}
+// Read expected modules from the declarative config (single source of truth).
+$expectedModules = (array) config('tg_modules.modules', []);
+$expectedIds = array_keys($expectedModules);
 
-// TelegramBotServiceProvider::bootModules() has already booted every
-// discovered module into the registry singleton during bootstrap.
-$registryIds = [];
-$bootFailures = [];
+// Validate via the engine registry (builds from config, checks wiring).
+$registryErrors = [];
+$registryModuleIds = [];
 try {
-    $registry = $app->make(\BAGArt\TelegramBot\Modules\TgModuleRegistry::class);
-    $registryIds = $registry->moduleIds();
-    foreach (EXPECTED_MODULE_PROVIDERS as $id => $moduleClass) {
-        if ($missing !== [] && isset($missing[$id])) {
-            continue;
-        }
-        $descriptorId = $moduleClass::descriptor()->id;
-        if (! $registry->has($descriptorId)) {
-            $bootFailures[$id] = $descriptorId;
-        }
-    }
+    $builder = new \BAGArt\TelegramModuleEngine\Registry\ModuleRegistryBuilder(config('tg_modules'));
+    $result = $builder->build();
+    $registryModuleIds = array_keys($result->registry->all());
+    $registryErrors = array_map(
+        static fn (\BAGArt\TelegramModuleEngine\Registry\RegistryError $e): string => $e->message,
+        $result->errors,
+    );
 } catch (Throwable $e) {
-    fwrite(STDERR, sprintf('registry read failed: %s%s', $e->getMessage(), PHP_EOL));
+    fwrite(STDERR, sprintf('registry build failed: %s%s', $e->getMessage(), PHP_EOL));
 
     exit(EXIT_USAGE);
 }
 
+// Check for config modules not in registry (discovery gap).
+$missing = [];
+foreach ($expectedIds as $id) {
+    if (! in_array($id, $registryModuleIds, true)) {
+        $missing[$id] = $expectedModules[$id]->provider ?? 'unknown';
+    }
+}
+
+// Check for registry modules not in config (stale entries).
+$stale = [];
+foreach ($registryModuleIds as $id) {
+    if (! isset($expectedModules[$id])) {
+        $stale[] = $id;
+    }
+}
+
 $result = [
-    'registered_providers' => array_values($registered),
-    'registry_module_ids' => array_values($registryIds),
-    'missing_providers' => $missing,
-    'boot_failures' => $bootFailures,
+    'config_modules' => $expectedIds,
+    'registry_modules' => $registryModuleIds,
+    'missing_modules' => $missing,
+    'stale_modules' => $stale,
+    'registry_errors' => $registryErrors,
 ];
 
 if ($format === 'json') {
     echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL;
 } else {
     printf(
-        'providers registered: %d/%d, registry modules: %d%s',
-        count(array_intersect($registered, EXPECTED_MODULE_PROVIDERS)),
-        count(EXPECTED_MODULE_PROVIDERS),
-        count($registryIds),
+        'config modules: %d, registry modules: %d%s',
+        count($expectedIds),
+        count($registryModuleIds),
         PHP_EOL,
     );
-    foreach ($missing as $id => $class) {
-        printf('MISSING provider %s (%s)%s', $id, $class, PHP_EOL);
+    foreach ($missing as $id => $provider) {
+        printf('MISSING module "%s" (%s)%s', $id, $provider, PHP_EOL);
     }
-    foreach ($bootFailures as $id => $descriptorId) {
-        printf('NOT BOOTED module id "%s" (%s)%s', $descriptorId, $id, PHP_EOL);
+    foreach ($stale as $id) {
+        printf('STALE module "%s" (in registry but not in config)%s', $id, PHP_EOL);
+    }
+    foreach ($registryErrors as $error) {
+        printf('REGISTRY ERROR: %s%s', $error, PHP_EOL);
     }
 }
 
-exit($missing === [] && $bootFailures === [] ? EXIT_OK : EXIT_CHECK);
+exit($missing === [] && $stale === [] && $registryErrors === [] ? EXIT_OK : EXIT_CHECK);
