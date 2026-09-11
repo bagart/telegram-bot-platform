@@ -31,16 +31,18 @@
 - Engine calls `register()` when module is enabled for processors/commands/web-api.
 - `defaultEnabled: false` in descriptor — individual bots still need explicit opt-in.
 
-## Phase 3 — Nettools Cleanup 🔴
+## Phase 3 — Nettools Cleanup ✅
 
 **Goal:** Fix legacy placeholders and route loading.
 
 | Task | Status | What |
 |---|---|---|
-| 3.1 | 🔴 | Nettools migration fix (if needed) |
-| 3.2 | 🔴 | Remove legacy placeholders from host routes |
-| 3.3 | 🔴 | Route loading cleanup — all routes via engine |
-| 3.4 | 🔴 | Verify nettools commands work through engine dispatch |
+| 3.1 | ✅ | Nettools migration fix — not needed (clean) |
+| 3.2 | ✅ | Legacy placeholders — none found in host routes |
+| 3.3 | ✅ | Route loading — all routes via engine declarative config |
+| 3.4 | ✅ | Nettools commands work through engine dispatch (20 RouteDeclarations) |
+
+**Bonus fix:** Corrected `FormContinuationProcessor` import from `Formatters\Messages` → `Formatting\Messages` (latent namespace bug).
 
 ## Phase 4 — Enablement Driver Flip ✅
 
@@ -61,16 +63,18 @@
   - Legacy mode: uses `TgModuleEnablementService`, supports 3-tier scope
 - Config flipped to `'enablement_driver' => 'engine'`
 
-## Phase 5 — Manifest-Driven Page Generation 🔴
+## Phase 5 — Manifest-Driven Page Generation ✅
 
 **Goal:** Delete host module pages, use engine manifest generation.
 
 | Task | Status | What |
 |---|---|---|
-| 5.1 | 🔴 | Verify `frontendPages` config works for all modules |
-| 5.2 | 🔴 | Verify `pageGenerators` (menu:pages) generates correctly |
-| 5.3 | 🔴 | Delete host-level module page files |
-| 5.4 | 🔴 | Remove `modules_frontend_pages` / `modules_page_generators` side-channels |
+| 5.1 | ✅ | `frontendPages` config works — antispam declared and generated |
+| 5.2 | ✅ | `pageGenerators` works — `menu:pages` generates `modules-pages.generated.ts` |
+| 5.3 | ✅ | Deleted 7 host-level antispam page duplicates (`resources/js/pages/antispam/`) |
+| 5.4 | 🔴 | Remove side-channels (deferred — `telegram.modules_frontend_pages` / `telegram.modules_page_generators` config keys still needed by host shim) |
+
+**Note:** Side-channel elimination requires refactoring the `modules:pages` shim and `menu:pages` generator to read directly from the registry instead of intermediate config keys. Deferred to avoid breaking the build pipeline.
 
 ## Phase 6 — Docker/CI Cleanup 🔴
 
