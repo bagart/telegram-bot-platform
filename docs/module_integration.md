@@ -51,8 +51,8 @@
 | Task | Status | What |
 |---|---|---|
 | 4.1 | ✅ | Flip `enablement_driver` from `legacy` to `engine` |
-| 4.2 | 🔴 | Migrate seeders from provider-level to config-level |
-| 4.3 | 🔴 | Verify engine activation reader works for all modules |
+| 4.2 | ✅ | Migrate seeders from provider-level to config-level |
+| 4.3 | ✅ | Verify engine activation reader works for all modules (integration test) |
 | 4.4 | 🔴 | Remove legacy enablement service bindings (deferred — settings stay in legacy table) |
 
 **What was done:**
@@ -72,9 +72,7 @@
 | 5.1 | ✅ | `frontendPages` config works — antispam declared and generated |
 | 5.2 | ✅ | `pageGenerators` works — `menu:pages` generates `modules-pages.generated.ts` |
 | 5.3 | ✅ | Deleted 7 host-level antispam page duplicates (`resources/js/pages/antispam/`) |
-| 5.4 | 🔴 | Remove side-channels (deferred — `telegram.modules_frontend_pages` / `telegram.modules_page_generators` config keys still needed by host shim) |
-
-**Note:** Side-channel elimination requires refactoring the `modules:pages` shim and `menu:pages` generator to read directly from the registry instead of intermediate config keys. Deferred to avoid breaking the build pipeline.
+| 5.4 | ✅ | Remove side-channels (`modules:pages` and `menu:pages` read directly from EngineModuleRegistry) |
 
 ## Phase 6 — Docker/CI Cleanup ✅
 
