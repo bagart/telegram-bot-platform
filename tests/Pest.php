@@ -19,4 +19,7 @@ pest()->extend(TestCase::class)
         dirname(__DIR__).'/misc/BAGArt/telegram-platform-management/tests/Services',
         dirname(__DIR__).'/misc/BAGArt/telegram-platform-management/tests/Models',
         dirname(__DIR__).'/misc/BAGArt/telegram-platform-management/tests/Registries',
+        dirname(__DIR__).'/misc/BAGArt/telegram-platform-access/tests/Feature',
+        dirname(__DIR__).'/misc/BAGArt/telegram-platform-audit/tests/Feature',
+        dirname(__DIR__).'/misc/BAGArt/telegram-platform-audit/tests/Unit',
     );
