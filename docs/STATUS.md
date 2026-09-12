@@ -16,7 +16,7 @@
 | TTS | `tgbot-module-tts` | ✅ Complete | /voice command, private auto-speak, provider presets, SSRF guard, cron prune. i18n 5 locales. |
 | Nettools | `tgbot-module-nettools` | ✅ MVP complete | 19 user commands, /portscan /dnsbl admin-gated, target memory, MCP probe. i18n 5 locales. |
 | Proxy | `tgbot-module-proxy` | 🟡 20% | Domain model, parser, encryption, audit pipeline, checker, transport adapters, ProbeTools. ~75/94 plan tasks remaining. |
-| Mafia Game | `tgbot-game-mafia` | 🟡 65% | Core + Redis state + Eloquent persistence + Notes + MessageTracker + SendPlan + CallbackRouter + GroupPresenter + GameCoordinator + Ghost chat + Day actions + Secret ballot + Bot chatter. Phases 1-3 done. |
+| Mafia Game | `tgbot-game-mafia` | 🟡 75% | Core + Redis state + Eloquent persistence + Notes + MessageTracker + SendPlan + CallbackRouter + GroupPresenter + GameCoordinator + Ghost chat + Day actions + Secret ballot + Bot chatter + DLQ + Metrics + Graceful shutdown. Phases 1-4 done. |
 
 ## Host Integration (`module_integration.md`)
 
@@ -42,6 +42,6 @@
 ## What's Left (Priority Order)
 
 1. **Engine 6.2**: CI workflow for module validation (no `.github/workflows/`)
-2. **Mafia Phase 4–5**: DLQ, metrics, graceful shutdown, Mini App
+2. **Mafia Phase 5**: Mini App (Game Board, Night Action UI, Vote UI, Spectator Mode)
 3. **Proxy**: ~75 remaining tasks across parser, transport, checker, export, API
 4. **DevOps §2**: GitHub hardening (manual)
