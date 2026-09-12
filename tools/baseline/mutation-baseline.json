@@ -4,6 +4,50 @@
         "bagart/async-kernel": {
             "msi_floor": 0,
             "covered_code_msi_floor": 0
+        },
+        "bagart/telegram-platform-access": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/telegram-platform-audit": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/telegram-platform-management": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/telegram-platform-module": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/telegram-platform-menu": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-module-antispam": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-module-nettools": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-module-summarizer": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-module-tts": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-module-proxy": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
+        },
+        "bagart/tgbot-game-mafia": {
+            "msi_floor": 0,
+            "covered_code_msi_floor": 0
         }
     }
 }
