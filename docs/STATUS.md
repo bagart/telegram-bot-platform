@@ -7,16 +7,16 @@
 | Module | Package | Status | Notes |
 |---|---|---|---|
 | Module Engine | `telegram-platform-module` | ✅ 99% | Registry, activation, routing, capabilities, diagnostics, settings contracts, contribution system. Side-channels eliminated. |
-| Multi-bot Management | `telegram-platform-management` | ✅ 75% | Models, commands, webhook routing, settings web renderer, i18n (5 locales), inline access enforcement |
+| Multi-bot Management | `telegram-platform-management` | ✅ 80% | Models, commands, webhook routing, settings web renderer, i18n (5 locales), inline access enforcement, domain events |
 | Menu Hub | `telegram-platform-menu` | ✅ 98% | Full Telegram Mini App: auth, chats, roles, assembler, SchemaForm, chunk loader, frontend SPA. i18n 5 locales. |
 | Access Control | `telegram-platform-access` | ✅ 90% | Domain DTOs + InMemory + DatabaseAccessControl. GrantAccess/DenyAccess/RevokeAccess + events. GrantRepositoryContract + DB impl. 62 tests. |
-| Audit | `telegram-platform-audit` | ✅ 75% | Domain DTOs, DB sink/query, prune command, correlation middleware, access events listener, module lifecycle listener, schedule, admin controller, AuditRecording trait. 58 tests. |
+| Audit | `telegram-platform-audit` | ✅ 85% | Domain DTOs, DB sink/query, prune command, correlation middleware, cross-module event listeners (access + management + engine), admin controller, AuditRecording trait. 65 tests. |
 | Antispam | `tgbot-module-antispam` | ✅ Complete | AI, captcha, commands, counters, enforcement, rules, strikes, violations, web, appeals. i18n 5 locales. |
 | Summarizer | `tgbot-module-summarizer` | ✅ Complete | LLM digests, in-chat admin panel, cron, settings, web UI. i18n 5 locales. |
 | TTS | `tgbot-module-tts` | ✅ Complete | /voice command, private auto-speak, provider presets, SSRF guard, cron prune. i18n 5 locales. |
 | Nettools | `tgbot-module-nettools` | ✅ MVP complete | 19 user commands, /portscan /dnsbl admin-gated, target memory, MCP probe. i18n 5 locales. |
 | Proxy | `tgbot-module-proxy` | 🟡 20% | Domain model, parser, encryption, audit pipeline, checker, transport adapters, ProbeTools. ~75/94 plan tasks remaining. |
-| Mafia Game | `tgbot-game-mafia` | 🟡 25% | Core scaffold: game logic, rooms, bots, i18n (5 locales). API-first redesign in progress (Phases 1-3 done, 4-5 pending). |
+| Mafia Game | `tgbot-game-mafia` | 🟡 65% | Core + Redis state + Eloquent persistence + Notes + MessageTracker + SendPlan + CallbackRouter + GroupPresenter + GameCoordinator + Ghost chat + Day actions + Secret ballot + Bot chatter. Phases 1-3 done. |
 
 ## Host Integration (`module_integration.md`)
 
