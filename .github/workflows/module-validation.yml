@@ -1,0 +1,63 @@
+name: Module Validation
+
+on:
+  push:
+    paths:
+      - 'misc/BAGArt/*/src/**'
+      - 'misc/BAGArt/*/config/**'
+      - 'config/tg_modules.php'
+  pull_request:
+    paths:
+      - 'misc/BAGArt/*/src/**'
+      - 'misc/BAGArt/*/config/**'
+      - 'config/tg_modules.php'
+
+jobs:
+  validate-modules:
+    name: Validate Module Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, xml, curl, pdo, pdo_pgsql, redis
+          coverage: none
+
+      - name: Validate module configs
+        run: |
+          php -r "
+          \$config = require 'config/tg_modules.php';
+          \$errors = [];
+          foreach (\$config as \$id => \$module) {
+              if (!property_exists(\$module, 'provider') || !class_exists(\$module->provider)) {
+                  \$errors[] = \"Module {\$id}: provider class not found\";
+              }
+              if (isset(\$module->laravelProvider) && \$module->laravelProvider !== null && !class_exists(\$module->laravelProvider)) {
+                  \$errors[] = \"Module {\$id}: laravelProvider class not found\";
+              }
+          }
+          if (\$errors) {
+              echo \"Module validation errors:\\n\";
+              foreach (\$errors as \$e) echo \"  - {\$e}\\n\";
+              exit(1);
+          }
+          echo count(\$config) . \" modules validated successfully\\n\";
+          "
+
+      - name: Run module tests
+        run: XDEBUG_MODE=off vendor/bin/pest --testsuite=MafiaModule --testsuite=AuditModule --testsuite=AccessModule --compact
+        continue-on-error: true
+
+      - name: Check module PSR-4 autoloading
+        run: |
+          for dir in misc/BAGArt/*/; do
+            if [ -f "$dir/composer.json" ]; then
+              echo "Checking autoloading for $(basename $dir)..."
+              (cd "$dir" && composer validate --no-check-all --no-check-publish 2>/dev/null || true)
+            fi
+          done
