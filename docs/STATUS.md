@@ -10,7 +10,7 @@
 | Multi-bot Management | `telegram-platform-management` | ✅ 75% | Models, commands, webhook routing, settings web renderer, i18n (5 locales), inline access enforcement |
 | Menu Hub | `telegram-platform-menu` | ✅ 98% | Full Telegram Mini App: auth, chats, roles, assembler, SchemaForm, chunk loader, frontend SPA. i18n 5 locales. |
 | Access Control | `telegram-platform-access` | ✅ 90% | Domain DTOs + InMemory + DatabaseAccessControl. GrantAccess/DenyAccess/RevokeAccess + events. GrantRepositoryContract + DB impl. 62 tests. |
-| Audit | `telegram-platform-audit` | ✅ 65% | Domain DTOs, DB sink/query, prune command, correlation middleware, access events listener, module lifecycle listener, schedule. 53 tests. |
+| Audit | `telegram-platform-audit` | ✅ 75% | Domain DTOs, DB sink/query, prune command, correlation middleware, access events listener, module lifecycle listener, schedule, admin controller, AuditRecording trait. 58 tests. |
 | Antispam | `tgbot-module-antispam` | ✅ Complete | AI, captcha, commands, counters, enforcement, rules, strikes, violations, web, appeals. i18n 5 locales. |
 | Summarizer | `tgbot-module-summarizer` | ✅ Complete | LLM digests, in-chat admin panel, cron, settings, web UI. i18n 5 locales. |
 | TTS | `tgbot-module-tts` | ✅ Complete | /voice command, private auto-speak, provider presets, SSRF guard, cron prune. i18n 5 locales. |
@@ -41,9 +41,7 @@
 
 ## What's Left (Priority Order)
 
-1. **Audit Phase 5**: Query/Read API (admin controller)
-2. **Audit Phase 6**: Cross-module integration (management, menu, proxy)
-3. **Engine 6.2**: CI workflow for module validation (no `.github/workflows/`)
-4. **Mafia Phase 4–5**: DLQ, metrics, graceful shutdown, Mini App
-5. **Proxy**: ~75 remaining tasks across parser, transport, checker, export, API
-6. **DevOps §2**: GitHub hardening (manual)
+1. **Engine 6.2**: CI workflow for module validation (no `.github/workflows/`)
+2. **Mafia Phase 4–5**: DLQ, metrics, graceful shutdown, Mini App
+3. **Proxy**: ~75 remaining tasks across parser, transport, checker, export, API
+4. **DevOps §2**: GitHub hardening (manual)
