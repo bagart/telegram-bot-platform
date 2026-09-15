@@ -46,6 +46,38 @@ services:
         condition: service_started
 
 
+  proxy-worker:
+    build:
+      context: .
+      dockerfile: ./docker/common/php-fpm/Dockerfile
+      target: development
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+        XDEBUG_ENABLED: ${XDEBUG_ENABLED:-false}
+        XDEBUG_MODE: ${XDEBUG_MODE:-off}
+        XDEBUG_HOST: ${XDEBUG_HOST:-host.docker.internal}
+        XDEBUG_IDE_KEY: ${XDEBUG_IDE_KEY:-DOCKER}
+        XDEBUG_LOG: /dev/stdout
+        XDEBUG_LOG_LEVEL: 0
+    env_file:
+      - .env
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./:/var/www
+    working_dir: /var/www
+    command: ["php", "artisan", "proxy:worker", "--concurrent=4", "--batch=1"]
+    restart: unless-stopped
+    stop_grace_period: 90s
+    networks:
+      - laravel-development
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+
+
   workspace:
     build:
       context: .

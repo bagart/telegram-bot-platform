@@ -15,7 +15,7 @@
 | Summarizer | `tgbot-module-summarizer` | ✅ 100% | — | LLM digests, in-chat admin panel, cron, settings, web UI. i18n 5 locales. |
 | TTS | `tgbot-module-tts` | ✅ 100% | — | /voice command, private auto-speak, provider presets, SSRF guard, cron prune. i18n 5 locales. |
 | Nettools | `tgbot-module-nettools` | ✅ 100% | 205 | 19 user commands, /portscan /dnsbl admin-gated, target memory, MCP probe. i18n 5 locales. |
-| Proxy | `tgbot-module-proxy` | ✅ 95% | 122 | Domain, Transport, Audit, Models, Parser, Encryption, Checker, Tool. HTTP controllers (5), i18n (5 langs), React pages (4). Mini App (10 routes + chunk JS). Commands fixed. |
+| Proxy | `tgbot-module-proxy` | ✅ 100% | 1152 | Full lifecycle: import, audit, health, pools, lease, export (7 formats). Bot wizards, feed sync, backup/PITR, SLO benchmark, health endpoints, incident engine, decision log, gateway API. 5 langs, 31 migrations. |
 | Mafia Game | `tgbot-game-mafia` | ✅ 95% | 115 | Core + Redis + Eloquent + Notes + MessageTracker + DLQ + Metrics + Graceful shutdown + Mini App (game board, night/vote UI, spectator). All phases done. |
 
 ## Host Integration (`module_integration.md`)

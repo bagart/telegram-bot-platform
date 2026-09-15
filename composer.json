@@ -63,6 +63,7 @@
             "BAGArt\\TelegramBotNettools\\": "misc/BAGArt/tgbot-module-nettools/src/",
             "BAGArt\\ProxyOperations\\": "misc/BAGArt/tgbot-module-proxy/src/",
             "BAGArt\\ProxyOperations\\Database\\Factories\\": "misc/BAGArt/tgbot-module-proxy/database/factories/",
+            "BAGArt\\ProxyOperations\\Database\\Seeders\\": "misc/BAGArt/tgbot-module-proxy/database/seeders/",
             "BAGArt\\TelegramBotMafia\\": "misc/BAGArt/tgbot-game-mafia/src/",
             "BAGArt\\TelegramBotManagement\\": "misc/BAGArt/telegram-platform-management/src/",
             "BAGArt\\TelegramBotMenu\\": "misc/BAGArt/telegram-platform-menu/src/",

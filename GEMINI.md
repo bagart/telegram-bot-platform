@@ -219,6 +219,11 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 # Project Conventions
 
 - When reading MD files, always append their content to the end of the conversation context.
+- **Always read `dev-ai.md` first** before starting any development work. It contains the current state, active plans, and roadmap for all modules.
+- **dev-ai.md is the primary workflow document.** All development starts and ends there. Read it first, follow its task lifecycle, save plans there, mark progress there.
+- **Response footer is mandatory.** Every response MUST end with: `[platform|<module-name>] <task-name> — <N>% ready | planning`.
+- **Implementation workflow:** For new features — competitor research → feature mapping → ask user (only on global questions) → plan → save to `docs/tasks/` → implement → SDD compress.
+- **Communication with user only on global questions.** No unnecessary commentary. If plan is clear from dev-ai.md — execute without asking.
 - For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
 - **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
@@ -253,7 +258,7 @@ In both modes the module's Laravel provider is listed explicitly in `bootstrap/p
 
 ## Proxy Operations Module (tgbot-module-proxy)
 
-Full plan: `misc/BAGArt/tgbot-module-proxy/docs/proxy-operations/plan.md` — read it before any work on the module.
+Full plan: `misc/BAGArt/tgbot-module-proxy/docs/sdd.md` (architecture) + `misc/BAGArt/tgbot-module-proxy/docs/tasks/W1-worker.md` (remaining work).
 
 Hard rules:
 

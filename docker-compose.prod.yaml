@@ -52,6 +52,27 @@ services:
       postgres:
         condition: service_healthy
 
+  proxy-worker:
+    build:
+      context: .
+      dockerfile: ./docker/common/php-fpm/Dockerfile
+      target: production
+    restart: unless-stopped
+    volumes:
+      - laravel-storage-production:/var/www/storage
+    env_file:
+      - .env
+    working_dir: /var/www
+    command: ["php", "artisan", "proxy:worker", "--concurrent=4", "--batch=2"]
+    stop_grace_period: 90s
+    networks:
+      - laravel-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   postgres:
     image: postgres:17
     restart: unless-stopped

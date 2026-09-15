@@ -39,7 +39,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
-- **NEVER run `git commit`, `git push`, or any other git write operation (`git add` included) — in any repository, including nested repos under `misc/BAGArt/*`. The user reviews all changes via `git diff` / `git status` themselves and commits manually. Make changes on disk only; leave the working tree for user review.**
+- **NEVER run `git commit`, `git push`, or any other git write operation (`git add` included) — in any repository, including nested repos under `misc/BAGArt/*`. The user reviews all changes via `git diff` / `git status` themselves and commits manually. Make changes on disk only; leave the working tree for user review. Exception: if the user explicitly asks to commit, you may run `git add` and `git commit` as requested.**
 
 ## Verification Scripts
 
@@ -217,6 +217,11 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 # Project Conventions
 
 - When reading MD files, always append their content to the end of the conversation context.
+- **Always read `dev-ai.md` first** before starting any development work. It contains the current state, active plans, and roadmap for all modules.
+- **dev-ai.md is the primary workflow document.** All development starts and ends there. Read it first, follow its task lifecycle, save plans there, mark progress there.
+- **Response footer is mandatory.** Every response MUST end with: `[platform|<module-name>] <task-name> — <N>% ready | planning`.
+- **Implementation workflow:** For new features — competitor research → feature mapping → ask user (only on global questions) → plan → save to `docs/tasks/` → implement → SDD compress → DELETE task file. **NEVER write code without an existing task file.**
+- **Communication with user only on global questions.** No unnecessary commentary. If plan is clear from dev-ai.md — execute without asking.
 - For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
 - **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
@@ -255,7 +260,7 @@ Since the module-engine bootstrap takeover (phase 3), a module's Laravel provide
 
 ## Proxy Operations Module (tgbot-module-proxy)
 
-Full plan: `misc/BAGArt/tgbot-module-proxy/docs/proxy-operations/plan.md` — read it before any work on the module.
+Full plan: `misc/BAGArt/tgbot-module-proxy/docs/sdd.md` (architecture) + `misc/BAGArt/tgbot-module-proxy/docs/tasks/W1-worker.md` (remaining work).
 
 Hard rules:
 
