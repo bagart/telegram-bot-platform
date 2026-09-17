@@ -193,6 +193,8 @@ Completed core, post-MVP and worker decisions are consolidated in [Proxy SDD](mi
 
 ### Remaining Integration and Acceptance
 
+- [ ] Work the platform-wide backlog recorded on 2026-09-17: [platform backlog task](docs/tasks/platform-backlog.md) (confirmed defects grouped P0/P1/P2 + items needing verification).
+- [ ] Recover documentation accuracy and navigation: [documentation recovery task](docs/tasks/documentation-recovery.md). Fix and verify the two immediate defects before broader recovery; previous blanket verification claims are not acceptance evidence.
 - [ ] Resolve legacy settings-storage dependencies before retiring enablement bindings; see [remaining integration work](docs/module_integration.md).
 - [ ] Complete or verify Mafia quickplay, rematch and Mini App requirements in [the remaining redesign plan](misc/BAGArt/tgbot-game-mafia/docs/redesign-plan.md).
 - [ ] Verify Menu publication, settings writer and cross-module integration status recorded in [Menu SDD](misc/BAGArt/telegram-platform-menu/docs/SDD-menu.md).
