@@ -225,6 +225,7 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - **Implementation workflow:** For new features — competitor research → feature mapping → ask user (only on global questions) → plan → save to `docs/tasks/` → implement → SDD compress.
 - **Communication with user only on global questions.** No unnecessary commentary. If plan is clear from dev-ai.md — execute without asking.
 - For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
+- **Agent operating prompt:** `docs/agents/platform-prompt.md` (read order, lifecycle, resource discipline) + `docs/agents/platform-map.md` (service/logic/view index). Load when starting a session; they complement, never override, this file.
 - **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
 - Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.

@@ -45,7 +45,7 @@ DELTA → PLAN → IMPLEMENT → VERIFY → SDD → UPDATE DOCS → CLEANUP
 2. **PLAN** — write to `<module>/docs/tasks/<topic>.md` (only UNDONE items)
 3. **Implementation** — execute plan, mark tasks complete in `docs/tasks/`
 4. **Verification** — run tests, review `git diff`, check code quality
-5. **SDD compression** — compress essence into `<module>/docs/SDD-<topic>.md` (declarative, no code)
+5. **SDD compression** — after implementation, compress the essence into `<module>/docs/SDD-<topic>.md` (declarative, no code). This is MANDATORY — every completed task must leave an SDD trace.
 6. **Update user docs** — update README, docs, examples
 7. **Cleanup** — remove completed items from task file; if all done, DELETE the file
 
@@ -92,8 +92,10 @@ misc/BAGArt/<module>/docs/
 - `<module>/docs/tasks/<topic>.md` — active plans with checklists (temporary, deleted after completion)
 - `<module>/docs/SDD-<topic>.md` — compressed essence (thesis-style, no code) — permanent
 - `dev-ai.md` (this file) — current state and roadmap (always read first)
+- **Scope includes the entire `misc/` tree**, including nested repositories: its documentation, roadmaps, task files, source code, and tests are part of the current platform scope. A platform-wide task or completeness audit must cover every package under `misc/`, not only the host docs or `docs/tasks/`. Distinguish documented backlog from source-verified gaps and stale completion markers.
 - **Task files contain ONLY undone items.** Done items are removed immediately.
 - **Old tasks → compress into SDD, then DELETE from `docs/tasks/`** — task files are ephemeral
+- **Every completed task MUST have a corresponding SDD entry.** If SDD doesn't exist — create it. If it exists — append the new decisions/rationale.
 - Reference architecture docs (e.g. `architecture.md`) stay as-is — they are not tasks
 
 ### Compression Style
@@ -104,6 +106,8 @@ After implementation, SDD gets:
 - Output files and purpose
 - Architecture diagrams (text)
 - NO implementation details, NO code
+
+**Timing:** SDD compression happens IMMEDIATELY after task implementation, before cleanup. Do not defer SDD updates.
 
 ---
 
@@ -156,15 +160,20 @@ After implementation, SDD gets:
 | Module | Tasks | SDD | ADR | Architecture |
 |---|---|---|---|---|
 | tgbot-module-proxy | — | `docs/sdd.md` | `docs/adr/ADR-001-stage0-contracts.md` | — |
-| telegram-platform-module | — | — | — | `docs/architecture/` (15 files) |
+| telegram-platform-module | Architecture roadmap caveats | `docs/SDD-module-engine.md` | — | `docs/architecture/` |
 | telegram-platform-access | — | `docs/SDD-access-control.md` | — | `docs/architecture.md` |
-| tgbot-game-mafia | — | — | — | `docs/redesign-plan.md` |
-| telegram-bot-lib-basic | — | — | — | `docs/EN/processing.md`, `docs/RU/processing.md` |
-| tgbot-module-nettools | — | — | — | `Readme.md` (root) |
-| tgbot-module-antispam | — | — | — | — |
+| tgbot-game-mafia | `docs/redesign-plan.md` | `docs/SDD-mafia-game.md` | — | — |
+| telegram-bot-lib-basic | — | `docs/SDD-basic-lib.md` | — | `docs/EN/processing.md`, `docs/RU/processing.md` |
+| tgbot-module-nettools | — | `docs/SDD-nettools.md` | — | `Readme.md` (root) |
+| tgbot-module-antispam | — | `docs/SDD-antispam.md` | — | — |
+| tgbot-module-summarizer | — | `docs/SDD-summarizer.md` | — | — |
+| tgbot-module-tts | README conditional follow-up | `docs/SDD-tts.md` | — | — |
+| telegram-platform-management | Completion status unverified | `docs/SDD-management.md` | — | — |
+| telegram-platform-menu | SDD open/unverified follow-ups | `docs/SDD-menu.md` | — | — |
 | telegram-platform-audit | — | `docs/SDD-audit.md` | — | — |
+| Host integration | `docs/module_integration.md` | `docs/SDD-module-integration.md` | — | — |
 
-> Modules without `tasks/` or `SDD-*` have no active plans. Create `docs/tasks/` when starting new work.
+> Task-directory READMEs are conventions, not active tasks. Absence of a task file does not establish completion; check module READMEs and architecture caveats. Documentation cleanup preserved deferred and unverified work without changing implementation.
 
 ---
 
@@ -174,43 +183,20 @@ After implementation, SDD gets:
 
 **Goal:** Full proxy lifecycle management — import, audit, health, pools, lease, export.
 
-**Current state:** 100% complete. All planned features implemented. W1c (ExternalBinaryExecutor) deferred — not needed.
-
-#### Stage 0–11: Core (all done)
-- [x] Domain model (identity, lifecycle, failure taxonomy, evidence)
-- [x] Parser grammar (multi-format, VPN scope guard, CIDR expansion)
-- [x] Transport adapters (HTTP/SOCKS4/SOCKS5/DNS/UDP)
-- [x] Checker engine (ProbeExecutor, JudgeProvider, ToolRegistry)
-- [x] Audit pipeline (job lifecycle, task delivery, result ingestion, health evaluation)
-- [x] Shared probe cache (ProbeCacheKeyV3, CacheAwareProbePlanner)
-- [x] Pools, selection, lease
-- [x] Export (7 formatters, credential masking, verified projection)
-- [x] Application layer (service bus, commands/queries, quota enforcement)
-- [x] REST API, Bot commands, CLI commands
-- [x] I18n (5 languages)
-- [x] Architecture tests (INV-001…INV-020)
-
-#### Post-MVP (all done)
-- [x] CW1: Bot wizard flows (WizardSession, Import/Export wizards, WizardRouter)
-- [x] P1: Backup/PITR (proxy:backup, proxy:wal:archive, partitioning)
-- [x] P2: SLO benchmarking (proxy:benchmark, BenchmarkRunner, SloReport)
-- [x] P3: Feed sync (FeedSyncService, proxy:feed:sync, ProxyFeedSource)
-- [x] P4: Health endpoints (live/ready/detailed)
-- [x] F1: Incident engine (detector, escalator, models, controller)
-- [x] F2: Decision log UI (DecisionLogService, Decision model, controller)
-- [x] F3: Gateway API (GatewayToken, auth middleware, controller, routes)
-
-#### Worker Pipeline (all done)
-- [x] W1a: WorkerExecutionPlaneHandler dispatch
-- [x] W1b: TransportCapabilityDaemon tick loop + lease renewer
-- [x] W1c: Credential sealing, CacheAwareProbePlanner, ProbeOutcomeClassifier, ResultIngestionService, all wire contracts
-- [ ] W1c-EXEC: ExternalBinaryExecutor (deferred — not needed, all tools are PHP-native)
+Completed core, post-MVP and worker decisions are consolidated in [Proxy SDD](misc/BAGArt/tgbot-module-proxy/docs/sdd.md). Completed checklists are retired; historical completion percentages above are not fresh verification results.
 
 ### Deferred (no timeline)
 
-- Multi-region fleet (R10)
-- Standalone parser-svc (R13)
-- W1c: ExternalBinaryExecutor
+- [ ] Multi-region fleet (R10).
+- [ ] Standalone parser-svc (R13).
+- [ ] W1c-EXEC: ExternalBinaryExecutor — deferred because current tools are PHP-native.
+
+### Remaining Integration and Acceptance
+
+- [ ] Resolve legacy settings-storage dependencies before retiring enablement bindings; see [remaining integration work](docs/module_integration.md).
+- [ ] Complete or verify Mafia quickplay, rematch and Mini App requirements in [the remaining redesign plan](misc/BAGArt/tgbot-game-mafia/docs/redesign-plan.md).
+- [ ] Verify Menu publication, settings writer and cross-module integration status recorded in [Menu SDD](misc/BAGArt/telegram-platform-menu/docs/SDD-menu.md).
+- [ ] Reconcile engine production-path and rollout caveats in its architecture roadmap with the host integration status before marking production rollout complete.
 
 ---
 

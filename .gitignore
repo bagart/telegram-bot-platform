@@ -42,3 +42,6 @@ docker/omniroute/data/
 
 # Module UI pages are build artifacts materialized from module repos (cmd/dev/ui-sync)
 /resources/js/pages/antispam
+
+# Task files — ephemeral plans, never commit
+**/docs/tasks/

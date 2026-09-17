@@ -7,6 +7,8 @@
 | File | Purpose | Audience |
 |---|---|---|
 | `AGENTS.md` | **Canonical source of truth.** Generic Laravel Boost guidelines + language rules + all project conventions (Telegram structure, DI, webhooks, DTO gen, daemon shutdown, state rules, composer). | All agents (ZCode, Codex, generic) |
+| `docs/agents/platform-prompt.md` | **Operating system prompt:** read order, task lifecycle, package topology, hard rules, doc economy, resource discipline. Autonomous/local-first. | All agents |
+| `docs/agents/platform-map.md` | Service/logic/view index: package→responsibility table, runtime flows, UI surfaces, branch→file pointer table. | All agents |
 | `CLAUDE.md` | Mirror of `AGENTS.md`. Boost regenerates the `<laravel-boost-guidelines>` block; the `=== project conventions ===` tail is mirrored by hand. | Claude Code |
 | `GEMINI.md` | Mirror of `AGENTS.md` (same convention as CLAUDE.md). | Gemini |
 | `dev-ai.md` | **Active development plan.** Current state of all modules, remaining work, roadmap. Always read first for current context. | All agents |
@@ -59,7 +61,9 @@ Canonical location: **`.agents/skills/`** (this is where you edit). The other di
 
 | Doc | Purpose |
 |---|---|
-| `docs/STATUS.md` | Compact project status: module states, integration phases, devOps progress |
+| `docs/STATUS.md` | Historical project status: verify completion claims against remaining plans |
+| `docs/module_integration.md` | Remaining host integration work and acceptance gates |
+| `docs/SDD-module-integration.md` | Retained host integration decisions and compatibility boundaries |
 | `docs/notes/outbound-pipeline-order.md` | Records that real pipeline order is `Expiry → RetryBudget → RateLimit → Executor`, and that ordering lives at the queue level (not a middleware) |
 
 ## Code layout
@@ -93,6 +97,8 @@ In dev mode `vendor/bagart/` symlinks into `misc/BAGArt/` — library edits are 
 
 | I need to… | Go to |
 |---|---|
+| Get the operating contract for this session | `docs/agents/platform-prompt.md` |
+| Find which service/logic/view owns behavior | `docs/agents/platform-map.md` |
 | Understand daemon lifecycle | skill `async-kernel-development` |
 | Add/modify outbound middleware | skill `outbound-pipeline-development/rules/middleware.md` |
 | Regenerate Telegram DTOs | skill `telegram-dto-generation` → `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` |
@@ -122,21 +128,26 @@ APPROVED PLAN → <module>/docs/tasks/<topic>.md → IMPLEMENT → SDD compressi
 
 | Module | Tasks | SDD | ADR | Architecture |
 |---|---|---|---|---|
-| tgbot-module-proxy | — | `sdd.md` | `adr/ADR-001-stage0-contracts.md` | — |
-| telegram-platform-module | `tasks/README.md` | `SDD-module-engine.md` | — | `architecture/` (15 files) |
-| telegram-platform-access | `tasks/README.md` | `SDD-access-control.md` | — | `architecture.md` |
-| tgbot-game-mafia | `tasks/README.md` | `SDD-mafia-game.md` | — | `redesign-plan.md` |
-| telegram-bot-lib-basic | `tasks/README.md` | `SDD-basic-lib.md` | — | `EN/`, `RU/` (processing) |
-| tgbot-module-nettools | `tasks/README.md` | `SDD-nettools.md` | — | — |
-| tgbot-module-antispam | `tasks/README.md` | `SDD-antispam.md` | — | — |
-| tgbot-module-summarizer | `tasks/README.md` | `SDD-summarizer.md` | — | — |
-| tgbot-module-tts | `tasks/README.md` | `SDD-tts.md` | — | — |
-| telegram-platform-management | `tasks/README.md` | `SDD-management.md` | — | — |
-| telegram-platform-audit | `tasks/README.md` | `SDD-audit.md` | — | — |
-| telegram-platform-menu | `tasks/README.md` | `SDD-menu.md` | — | — |
+| tgbot-module-proxy | — | `sdd.md` + `INDEX.md` | `adr/ADR-001-stage0-contracts.md` | — |
+| telegram-platform-module | `tasks/README.md` | `SDD-module-engine.md` + `INDEX.md` | — | `architecture/` (15 files) |
+| telegram-platform-access | `tasks/README.md` | `SDD-access-control.md` + `INDEX.md` | — | `architecture.md` |
+| tgbot-game-mafia | `redesign-plan.md` | `SDD-mafia-game.md` + `INDEX.md` | — | — |
+| telegram-bot-lib-basic | `tasks/README.md` | `SDD-basic-lib.md` + `INDEX.md` | — | `EN/`, `RU/` (processing) |
+| tgbot-module-nettools | `tasks/README.md` | `SDD-nettools.md` + `INDEX.md` | — | — |
+| tgbot-module-antispam | `tasks/README.md` | `SDD-antispam.md` + `INDEX.md` | — | — |
+| tgbot-module-summarizer | `tasks/README.md` | `SDD-summarizer.md` + `INDEX.md` | — | — |
+| tgbot-module-tts | `tasks/README.md` | `SDD-tts.md` + `INDEX.md` | — | — |
+| tgbot-module-stt | — | `SDD-stt.md` + `INDEX.md` | — | — |
+| telegram-platform-management | `tasks/README.md` | `SDD-management.md` + `INDEX.md` | — | — |
+| telegram-platform-audit | `tasks/README.md` | `SDD-audit.md` + `INDEX.md` | — | — |
+| telegram-platform-menu | `tasks/README.md` | `SDD-menu.md` + `INDEX.md` | — | — |
+| telegram-bot-lib (core) | — | `SDD-core-lib.md` + `INDEX.md` | — | — |
+| php-async-kernel-lib | — | `SDD-async-kernel.md` + `INDEX.md` | — | — |
+| php-async-kernel-client | — | `SDD-ask-client.md` + `INDEX.md` | — | — |
+| php-async-kernel-client-redis | — | `SDD-ask-redis.md` + `INDEX.md` | — | — |
 
 ## Missing / future
 
-- `docs/adr/` — Architecture Decision Records (not yet present; candidates: "why Fiber not ReactPHP", "why daemon-in-command not singleton", "why readonly DTOs in Redis")
+- host `docs/adr/` — not yet present (module-scoped ADRs exist: proxy `docs/adr/ADR-001`); candidates: "why Fiber not ReactPHP", "why daemon-in-command not singleton", "why readonly DTOs in Redis"
 - `CONTRIBUTING.md` — only boilerplate in `README.md` currently
 - English counterpart to `docs/_lang/ru/processing.md`

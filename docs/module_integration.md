@@ -1,25 +1,19 @@
 # Module Integration — Remaining Items
 
-> Completed phases removed (2026-09-13). Full history in git log.
-> Status tracking: `docs/STATUS.md`.
+Completed integration decisions are retained in [SDD-module-integration.md](SDD-module-integration.md).
 
-## Deferred Items
+## Phase 4.4 — Legacy Enablement Bindings
 
-### Phase 4.4 — Remove legacy enablement service bindings
-- **Status:** 🔴 Deferred
-- **Reason:** Settings column only exists in `tg_module_enablements` table; removing the legacy binding would break settings reads
-- **Blocked by:** Database migration to move settings to a new table or engine-owned storage
+- [ ] Migrate settings from `tg_module_enablements` to the agreed replacement storage before retiring the legacy enablement-service bindings.
+- [ ] Verify that settings reads remain compatible after activation-source migration.
 
-### Phase 6.2 — CI workflows
-- **Status:** ✅ Done (added `module-validation.yml`)
-- **Note:** Dockerfile `REPOS` variable still needs manual sync when adding new modules
+Status: deferred. The legacy settings dependency blocks removal; this is not an outstanding activation-reader test.
 
-## Cross-Cutting Concerns
+## Docker Repository Enumeration
 
-### Testing
-- `php artisan tg:modules:validate` must pass
-- `php artisan tg:modules:doctor` must report no issues
+- [ ] Keep the Dockerfile `REPOS` list synchronized when adding modules, or replace manual enumeration with a verified declarative source.
 
-### Rollback
-- Each phase should be reversible by flipping config values
-- No destructive migrations until Phase 6 is verified
+## Acceptance and Rollback
+
+- [ ] Verify module validation and doctor diagnostics for the remaining integration changes.
+- [ ] Verify reversible cutover and storage migration before removing compatibility bindings or applying destructive migrations.
