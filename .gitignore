@@ -35,6 +35,10 @@ yarn-error.log
 storage/backups/
 /dist/
 /misc/BAGArt/
+# Nested clone of the public skills repo (bagart/telegram-platform-skills) —
+# canonical, lives in its own git; the tracked copies are the sync mirrors
+# in .claude/.cursor/.github/.junie/skills
+/docs/skills/
 .rename-backup/
 
 # OmniRoute runtime data (sqlite, logs, env) — never in git
