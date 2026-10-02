@@ -58,10 +58,12 @@ export default function ModuleSettingsShow({
     const [formValues, setFormValues] = useState<Record<string, unknown>>(
         () => {
             const initial: Record<string, unknown> = {};
+
             for (const field of fields) {
                 initial[field.fieldId] =
                     values[field.fieldId] ?? field.default ?? '';
             }
+
             return initial;
         },
     );
@@ -77,6 +79,7 @@ export default function ModuleSettingsShow({
         setErrors((prev) => {
             const next = { ...prev };
             delete next[fieldId];
+
             return next;
         });
     };
@@ -96,6 +99,7 @@ export default function ModuleSettingsShow({
                 },
                 onError: (serverErrors: Record<string, string>) => {
                     setSaving(false);
+
                     if (serverErrors && typeof serverErrors === 'object') {
                         setErrors(serverErrors);
                     }
@@ -111,13 +115,16 @@ export default function ModuleSettingsShow({
         if (conflict === null) {
             return;
         }
+
         setFormValues((prev) => {
             const rebased = { ...prev };
+
             for (const field of fields) {
                 if (field.fieldId in conflict.serverValues) {
                     rebased[field.fieldId] = conflict.serverValues[field.fieldId];
                 }
             }
+
             return rebased;
         });
         setConflict(null);
