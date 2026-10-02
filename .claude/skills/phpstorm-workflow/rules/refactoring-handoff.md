@@ -66,7 +66,7 @@ Once the user has refactored in PHPStorm:
 Task: "Rename `createOutboundDaemonParts` to `createOutboundComponents` and update docs."
 
 1. **Agent** confirms the rename is desired (it's currently correct in code; the docs are wrong — so actually the fix is the other direction: update docs to match code). ← reasoning step, agent's lane.
-2. If a real rename is wanted: **PHPStorm Shift+F6** on the method name → updates `TgBotSetupFactory.php`, all callers in `commands/*.php`, the test, and (with string mode) the doc references.
+2. If a real rename is wanted: **PHPStorm Shift+F6** on the method name → updates `TgBotSetupFactory.php`, all callers in `cmd/*.php`, the test, and (with string mode) the doc references.
 3. **Agent** updates `AGENTS.md` and the relevant skill `rules/*.md` to match. ← semantic doc edit, agent's lane.
 4. **Agent** runs `vendor/bin/pint --dirty --format agent` + the outbound tests.
 

@@ -37,7 +37,7 @@ Run through `rules/checklist.md` for every change that touches the hot path. The
 | 12 | Versioned deserialization | `fromJsonV1()`/`fromArrayV1()` intact when schema evolves | review |
 
 **"Enforced how"** column:
-- **arch-test** — hard gate in `tests/Architecture/HighloadRulesTest.php`, runs in CI via pest.
+- **arch-test** — hard gate in `misc/BAGArt/telegram-bot-lib/tests/Arch/HighloadRulesTest.php` (lib repo), runs in CI via pest.
 - **`tgbm:audit`** — heuristic grep-based check, runs in CI via `php artisan tgbm:audit --strict` on the outbound hot path. Use `--all` for a broader (noisier) scan.
 - **review** — not machine-checked; verify manually (or add an arch-test/audit rule when a reliable check exists).
 

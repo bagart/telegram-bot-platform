@@ -19,7 +19,7 @@ Activate this skill whenever you touch `misc/BAGArt/php-async-kernel-lib/`, or a
 - `ASKWarmableContract`
 - `ASKShutdownAware`
 
-Also activate when a CLI command or standalone script constructs `new AsyncKernel(...)` and calls `addDaemon(...)` / `run()` (e.g. the daemon scripts in `misc/BAGArt/telegram-bot-lib/commands/`).
+Also activate when a CLI command or standalone script constructs `new AsyncKernel(...)` and calls `addDaemon(...)` / `run()` (e.g. the daemon scripts in `misc/BAGArt/telegram-bot-lib/cmd/`).
 
 ## Documentation
 

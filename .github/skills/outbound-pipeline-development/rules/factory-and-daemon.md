@@ -63,7 +63,7 @@ $kernel->addDaemon($daemon);      // auto-calls warm() if implemented
 $kernel->run();
 ```
 
-Reference implementations live in `misc/BAGArt/telegram-bot-lib/commands/`:
+Reference implementations live in `misc/BAGArt/telegram-bot-lib/cmd/`:
 - `outbound-daemon.php` — minimal daemon
 - `all-in-one-daemon.php` — daemon + metrics + DLQ in one kernel
 - `outbound-metrics-daemon.php` — metrics-only daemon

@@ -19,7 +19,7 @@ The ~450 DTOs under `misc/BAGArt/telegram-bot-lib/src/TgApi/` are **fully auto-g
 > ⚠️ `AGENTS.md` and `TgApi/Warning.md` reference `php artisan tg:dev:dto:actualize`. **That Artisan command is not registered.** The real generator is a bash script. Use:
 
 ```bash
-bash misc/BAGArt/telegram-bot-lib/commands/tg_actualize.sh [--full]
+bash misc/BAGArt/telegram-bot-lib/cmd/tg_actualize.sh [--full]
 ```
 
 From the repo root. The script cd's into the lib dir itself. See `rules/generator.md` for the three steps and when to use `--full`.
@@ -55,7 +55,7 @@ Each DTO implements `TgApiMethodDTOContract` or `TgApiTypeDTOContract` and expos
 
 ## Common Pitfalls
 
-- **Running `php artisan tg:dev:dto:actualize`.** Doesn't exist. Use `bash .../commands/actualize.sh`.
+- **Running `php artisan tg:dev:dto:actualize`.** Doesn't exist. Use `bash .../cmd/actualize.sh`.
 - **Hand-editing a generated DTO** to "add a field". It will be silently overwritten on the next regeneration. Edit the generator or wait for an API update.
 - **Running the generator from the wrong directory.** The script handles `cd` itself — invoke it from the repo root with the path shown above.
 - **Committing `tg-bots-api.json` blindly.** It's regenerated each run from the npm package — diff it carefully before committing, it's the schema source-of-truth snapshot.

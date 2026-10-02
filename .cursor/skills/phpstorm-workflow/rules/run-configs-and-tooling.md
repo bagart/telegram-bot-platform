@@ -60,7 +60,7 @@ Key project-specific commands:
 | `tgbm:outbound-metrics` | Metrics daemon |
 | `tgbm:monitor` | Inspect queue/DLQ/stats |
 | `tgbm:migrate` | Run lib migrations |
-| `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` | Regenerate Telegram DTOs (NOT an artisan command) |
+| `bash misc/BAGArt/telegram-bot-lib/cmd/actualize.sh [--full]` | Regenerate Telegram DTOs (NOT an artisan command) |
 
 ## Composer — the WSL constraint
 

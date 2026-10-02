@@ -1,8 +1,8 @@
 # DTOGenerator Workflow
 
-## The script: `commands/actualize.sh`
+## The script: `cmd/actualize.sh`
 
-Located at `misc/BAGArt/telegram-bot-lib/commands/actualize.sh`. Three steps, run from the lib root:
+Located at `misc/BAGArt/telegram-bot-lib/cmd/actualize.sh`. Three steps, run from the lib root:
 
 ```bash
 #!/bin/bash
@@ -23,10 +23,10 @@ php src/DevTool/DTOGenerator.php [--full]
 
 ```bash
 # Incremental (default): only update changed/new DTOs, preserve extras
-bash misc/BAGArt/telegram-bot-lib/commands/tg_actualize.sh
+bash misc/BAGArt/telegram-bot-lib/cmd/tg_actualize.sh
 
 # Full wipe + regenerate: removes ALL generated files first
-bash misc/BAGArt/telegram-bot-lib/commands/tg_actualize.sh --full
+bash misc/BAGArt/telegram-bot-lib/cmd/tg_actualize.sh --full
 ```
 
 ## `--full` semantics
@@ -53,7 +53,7 @@ If a DTO is wrong (wrong field type, missing return-type mapping, wrong enum bac
 
 1. Identify the transformation rule that's incorrect (look for the `emit*` / `build*` methods).
 2. Edit `DTOGenerator.php`.
-3. Re-run `bash commands/actualize.sh` (incremental is fine for a single fix).
+3. Re-run `bash cmd/actualize.sh` (incremental is fine for a single fix).
 4. Diff the affected DTO(s) to confirm.
 5. Run the lib's test suite: `composer test` inside `telegram-bot-lib/`.
 

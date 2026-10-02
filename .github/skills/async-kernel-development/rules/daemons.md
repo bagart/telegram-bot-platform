@@ -79,7 +79,7 @@ If a daemon needs a warmable dependency (e.g. a pooled HTTP client), either:
 1. The daemon class is `final`, implements the contracts it needs.
 2. The caller (CLI command or standalone script) constructs it explicitly with `new`.
 3. The caller registers it: `$kernel->addDaemon($daemon)`.
-4. The daemon is **never** registered as a singleton in a service provider and **never** auto-resolved by the container. This is the primary extensibility point — see the daemon scripts in `misc/BAGArt/telegram-bot-lib/commands/` (`outbound-daemon.php`, `poller-daemon.php`, etc.).
+4. The daemon is **never** registered as a singleton in a service provider and **never** auto-resolved by the container. This is the primary extensibility point — see the daemon scripts in `misc/BAGArt/telegram-bot-lib/cmd/` (`outbound-daemon.php`, `poller-daemon.php`, etc.).
 
 ## Fiber usage inside tick()
 
