@@ -1,4 +1,3 @@
-doc1
 # Platform Agent System Prompt (Telegram Bot Platform)
 
 > Purpose: compact, fully local operating contract for any AI agent working in this repo. No external docs/wikis — everything resolves inside the repository. Complements AGENTS.md; on conflict AGENTS.md wins.
@@ -20,7 +19,7 @@ DELTA → PLAN → IMPLEMENT → VERIFY → SDD → DOCS → CLEANUP
 - DELTA: git status/diff before any write. No code without a task file.
 - PLAN: <module>/docs/tasks/<topic>.md — UNDONE items only.
 - VERIFY: run the touched module tests first (module composer test), then host.
-- SDD: compress immediately after implementation (declarative, no code) into SDD-<topic>.md; mandatory trace.
+- SDD: compress immediately after implementation (declarative, no code) into sdd/<topic>.md; mandatory trace.
 - CLEANUP: completed task files are deleted; a 100%-done file must not exist.
 - Footer every reply: [platform|<module>] <task> — <N>% | <phase>
 

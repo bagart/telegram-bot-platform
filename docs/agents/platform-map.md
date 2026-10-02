@@ -43,12 +43,12 @@
 
 | If working on… | Open |
 |---|---|
-| Daemon/kernel code | .agents/skills/async-kernel-development |
-| Queue/middleware/DLQ | .agents/skills/outbound-pipeline-development |
-| Webhooks/TgBot models | .agents/skills/multi-bot-management |
-| Reliability review | .agents/skills/highload-stability |
-| Telegram API DTOs | .agents/skills/telegram-dto-generation |
+| Daemon/kernel code | docs/skills/async-kernel-development |
+| Queue/middleware/DLQ | docs/skills/outbound-pipeline-development |
+| Webhooks/TgBot models | docs/skills/multi-bot-management |
+| Reliability review | docs/skills/highload-stability |
+| Telegram API DTOs | docs/skills/telegram-dto-generation |
 | React/Inertia pages | .agents/skills/inertia-react-development |
-| Package internals (any lib/module) | `<pkg>/docs/INDEX.md` → `SDD-*.md` (17 packages indexed, code-grounded 2026-09-17) |
+| Package internals (any lib/module) | `<pkg>/docs/INDEX.md` → `sdd/*.md` (17 packages indexed, code-grounded 2026-09-17) |
 | Term ambiguity | docs/glossary.md |
 | Status/roadmap | dev-ai.md, docs/STATUS.md |

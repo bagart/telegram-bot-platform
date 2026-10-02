@@ -1,7 +1,7 @@
 <!--
 Thanks for opening a PR! Fill the sections below. Delete anything that doesn't apply.
 For reliability review, the checklist is mandatory for daemon / queue / middleware / tg_webhook changes.
-Reference: .agents/skills/highload-stability/rules/checklist.md
+Reference: docs/skills/highload-stability/rules/checklist.md
 -->
 
 ## Summary
@@ -27,7 +27,7 @@ Reference: .agents/skills/highload-stability/rules/checklist.md
 
 ## Reliability checklist (mandatory for hot-path changes)
 
-See `.agents/skills/highload-stability/rules/checklist.md` for the full version with pass/fail tests.
+See `docs/skills/highload-stability/rules/checklist.md` for the full version with pass/fail tests.
 
 - [ ] **Lazy connections** — no I/O in constructors; warm via `ASKWarmableContract::warm()`
 - [ ] **Atomic counters** — `incrementWithTtl` via `RedisOutboundCache` (not `KernelCacheAdapter` in multi-worker)

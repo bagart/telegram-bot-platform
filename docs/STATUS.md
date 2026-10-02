@@ -1,6 +1,6 @@
 # Project Status — Compact Summary
 
-> Updated 2026-09-13. All tests passing. All module + DevOps work complete.
+> Updated 2026-10-02. Full `composer test` green: root 5202 passed + all 16 package suites (EXIT 0). Q15-A batch executed: 19 nested repos committed+pushed, `bagart/ask-queue` published & wired (dev path repo + PSR-4, prod VCS + require, both locks fresh), workflows repo pushed + host SHA pin bumped.
 
 ## Platform Modules
 
@@ -33,12 +33,12 @@
 
 | Section | Status | Notes |
 |---|---|---|
-| §1 Publication chain | 🟢 ~97% | 3/5 CI green. SBOM + 25 test failures remain |
+| §1 Publication chain | 🟢 ~97% | 3/5 CI green; composer-SBOM deferred — image SBOM (workspace scan + buildkit attestation) covers release artifact (`docs/questions/composer-sbom.md` decision) |
 | §2 GitHub hardening | ✅ 100% | CODEOWNERS ✅, SECURITY.md ✅, ISSUE_TEMPLATE ✅, workflows permissions+SHA+concurrency ✅, dependabot ✅, labeler ✅ |
-| §3 Gate promotions | ✅ ~60% | Coverage floor exists, mutation floors configured (report-only for all 12 modules) |
-| §4 Baseline Phase 7 | 🟡 ~30% | Module discovery probe passes (8/8), line-endings + secret-scan pass, prod lock needs refresh |
+| §3 Gate promotions | ✅ ~95% | Mutation gate **enforced** for `bagart/async-kernel` (floor 97, measured 100.00%, direct control + `--baseline`), hooksPath repaired, 4 dead shims deleted; nightly CI redesigned to vendor-install and **implemented** (Q10–Q17 resolved: full `composer.prod.json` + `--dev` install + `cmd/ci/rewrite-vendor-paths.php` + stubs removed + APP_KEY/example job env; e2e worktree sim green); **Q15-A batch executed 2026-10-02** (nested repos pushed, ask-queue published + strip→map in rewrite, host SHA pin `a46e420`) — **remaining: 3 green nightly runs → `continue-on-error` flip → coverage `--min=55`; SDD `docs/sdd/mutation-gate-nightly.md`** |
+| §4 Baseline Phase 7 | 🟡 ~30% | Module discovery probe passes (9/9), line-endings + secret-scan pass, prod lock needs refresh; shim retirement deferred (`docs/questions/baseline-phase7-shim-retirement.md`) |
 
 ## What's Left
 
-1. **Prod lock refresh**: `cmd/deps/install --mode=prod` or `composer update --lock` needed (pre-existing, requires full composer cycle)
+1. ~~**Prod lock refresh**~~ **DONE 2026-10-02**: `cmd/deps/update --mode=both` refreshed both locks — `lock-fresh:dev` + `lock-fresh:prod` green (`cmd/deps/check` EXIT 0)
 2. **Branch protection**: Manual GitHub repo settings (cannot be automated via code)

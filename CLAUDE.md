@@ -3,32 +3,13 @@
 
 # Laravel Boost Guidelines
 
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to ensure the best experience when building Laravel applications.
-
 ## Foundational Context
 
-This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
+This application is a Laravel application running on PHP 8.5. Always use the APIs that match the installed major version of each package — do not assume a version.
 
-- php - 8.5
-- inertiajs/inertia-laravel (INERTIA_LARAVEL) - v2
-- laravel/fortify (FORTIFY) - v1
-- laravel/framework (LARAVEL) - v13
-- laravel/prompts (PROMPTS) - v0
-- laravel/wayfinder (WAYFINDER) - v0
-- larastan/larastan (LARASTAN) - v3
-- laravel/boost (BOOST) - v2
-- laravel/mcp (MCP) - v0
-- laravel/pail (PAIL) - v1
-- laravel/pint (PINT) - v1
-- laravel/sail (SAIL) - v1
-- pestphp/pest (PEST) - v4
-- phpunit/phpunit (PHPUNIT) - v12
-- @inertiajs/react (INERTIA_REACT) - v2
-- react (REACT) - v19
-- tailwindcss (TAILWINDCSS) - v4
-- @laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
-- eslint (ESLINT) - v9
-- prettier (PRETTIER) - v3
+Before relying on a package's API, confirm its installed version:
+- PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
+- JS packages: check `package.json` for the installed versions.
 
 ## Skills Activation
 
@@ -39,7 +20,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
-- **NEVER run `git commit`, `git push`, or any other git write operation (`git add` included) — in any repository, including nested repos under `misc/BAGArt/*`. The user reviews all changes via `git diff` / `git status` themselves and commits manually. Make changes on disk only; leave the working tree for user review.**
 
 ## Verification Scripts
 
@@ -52,15 +32,11 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Frontend Bundling
 
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
+- If a frontend change doesn't show in the UI or you get a "Unable to locate file in Vite manifest" error, run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
 
 ## Documentation Files
 
 - You must only create documentation files if explicitly requested by the user.
-
-## Replies
-
-- Be concise in your explanations - focus on what's important rather than explaining obvious details.
 
 === boost rules ===
 
@@ -76,7 +52,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Searching Documentation (IMPORTANT)
 
-- Always use `search-docs` before making code changes. Do not skip this step. It returns version-specific docs based on installed packages automatically.
+- Use `search-docs` before changes that depend on Laravel ecosystem APIs, behavior, configuration, or version-specific syntax. Skip it for copy-only edits and other changes where package documentation is irrelevant. Reuse sufficient results already in context instead of searching again.
 - Pass a `packages` array to scope results when you know which packages are relevant.
 - Use multiple broad, topic-based queries: `['rate limiting', 'routing rate limiting', 'routing']`. Expect the most relevant results first.
 - Do not add package names to queries because package info is already shared. Use `test resource table`, not `filament 4 test resource table`.
@@ -87,6 +63,10 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 2. Use `"quoted phrases"` for exact position matching: `"infinite scroll"` requires adjacent words in order.
 3. Combine words and phrases for mixed queries: `middleware "rate limit"`.
 4. Use multiple queries for OR logic: `queries=["authentication", "middleware"]`.
+
+## Project Rules
+
+- This project contains committed, area-grouped rules in `.ai/rules` when that directory exists, including path-scoped framework guidelines under `.ai/rules/boost`. Before you enter plan mode or create/edit any file, you MUST first: open @.ai/rules/index.md (it maps file globs to rule files), read every rule file whose globs cover the path(s) in scope, and run `grep -rin 'keyword' .ai/rules` to catch what a path match alone misses. Do not write code until you have read and are following every matching rule. If `.ai/rules` does not exist, continue without it.
 
 ## Artisan
 
@@ -121,8 +101,11 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Test Enforcement
 
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
+- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
+- Pure copy, styling, and layout-only changes do not require new or updated tests.
+- When test coverage applies, run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
 
 === inertia-laravel/core rules ===
 
@@ -165,10 +148,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
 - When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
 
-## Vite Error
-
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
 === wayfinder/core rules ===
 
 # Laravel Wayfinder
@@ -181,16 +160,22 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-- Only run Pint on files you created or modified in the current task — never reformat untouched files (diff noise). When editing an existing file, fix style only in lines you are actively changing; leave unrelated style issues untouched.
 
 === pest/core rules ===
 
-## Pest
+# Pest
 
-- This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
-- The `{name}` argument should not include the test suite directory. Use `php artisan make:test --pest SomeFeatureTest` instead of `php artisan make:test --pest Feature/SomeFeatureTest`.
-- Run tests: `php artisan test --compact` or filter: `php artisan test --compact --filter=testName`.
-- Do NOT delete tests without approval.
+- This project uses Pest. Create tests with `php artisan make:test --pest {name}`.
+- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
+- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
+- Do not delete tests or test files without approval. They are part of the application.
+
+## Running Tests
+
+- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
+- Rerun a test after each change to it.
+- Run `vendor/bin/pest` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
+- After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 === inertia-react/core rules ===
 
@@ -212,8 +197,6 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - Do not use comments to describe "stages" or "steps" — split the method instead.
 - All existing prompts, comments, and strings must be translated to English, with obvious ones removed.
 
-<!-- Mirrored from AGENTS.md. Keep in sync. Canonical source: AGENTS.md. -->
-
 === project conventions ===
 
 # Project Conventions
@@ -222,11 +205,11 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - **Always read `dev-ai.md` first** before starting any development work. It contains the current state, active plans, and roadmap for all modules.
 - **dev-ai.md is the primary workflow document.** All development starts and ends there. Read it first, follow its task lifecycle, save plans there, mark progress there.
 - **Response footer is mandatory.** Every response MUST end with: `[platform|<module-name>] <task-name> — <N>% ready | planning`.
-- **Implementation workflow:** For new features — competitor research → feature mapping → ask user (only on global questions) → plan → save to `docs/tasks/` → implement → SDD compress.
+- **Implementation workflow:** For new features — competitor research → feature mapping → ask user (only on global questions) → plan → save to `docs/tasks/` → implement → SDD compress → DELETE task file. **NEVER write code without an existing task file.**
 - **Communication with user only on global questions.** No unnecessary commentary. If plan is clear from dev-ai.md — execute without asking.
 - For the big picture of where docs/skills/code live, read `docs/INDEX.md`. For overloaded terms (ASK, DLQ, tickable, lease, etc.), read `docs/glossary.md`.
 - **Agent operating prompt:** `docs/agents/platform-prompt.md` (read order, lifecycle, resource discipline) + `docs/agents/platform-map.md` (service/logic/view index). Load when starting a session; they complement, never override, this file.
-- **Skills canonical location:** edit custom skills in `.agents/skills/` only, then run `bash scripts/sync-skills.sh` to mirror the 6 BAGArt domain skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash scripts/sync-skills.sh --check` to verify they're in sync. Do not hand-edit the copies in those dirs.
+- **Skills canonical location:** edit custom skills in **`docs/skills/`** only (public repo `bagart/telegram-platform-skills`), then run `bash cmd/sync-skills` to mirror the directory skills into `.claude/`, `.cursor/`, `.github/`, `.junie/skills/`. Run `bash cmd/sync-skills --check` to verify they're in sync. Canonical Laravel/Boost skills live in `.agents/skills/` (managed by `php artisan boost:install` — do not hand-edit). Never hand-edit the sync copies in the target dirs.
 - Development is primarily in `misc/`, avoid touching `app/` when possible.
 - Telegram bot tokens are stored in DB (`tg_bots` table), not in `.env`.
 - ALWAYS use LF line endings, never CRLF. Write all files with `\n` only. Generated code MUST be LF-only — this is enforced by `.gitattributes` (`* text=auto eol=lf`), which overrides any global `core.autocrlf=true`.
@@ -237,6 +220,7 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - Strict contracts only — no `method_exists`, `instanceof` duck-typing across library boundaries. If a caller needs a method, it MUST be declared in the interface/contract. Do not add dead methods; every public method must have a real caller.
 - **Domain/config DTO style:** `final readonly` classes with explicitly typed, constructor-promoted properties and no setters; `JsonSerializable` + `SCHEMA_VERSION` constant + `fromJsonV1()` for anything persisted/serialized; enums for enumerations. Reference implementation: `misc/BAGArt/telegram-bot-lib/src/Outbound/DeadLetterEntry.php`.
 - **Minimize env dependencies: everything in config files.** Settings live in `config/*.php` structures (and readonly config-DTOs built from them), not in environment variables. Env is reserved for secrets and connection points only (encryption keys, HMAC keys, DSN for Redis/Postgres). Config reads env once at the config layer; domain logic must use `config()` / injected DTOs and never call `getenv()` directly. Keep each module's env set minimal and documented in one place.
+- **Storage model — config files for settings, DB for runtime data.** Platform and module settings (feature flags, thresholds, UI prefs, schema definitions) live in config files (`config/*.php`, JSON, YML). Admin interfaces read and edit these files; editable format must be JSON or YML. DB is for runtime data only: audit entries, Telegram message history, activation state, caches. Each module owns its own runtime storage. `SettingsStorageContract` is for runtime overrides (bot-scoped overrides of config defaults), NOT for the canonical config itself.
 
 ## Telegram Bot Platform Structure
 
@@ -249,17 +233,20 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - `misc/BAGArt/tgbot-module-nettools` — nettools module (`TgModuleContract` plugin; auditor toolkit MVP shipped: 19 user commands + `/portscan` `/dnsbl` admin-gated, target memory, reco/report engines, MCP probe tool, circuit breakers; ops notes in its `Readme.md`)
 - `misc/BAGArt/tgbot-game-mafia` — Mafia game module (`TgModuleContract` plugin; core scaffold with game logic, rooms, bots, presenters, processors; API-first redesign planned)
 - `misc/BAGArt/tgbot-module-proxy` — Proxy Operations module (`BAGArt\ProxyOperations`; proxy inventory/quality/pools/gateway; bot + Telegram Mini App + web admin over one Application API)
+- `misc/BAGArt/telegram-platform-module` — Telegram Module Engine (`BAGArt\TelegramModuleEngine`): declarative module registry from `config/tg_modules.php` (policy DTOs + `laravelProvider`), module boot + bootstrap takeover in dependency order, bot-scoped activation (PG `bot_module_activations`), PG routing table behind `RouteResolver`, capabilities/dependency graphs, diagnostics CLI `tg:modules:list|validate|diagnose`. Plan hub: `misc/BAGArt/telegram-platform-module/docs/architecture/` (00 overview + 07 roadmap with status).
+- `misc/BAGArt/telegram-platform-access` — Chat Access Control module (`BAGArt\TelegramBotAccess`; pure-domain authz: `AccessControlContract`, `ChatRole`, `Grant`, `AccessDecision`; Platform Administration / Bot Administration / Chat Access Control terminology).
+- `misc/BAGArt/telegram-platform-audit` — Audit module (`BAGArt\TelegramBotAudit`; append-only `AuditSinkContract`, `AuditEntry` DTO with `SCHEMA_VERSION`/`fromJsonV1`, in-memory sink for tests/hosts).
 
 **Modules rule:** every Telegram platform module (feature/game plugin implementing `TgModuleContract`) is developed and stored in `misc/BAGArt/<name>-module/` together with the libs — never in a sibling directory outside the platform tree. The host consumes modules in one of two first-class modes:
 
 - **dev mode** (default for development): root `composer.json` maps the module namespace PSR-4 directly into `misc/BAGArt/<name>-module/src` (+ tests via autoload-dev), keeps a path repository entry, and does **not** composer-require the package. Edits are immediately visible, no version bumps mid-refactor.
 - **prod mode** (servers): `composer.prod.json` requires versioned `bagart/...-module` packages from VCS sources; install with `cmd/deps/install --mode=prod`. The prod lock must never reference path repositories or symlinked installs (servers ship without `misc/`).
 
-In both modes the module's Laravel provider is listed explicitly in `bootstrap/providers.php`; on boot it self-registers its `TgModuleContract` class into `config('telegram.modules_providers')`, which stays empty by default in `config/telegram.php` (no package auto-discovery). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
+Since the module-engine bootstrap takeover (phase 3), a module's Laravel provider is NOT listed in `bootstrap/providers.php` — it is declared as `laravelProvider` on the module's entry in `config/tg_modules.php` and registered by the engine in dependency order. `bootstrap/providers.php` holds only lib + engine + basic-lib + management + proxy-operations (non-`TgModuleContract` packages). The legacy `telegram.modules` / `modules_providers` / `modules_seeders` keys are retired from `config/telegram.php`; modules declare `seeders`/`routes` directly in `config/tg_modules.php` (the deprecated alias consumption in lib/engine remains for external consumers). Every module ships its own `phpunit.xml(.dist)` + a `composer test` script — self-testable inside the repo and root-launchable via a host `phpunit.xml` testsuite plus an entry in the root `composer test` chain (suites are Pest: run them with `vendor/bin/pest --testsuite <Suite>` / `artisan test`). `cmd/deps/check` enforces layout, wiring and manifest parity.
 
 ## Proxy Operations Module (tgbot-module-proxy)
 
-Full plan: `misc/BAGArt/tgbot-module-proxy/docs/sdd.md` (architecture) + `misc/BAGArt/tgbot-module-proxy/docs/tasks/W1-worker.md` (remaining work).
+Full plan: `misc/BAGArt/tgbot-module-proxy/docs/sdd/README.md` (architecture) + `misc/BAGArt/tgbot-module-proxy/docs/tasks/W1-worker.md` (remaining work).
 
 Hard rules:
 
@@ -297,7 +284,7 @@ Stack: network layer only `bagart/php-async-kernel-client`; queues via Redis Str
 
 ## DTO Generation
 
-- Run `bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
+- Run `bash misc/BAGArt/telegram-bot-lib/cmd/actualize.sh [--full]` to regenerate Telegram API DTOs (it is a bash script, not an Artisan command).
 - DTOs are generated to `misc/BAGArt/telegram-bot-lib/src/TgApi/`.
 - For anything related to the external Telegram API (methods, entities, types), always include a `@see https://core.telegram.org/bots/api#...` (or similar) link to the official documentation.
 - All DTOs and Enums under `BAGArt\TelegramBot\TgApi` are readonly contracts; code touching Tg DTO/Enum must use `TgApiServices` and inject the DTO/Enum, not raw arrays.
@@ -346,6 +333,29 @@ Constructors MUST NOT connect to external services (Redis, TCP sockets, etc.). C
 
 `AsyncKernel::addDaemon()` calls `warm()` automatically when the daemon or tickable implements `ASKWarmableContract`. This is the designated warmup hook — same role as `tickable` is for tick execution.
 
+## Dev Grilling — Design Interview Protocol
+
+Перед началом любой нетривиальной задачи (архитектурные изменения, новые модули, рефакторинг, анализ пакетов) — проводить сессию гриллинга:
+
+1. **Собрать факты** — прочитать код, документы, существующие задачи. Факты — работа агента, не спрашивать пользователя.
+2. **Построить дерево решений** — каждый ответ порождает следующие вопросы. Записать дерево.
+3. **Определить границу** — вопросы, чьи предпосылки уже settled. Это те, которые можно задать сейчас.
+4. **Задать весь фронт одним раундом** — нумерация Q1, Q2... + варианты + рекомендация агента.
+5. **Ждать ответов** — пользователь отвечает на весь фронт. Не продолжать до ответа.
+6. **Пересчитать границу** — ответы сдвигают дерево, новые вопросы становятся доступны.
+7. **Повторять** пока фронт не пуст — всё settled, ничего не осталось в воздухе.
+8. **Результат** — документ в `docs/questions/<topic>.md` с вопросами, вариантами, рекомендациями и финальным деревом решений.
+9. **Не писать код** до подтверждения shared understanding.
+
+Формат раунда:
+```
+❓ **Q<n>** - **<название>**: <описание с вариантами>
+➡️ <рекомендация агента>
+---
+```
+
+Документы создаются сразу после анализа проблемы — не откладывать.
+
 ## Composer
 
 - Libraries connect via `path` repositories — run composer operations from the WSL shell (not Git Bash). In dev mode vendor symlinks point into `misc/BAGArt/`, so lib changes are immediately visible.
@@ -382,3 +392,36 @@ Default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-huma
 ### Domain docs
 
 Single-context layout. See `docs/agents/domain.md`.
+
+### Skills registry
+
+Custom skills live in **`docs/skills/`** (public repo `bagart/telegram-platform-skills`). Load the one matching the domain — never all at once. Canonical Laravel/Boost skills live in `.agents/skills/` (fortify-development, inertia-react-development, laravel-best-practices, pest-testing, tailwindcss-development, wayfinder-development).
+
+| Skill | Load when |
+|---|---|
+| `docs/skills/workflow-tasks.md` | any task work — cycle 0-7, trackers, SDD (always read first) |
+| `docs/skills/workflow-tasks-task.md` | `docs/tasks/` quality, `Requirements:`/`Order: AFTER` headers, post-analysis |
+| `docs/skills/workflow-tasks-question.md` | `docs/questions/` format and rules |
+| `docs/skills/workflow-tasks-research.md` | `docs/researches/` lifecycle and cleanup |
+| `docs/skills/workflow-tasks-grilling.md` | grilling sessions in `docs/grillings/` |
+| `docs/skills/dev-grilling.md` | running the 3-phase grilling process |
+| `docs/skills/dev-ai.md` | project map / naming / structure (includes `service-discovery.md`) |
+| `docs/skills/service-discovery.md` | package map + skill registry (loaded via dev-ai include) |
+| `docs/skills/development.md` | tests, lint, build, gates (`cmd/dev/*`) |
+| `docs/skills/docker-management.md` | Docker/Compose used directly |
+| `docs/skills/service-management.md` | stack up/down/health/logs via `cmd/` |
+| `docs/skills/workflow-git.md` | branching, nested repos under `misc/BAGArt/*`, commits |
+| `docs/skills/async-kernel-development/` | Fiber daemons, tickables, shutdown, warmup (`BAGArt\AsyncKernel`) |
+| `docs/skills/outbound-pipeline-development/` | outbound queue, DLQ, middleware, circuit breaker, TgSender |
+| `docs/skills/telegram-dto-generation/` | regenerate Telegram TgApi DTOs (`actualize.sh`) |
+| `docs/skills/multi-bot-management/` | TgBot models, tg_webhook routes, `tgbm:*` commands |
+| `docs/skills/highload-stability/` | reliability/hardening audit checklist |
+| `docs/skills/phpstorm-workflow/` | dividing work with PHPStorm (IDE vs agent) |
+| `docs/skills/karpathy-guidelines/` | behavioral guardrails while writing code |
+
+After editing a directory skill in `docs/skills/`, run `bash cmd/sync-skills` (mirrors to `.claude/.cursor/.github/.junie/skills`); `bash cmd/sync-skills --check` verifies sync. Flat skills and `commands/` load straight from `docs/skills/`.
+
+### Commands
+
+- `/sdd-compact` — multi-agent compaction of all SDD into `<scope>/docs/sdd/compact.md` (concat → parallel subagents → index). Skill: `docs/skills/commands/sdd-compact.md` (includes self-install).
+- `/sdd-renew` — multi-agent SDD renewal from code (1 agent = scope → temp `.renew/`, 1 agent = file → merge + index) → `/sdd-compact`. Skill: `docs/skills/commands/sdd-renew.md` (includes self-install).

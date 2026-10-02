@@ -1,13 +1,13 @@
 # Benchmarks
 
-All benchmarks are in `misc/BAGArt/php-async-kernel-client/commands/` (transport/DNS/stress) and `misc/BAGArt/telegram-bot-lib/commands/` (outbound pipeline). XHProf shell wrappers live in `cmd/`.
+All benchmarks are in `misc/BAGArt/php-async-kernel-client/cmd/` (transport/DNS/stress) and `misc/BAGArt/telegram-bot-lib/cmd/` (outbound pipeline). XHProf shell wrappers live in `cmd/`.
 
 ## 1. Localhost Transport Benchmark
 
 Raw HTTP transport throughput against a local `public/tg-bench.php` server. Concurrency sweep finds the sweet spot per transport. No pipeline, no queue, no rate limiter.
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php [options]
+php misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php [options]
 ```
 
 | Option | Default | Description |
@@ -43,7 +43,7 @@ Iterates all transports under XHProf. Results in `storage/app/tmp/xhprof/benchma
 Tests DNS adapter resolution speed for all hosts from `currency-sources.php` concurrently. Master/worker architecture.
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php [options]
+php misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php [options]
 ```
 
 | Option | Default | Description                |
@@ -77,7 +77,7 @@ Iterates all DNS resolvers under XHProf. Results in `storage/app/tmp/xhprof/benc
 Real-world benchmark against ~40 currency API URLs. Tests transports end-to-end over the internet. Master/worker architecture.
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php [options]
+php misc/BAGArt/php-async-kernel-client/cmd/benchmark_transport.php [options]
 ```
 
 | Option | Default | Description |
@@ -97,7 +97,7 @@ php misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php [option
 ### Result renderer
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_transport/result.php <storage-dir>
+php misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_transport/result.php <storage-dir>
 ```
 
 Renders: ranked table (time, rps, ok, fail, memΔ, score) + per-phase client metrics (ask-socket) + RISKS section (>1.5x time variance across transports).
@@ -107,7 +107,7 @@ Renders: ranked table (time, rps, ok, fail, memΔ, score) + per-phase client met
 Scenarios where transports differ most: DNS overhead, connection churn, large payloads.
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php [options]
+php misc/BAGArt/php-async-kernel-client/cmd/benchmark_stress.php [options]
 ```
 
 | Option | Default | Description |
@@ -127,7 +127,7 @@ php misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php [options]
 Full outbound daemon pipeline with rate limiting, middleware, circuit breaker.
 
 ```
-php misc/BAGArt/telegram-bot-lib/commands/outbound-benchmark.php [options]
+php misc/BAGArt/telegram-bot-lib/cmd/outbound-benchmark.php [options]
 ```
 
 | Option | Default | Description |
@@ -145,14 +145,14 @@ php misc/BAGArt/telegram-bot-lib/commands/outbound-benchmark.php [options]
 ## Shared benchmark endpoints
 
 - `public/tg-bench.php` — local server target. Params: `sleep` (μs), `body_size` (bytes), `fragment` (bytes for chunked response).
-- `misc/BAGArt/php-async-kernel-client/commands/includes/currency-sources.php` — ~40 real-world currency API URLs used by transport and stress benchmarks.
+- `misc/BAGArt/php-async-kernel-client/cmd/includes/currency-sources.php` — ~40 real-world currency API URLs used by transport and stress benchmarks.
 
 ## Result renderers (standalone)
 
 All accept a storage directory and render from saved JSON:
 
 ```
-php misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_localhost_transport/result.php <dir>
-php misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_dns/result.php <dir>
-php misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_transport/result.php <dir>
+php misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_localhost_transport/result.php <dir>
+php misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_dns/result.php <dir>
+php misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_transport/result.php <dir>
 ```

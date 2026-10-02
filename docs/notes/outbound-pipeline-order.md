@@ -44,7 +44,7 @@ Adding an `OrderingMiddleware` would only reorder within a single worker's in-fl
 
 1. Edit `TgBotSetupFactory::resolveOutboundDeps()` (private method).
 2. Update the docblock in `OutboundPipeline.php` and `OutboundMiddleware.php`.
-3. Update the skill: `.agents/skills/outbound-pipeline-development/rules/middleware.md`.
+3. Update the skill: `docs/skills/outbound-pipeline-development/rules/middleware.md`.
 4. Update this file.
 
 ## TODO (open question from the original note)
