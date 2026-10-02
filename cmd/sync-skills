@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Sync BAGArt custom skills to all per-agent skill directories.
+# Sync custom skills to all per-agent skill directories.
 #
-# Canonical source: .agents/skills/
-# Targets:           .claude/skills/  .cursor/skills/  .github/skills/  .junie/skills/
+# Canonical source: docs/skills/  (platform/domain skills)
+# Targets:          .claude/skills/  .cursor/skills/  .github/skills/  .junie/skills/
 #
-# The baseline Boost skills (laravel-best-practices, pest-testing, etc.) are managed
-# by `php artisan boost:install` and are NOT touched here. This script only syncs the
-# 6 custom BAGArt domain skills listed below.
+# The canonical Laravel/Boost skills (laravel-best-practices, pest-testing, etc.)
+# live in .agents/skills/ and are managed by `php artisan boost:install` — they are
+# NOT touched here. This script only syncs the custom skills listed below.
 #
-# Usage:  bash scripts/sync-skills        # sync (create/overwrite copies)
-#         bash scripts/sync-skills --check # exit 1 if anything is out of sync
+# Usage:  bash cmd/sync-skills        # sync (create/overwrite copies)
+#         bash cmd/sync-skills --check # exit 1 if anything is out of sync
 #
 # Why copies and not symlinks: Windows checkouts (this project runs on win32) handle
 # symlinks unreliably across Git Bash / WSL / the IDE. Plain copies are robust and
@@ -18,9 +18,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE="$ROOT/.agents/skills"
+SOURCE="$ROOT/docs/skills"
 
-# Custom BAGArt skills only — Boost-managed skills are excluded.
+# Custom platform skills only — Boost-managed skills in .agents/skills are excluded.
 SKILLS=(
   async-kernel-development
   outbound-pipeline-development
@@ -28,6 +28,7 @@ SKILLS=(
   multi-bot-management
   highload-stability
   phpstorm-workflow
+  karpathy-guidelines
 )
 
 TARGETS=(
@@ -97,7 +98,7 @@ if [[ $CHECK_ONLY -eq 1 ]]; then
   if [[ $status -eq 0 ]]; then
     echo "✓ All custom skills in sync."
   else
-    echo "✗ Out of sync. Run: bash scripts/sync-skills.sh" >&2
+    echo "✗ Out of sync. Run: bash cmd/sync-skills" >&2
   fi
 else
   echo "✓ Synced ${#SKILLS[@]} skills to ${#TARGETS[@]} targets."

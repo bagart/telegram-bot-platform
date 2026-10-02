@@ -2,11 +2,14 @@
 # Install dependencies for the selected mode (todo.module-dual-mode.md §5).
 #
 # Usage:
-#   cmd/deps/install [--mode=dev|prod] [--format=text|json|github] [--offline] [--verbose] [--quiet]
+#   cmd/deps/install [--mode=dev|prod] [--dev] [--ignore-platform-req=<ext>]
+#                    [--format=text|json|github] [--offline] [--verbose] [--quiet]
 #
 # dev  — composer install against composer.json (+ path repos, misc/ present)
 # prod — COMPOSER=composer.prod.json install; the lock must resolve without
-#        path sources; misc/ is not consulted.
+#        path sources; misc/ is not consulted. Passes --no-dev (servers never
+#        get dev tooling); --dev installs dev tooling too (nightly CI test jobs).
+# --ignore-platform-req is forwarded to composer as-is (CI lacks ext-xhprof).
 
 set -euo pipefail
 
@@ -17,14 +20,30 @@ source "$REPO_ROOT/cmd/lib/output.sh"
 source "$REPO_ROOT/cmd/lib/contract.sh"
 source "$SCRIPT_DIR/lib.sh"
 
+WITH_DEV=0
+EXTRA_COMPOSER_FLAGS=()
+STRIPPED_ARGS=()
+for arg in "$@"; do
+  case "$arg" in
+    --dev) WITH_DEV=1 ;;
+    --ignore-platform-req=*) EXTRA_COMPOSER_FLAGS+=("$arg") ;;
+    *) STRIPPED_ARGS+=("$arg") ;;
+  esac
+done
+set -- ${STRIPPED_ARGS[@]+"${STRIPPED_ARGS[@]}"}
+
 usage() {
-  echo "Usage: cmd/deps/install [--mode=dev|prod] [--format=text|json|github] [--verbose] [--quiet]"
+  echo "Usage: cmd/deps/install [--mode=dev|prod] [--dev] [--ignore-platform-req=<ext>] [--format=text|json|github] [--verbose] [--quiet]"
   contract_usage
 }
 
 deps_parse_mode dev "$@"
 contract_parse_args "${POSITIONAL[@]+"${POSITIONAL[@]}"}"
 if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
+if [[ "$WITH_DEV" -eq 1 && "$MODE" != "prod" ]]; then
+  err "--dev is only valid with --mode=prod"
+  exit "$EX_USAGE"
+fi
 
 require_root_dir
 cd "$REPO_ROOT"
@@ -34,7 +53,7 @@ command -v composer >/dev/null 2>&1 || { err "composer not found"; exit "$EX_DEP
 case "$MODE" in
   dev)
     report_result "install-dev" passed "starting"
-    if contract_exec "install-dev" composer install --no-interaction --no-progress > /tmp/deps-install-dev.log 2>&1; then
+    if contract_exec "install-dev" composer install --no-interaction --no-progress ${EXTRA_COMPOSER_FLAGS[@]+"${EXTRA_COMPOSER_FLAGS[@]}"} > /tmp/deps-install-dev.log 2>&1; then
       report_result "install-dev" passed ""
       report_finish "$EX_OK"
     else
@@ -50,7 +69,12 @@ case "$MODE" in
       report_result "install-prod" failed "lock purity violation"
       report_finish "$EX_POLICY"
     fi
-    if COMPOSER="$PROD_MANIFEST" contract_exec "install-prod" composer install --no-interaction --no-progress > /tmp/deps-install-prod.log 2>&1; then
+    PROD_FLAGS=(--no-interaction --no-progress)
+    if [[ "$WITH_DEV" -eq 0 ]]; then
+      PROD_FLAGS+=(--no-dev)
+    fi
+    PROD_FLAGS+=(${EXTRA_COMPOSER_FLAGS[@]+"${EXTRA_COMPOSER_FLAGS[@]}"})
+    if COMPOSER="$PROD_MANIFEST" contract_exec "install-prod" composer install "${PROD_FLAGS[@]}" > /tmp/deps-install-prod.log 2>&1; then
       report_result "install-prod" passed ""
       report_finish "$EX_OK"
     else

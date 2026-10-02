@@ -6,4 +6,4 @@ cd "$DIR"
 
 source cmd/includes/env_token.sh
 
-bash misc/BAGArt/telegram-bot-lib/commands/actualize.sh "$@"
+bash misc/BAGArt/telegram-bot-lib/cmd/actualize.sh "$@"

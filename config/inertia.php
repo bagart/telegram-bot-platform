@@ -1,5 +1,12 @@
 <?php
 
+// Module Inertia page sources live inside their packages (declared as
+// frontendPages in config/tg_modules.php) — resolve them alongside the host
+// pages so component existence checks pass for module routes in tests.
+$modulePagePaths = array_values(array_filter(
+    glob(base_path('misc/BAGArt/*/resources/js/pages')) ?: [],
+));
+
 return [
 
     /*
@@ -14,6 +21,22 @@ return [
     | See: https://inertiajs.com/server-side-rendering
     |
     */
+
+    'ensure_pages_exist' => false,
+
+    'page_paths' => array_merge(
+        [resource_path('js/pages')],
+        $modulePagePaths,
+    ),
+
+    'page_extensions' => [
+        'js',
+        'jsx',
+        'svelte',
+        'ts',
+        'tsx',
+        'vue',
+    ],
 
     'ssr' => [
         'enabled' => true,
@@ -37,17 +60,10 @@ return [
 
         'ensure_pages_exist' => true,
 
-        'page_paths' => function (): array {
-            $paths = [resource_path('js/pages')];
-
-            // Module packages own their pages (P4 self-containment):
-            // the engine collects frontendPages from config/tg_modules.php.
-            if (class_exists(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class) && app()->bound(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class)) {
-                $paths = array_merge($paths, array_values(app(\BAGArt\TelegramModuleEngine\Registry\EngineModuleRegistry::class)->frontendPages()));
-            }
-
-            return $paths;
-        },
+        'page_paths' => array_merge(
+            [resource_path('js/pages')],
+            $modulePagePaths,
+        ),
 
         'page_extensions' => [
             'js',

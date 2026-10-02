@@ -44,7 +44,11 @@
             "cd misc/BAGArt/tgbot-module-stt && composer test",
             "cd misc/BAGArt/tgbot-module-summarizer && composer test",
             "cd misc/BAGArt/tgbot-game-mafia && composer test",
-            "cd misc/BAGArt/telegram-platform-menu && composer test"
+            "cd misc/BAGArt/telegram-platform-menu && composer test",
+            "cd misc/BAGArt/tgbot-module-proxy && composer test",
+            "cd misc/BAGArt/telegram-platform-module && composer test",
+            "cd misc/BAGArt/telegram-platform-access && composer test",
+            "cd misc/BAGArt/telegram-platform-audit && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -66,5 +70,5 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ]
     },
-    "generated": "2026-08-25"
+    "generated": "2026-09-28"
 }

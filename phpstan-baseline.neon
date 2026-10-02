@@ -1591,12 +1591,6 @@ parameters:
 			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamAppealsController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{botId\: string, chatId\: int, enabled\: bool, settings\: array\<string, mixed\>, rulesetVersion\: string\}, Closure\(BAGArt\\TelegramBotManagement\\Models\\TgModuleEnablement\)\: array\{botId\: string, chatId\: int, enabled\: bool, settings\: array\<string, mixed\>, rulesetVersion\: string\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: misc/BAGArt/tgbot-module-antispam/src/Http/Controllers/AntispamChatsController.php
-
-		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1

@@ -34,12 +34,27 @@ cd "$REPO_ROOT"
 
 [[ -f vendor/bin/pest ]] || { err "vendor/bin/pest not found"; exit "$EX_DEP"; }
 
-MIN="$(php tools/baseline/mutation-gate.php --library=bagart/async-kernel)" || {
+# The host shim tools/baseline/mutation-gate.php is inert for CLI calls: the
+# package control guards its CLI entry with realpath($argv[0]) !== __FILE__,
+# which never matches when required through a shim (Phase 0 freeze keeps the
+# fix package-side). Call the package control directly with the host baseline.
+MUTATION_GATE="$REPO_ROOT/vendor/bagart/telegram-platform-devops-baseline/controls/mutation-gate.php"
+[[ -f "$MUTATION_GATE" ]] || { err "mutation gate control not found at $MUTATION_GATE"; exit "$EX_DEP"; }
+
+MIN="$(php "$MUTATION_GATE" --library=bagart/async-kernel --baseline="$REPO_ROOT/tools/baseline/mutation-baseline.json")" || {
   err "mutation floor lookup failed"
   exit "$EX_ENV"
 }
+[[ "$MIN" =~ ^[0-9]+(\.[0-9]+)?$ ]] || {
+  err "mutation floor lookup returned no numeric floor: '$MIN'"
+  exit "$EX_ENV"
+}
 
-ARGS=(--testsuite AsyncKernelLib --mutate --everything --covered-only --class='BAGArt\AsyncKernel' --no-cache)
+ARGS=(--testsuite AsyncKernelLib --mutate --everything --covered-only --class='BAGArt\AsyncKernel' --no-cache --parallel)
+# Unbounded parallel defaults to one worker per core (24 locally): with
+# coverage each worker holds ~1GB, which OOM-killed the run on a 23GB box and
+# would exceed GitHub runners (7GB). Override with MUTATE_PROCESSES.
+ARGS+=(--processes="${MUTATE_PROCESSES:-4}")
 if (( MIN > 0 )); then
   ARGS+=(--min="$MIN")
   say "Mutation testing (enforced floor: $MIN)..."

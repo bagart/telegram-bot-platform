@@ -32,6 +32,7 @@
     "require-dev": {
         "ext-xhprof": "*",
         "amphp/dns": "^2.4",
+        "amphp/http-client": "^5.0",
         "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.24",
         "larastan/larastan": "*",
@@ -49,6 +50,7 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "BAGArt\\AskQueue\\": "misc/BAGArt/ask-queue/src/",
             "BAGArt\\ASKClientRedis\\": "misc/BAGArt/php-async-kernel-client-redis/src/",
             "BAGArt\\ASKClient\\": "misc/BAGArt/php-async-kernel-client/src/",
             "BAGArt\\AsyncKernel\\": "misc/BAGArt/php-async-kernel-lib/src/",
@@ -61,6 +63,7 @@
             "BAGArt\\TelegramBotStt\\": "misc/BAGArt/tgbot-module-stt/src/",
             "BAGArt\\TelegramBotTts\\": "misc/BAGArt/tgbot-module-tts/src/",
             "BAGArt\\TelegramBotNettools\\": "misc/BAGArt/tgbot-module-nettools/src/",
+            "BAGArt\\TelegramBotExample\\": "misc/BAGArt/tgbot-module-example/src/",
             "BAGArt\\ProxyOperations\\": "misc/BAGArt/tgbot-module-proxy/src/",
             "BAGArt\\ProxyOperations\\Database\\Factories\\": "misc/BAGArt/tgbot-module-proxy/database/factories/",
             "BAGArt\\ProxyOperations\\Database\\Seeders\\": "misc/BAGArt/tgbot-module-proxy/database/seeders/",
@@ -77,6 +80,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "BAGArt\\AskQueue\\Tests\\": "misc/BAGArt/ask-queue/tests/",
             "BAGArt\\ASKClientRedis\\Tests\\": "misc/BAGArt/php-async-kernel-client-redis/tests/",
             "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/",
             "BAGArt\\AsyncKernel\\Tests\\": "misc/BAGArt/php-async-kernel-lib/tests/",
@@ -177,6 +181,7 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "process-timeout": 1800,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
@@ -256,6 +261,10 @@
         {
             "type": "path",
             "url": "misc/BAGArt/tgbot-module-proxy"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/ask-queue"
         }
     ]
 }

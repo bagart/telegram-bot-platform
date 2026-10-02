@@ -12,6 +12,7 @@
         "bagart/async-kernel": "@dev",
         "bagart/ask-client": "@dev",
         "bagart/ask-client-redis": "@dev",
+        "bagart/ask-queue": "@dev",
         "bagart/telegram-bot-lib": "@dev",
         "bagart/telegram-bot-lib-basic": "@dev",
         "bagart/telegram-platform-management": "@dev",
@@ -102,6 +103,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/bagart/telegram-platform-access.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/telegram-platform-devops-baseline.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/ask-queue.git"
         }
     ],
     "autoload": {
@@ -124,6 +133,7 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "process-timeout": 1800,
         "allow-plugins": {
             "php-http/discovery": true,
             "pestphp/pest-plugin": true
@@ -135,5 +145,47 @@
         "laravel": {
             "dont-discover": []
         }
+    },
+    "require-dev": {
+        "ext-xhprof": "*",
+        "amphp/dns": "^2.4",
+        "amphp/http-client": "^5.0",
+        "barryvdh/laravel-ide-helper": "^3.7",
+        "fakerphp/faker": "^1.24",
+        "larastan/larastan": "*",
+        "laravel/boost": "^2.0",
+        "laravel/pail": "^1.2.5",
+        "laravel/pint": "^1.27",
+        "laravel/sail": "^1.53",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.9",
+        "pestphp/pest": "^4.4",
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "react/dns": "^1.14",
+        "bagart/telegram-platform-devops-baseline": "@dev"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BAGArt\\AskQueue\\Tests\\": "misc/BAGArt/ask-queue/tests/",
+            "BAGArt\\ASKClientRedis\\Tests\\": "misc/BAGArt/php-async-kernel-client-redis/tests/",
+            "BAGArt\\ASKClient\\Tests\\": "misc/BAGArt/php-async-kernel-client/tests/",
+            "BAGArt\\AsyncKernel\\Tests\\": "misc/BAGArt/php-async-kernel-lib/tests/",
+            "BAGArt\\TelegramBotBasic\\Tests\\": "misc/BAGArt/telegram-bot-lib-basic/tests/",
+            "BAGArt\\TelegramBotAntispam\\Tests\\": "misc/BAGArt/tgbot-module-antispam/tests/",
+            "BAGArt\\TelegramBotSummarizer\\Tests\\": "misc/BAGArt/tgbot-module-summarizer/tests/",
+            "BAGArt\\TelegramBotTts\\Tests\\": "misc/BAGArt/tgbot-module-tts/tests/",
+            "BAGArt\\TelegramBotStt\\Tests\\": "misc/BAGArt/tgbot-module-stt/tests/",
+            "BAGArt\\TelegramBotMafia\\Tests\\": "misc/BAGArt/tgbot-game-mafia/tests/",
+            "BAGArt\\TelegramBotManagement\\Tests\\": "misc/BAGArt/telegram-platform-management/tests/",
+            "BAGArt\\TelegramBotMenu\\Tests\\": "misc/BAGArt/telegram-platform-menu/tests/",
+            "BAGArt\\TelegramBotNettools\\Tests\\": "misc/BAGArt/tgbot-module-nettools/tests/",
+            "BAGArt\\ProxyOperations\\Tests\\": "misc/BAGArt/tgbot-module-proxy/tests/",
+            "BAGArt\\TelegramBot\\Tests\\": "misc/BAGArt/telegram-bot-lib/tests/",
+            "Tests\\": "tests/",
+            "BAGArt\\TelegramModuleEngine\\Tests\\": "misc/BAGArt/telegram-platform-module/tests/",
+            "BAGArt\\TelegramBotAccess\\Tests\\": "misc/BAGArt/telegram-platform-access/tests/",
+            "BAGArt\\TelegramBotAudit\\Tests\\": "misc/BAGArt/telegram-platform-audit/tests/"
+        },
+        "files": []
     }
 }

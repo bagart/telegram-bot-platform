@@ -21,6 +21,8 @@ declare(strict_types=1);
 |  - `routes` mirror each module's registered bot commands (the modules
 |    still self-register them into the flat registry; the route rows make
 |    them per-bot dispatchable and drift-checkable via tg:modules:routes:*).
+|    Route type convention: use 'command' (not 'telegram.command') —
+|    CommandRouteLookup accepts both for backward compatibility.
 |  - `commands` declares the module's Artisan console commands; the engine
 |    registers them for platform-enabled modules (replaces provider-level
 |    ->commands() pushes).
@@ -34,6 +36,13 @@ declare(strict_types=1);
 |
 | `strict` => true fails platform boot on any invalid entry (fail-fast);
 | default (false) collects errors, registers valid modules and logs.
+|
+| Env override convention:
+|   TG_MODULE_ENABLED_<module-key>=true|false
+|   e.g. TG_MODULE_ENABLED_antispam=false disables the antispam module
+|   without editing this file. When the env var is absent, the config
+|   value is used as-is. Operators must clear config cache after changing
+|   env vars: `php artisan config:clear`.
 */
 
 use BAGArt\TelegramModuleEngine\Config\TgModuleConfig;
@@ -55,8 +64,16 @@ return [
     'enablement_driver' => 'engine',
 
     'modules' => [
+        // Local dev fixture module (misc/BAGArt/tgbot-module-example):
+        // registers a demo processor, command, validation rule and outbound
+        // middleware without core edits. Disable outside dev with
+        // TG_MODULE_ENABLED_example=false.
+        'example' => new TgModuleConfig(
+            enabled: env('TG_MODULE_ENABLED_example', true),
+            provider: BAGArt\TelegramBotExample\ExampleModule::class,
+        ),
         'antispam' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_antispam', true),
             provider: BAGArt\TelegramBotAntispam\AntispamModule::class,
             laravelProvider: BAGArt\TelegramBotAntispam\TelegramBotAntispamServiceProvider::class,
             seeders: [BAGArt\TelegramBotAntispam\Database\Seeders\AntispamDefaultsSeeder::class],
@@ -65,13 +82,12 @@ return [
                 BAGArt\TelegramBotAntispam\Commands\ValidateDatasetCommand::class,
             ],
             httpRoutes: [
-                // Absolute paths resolved from the host base path (dev mode);
-                // prod-mode path resolution is tracked in the engine roadmap.
                 base_path('misc/BAGArt/tgbot-module-antispam/routes/web.php'),
             ],
             frontendPages: [
                 base_path('misc/BAGArt/tgbot-module-antispam/resources/js/pages'),
             ],
+            sourcePath: base_path('misc/BAGArt/tgbot-module-antispam'),
             routes: [
                 new RouteDeclaration('command', '/antispam', payload: [
                     'processor' => BAGArt\TelegramBotAntispam\Processors\AntispamStatusCommand::class,
@@ -88,9 +104,53 @@ return [
                     'description' => 'Appeal a punishment',
                 ]),
             ],
+            settingsScreens: [
+                new SettingsScreenContribution(
+                    screenId: 'antispam.settings',
+                    descriptor: new SettingsDescriptor(fields: [
+                        new SettingsField(
+                            fieldId: 'antispam.counter_driver',
+                            type: SettingsFieldType::Enum,
+                            default: 'redis',
+                            options: [
+                                ['value' => 'redis', 'labelKey' => 'antispam::settings.counter_driver_redis'],
+                                ['value' => 'memory', 'labelKey' => 'antispam::settings.counter_driver_memory'],
+                            ],
+                        ),
+                        new SettingsField(
+                            fieldId: 'antispam.ai.enabled',
+                            type: SettingsFieldType::Bool,
+                            default: false,
+                        ),
+                        new SettingsField(
+                            fieldId: 'antispam.blocklist.retention_days',
+                            type: SettingsFieldType::Int,
+                            default: 30,
+                            min: 1,
+                            max: 365,
+                        ),
+                        new SettingsField(
+                            fieldId: 'antispam.cache_ttl_seconds',
+                            type: SettingsFieldType::Int,
+                            default: 300,
+                            min: 30,
+                            max: 600,
+                        ),
+                        new SettingsField(
+                            fieldId: 'antispam.instrumentation',
+                            type: SettingsFieldType::Bool,
+                            default: false,
+                        ),
+                    ]),
+                    web: new WebScreenBinding(
+                        component: 'Settings/Antispam',
+                        accessLevel: WebAccessLevel::PlatformAdmin,
+                    ),
+                ),
+            ],
         ),
         'mafia' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_mafia', true),
             provider: BAGArt\TelegramBotMafia\MafiaModule::class,
             laravelProvider: BAGArt\TelegramBotMafia\MafiaServiceProvider::class,
             schedule: [
@@ -116,7 +176,7 @@ return [
             ],
         ),
         'menu' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_menu', true),
             provider: BAGArt\TelegramBotMenu\MenuModule::class,
             laravelProvider: BAGArt\TelegramBotMenu\TelegramBotMenuServiceProvider::class,
             commands: [
@@ -124,6 +184,7 @@ return [
                 BAGArt\TelegramBotMenu\Console\GrantCommand::class,
                 BAGArt\TelegramBotMenu\Console\RevokeCommand::class,
                 BAGArt\TelegramBotMenu\Console\RolesSweepCommand::class,
+                BAGArt\TelegramBotMenu\Console\T1ReconcileCommand::class,
                 BAGArt\TelegramBotMenu\Console\MenuInstallCommand::class,
                 BAGArt\TelegramBotMenu\Console\MenuSyncCommand::class,
                 BAGArt\TelegramBotMenu\Console\MenuUninstallCommand::class,
@@ -132,13 +193,21 @@ return [
                 BAGArt\TelegramBotMenu\Console\InertiaPagesGenerateCommand::class,
             ],
             schedule: [
+                new TgModuleSchedule(command: 'menu:t1:reconcile', expression: '0 3 * * *'),
                 new TgModuleSchedule(command: 'menu:roles:sweep', expression: '0 4 * * *'),
             ],
             httpRoutes: [
                 base_path('misc/BAGArt/telegram-platform-menu/routes/tgapp.php'),
+                base_path('misc/BAGArt/telegram-platform-menu/routes/auth.php'),
+                base_path('misc/BAGArt/telegram-platform-menu/routes/superadmin.php'),
             ],
+            frontendPages: [
+                base_path('misc/BAGArt/telegram-platform-menu/resources/js/pages'),
+            ],
+            sourcePath: base_path('misc/BAGArt/telegram-platform-menu'),
             routeMiddleware: [
                 'tgapp.session' => BAGArt\TelegramBotMenu\Http\Laravel\TgAppSessionMiddleware::class,
+                'superadmin' => BAGArt\TelegramBotMenu\Http\Laravel\SuperadminGateMiddleware::class,
             ],
             exceptionRenderables: [
                 BAGArt\TelegramBotMenu\Support\TgAppThrottleRenderable::class,
@@ -148,12 +217,88 @@ return [
                 new RouteDeclaration('command', '/menu', payload: [
                     'processor' => BAGArt\TelegramBotMenu\Chats\MenuCommandProcessor::class,
                 ]),
+                new RouteDeclaration('command', '/login', payload: [
+                    'processor' => BAGArt\TelegramBotMenu\Chats\LoginCommandProcessor::class,
+                    'description' => 'Confirm a web login or telegram link code',
+                ]),
+                new RouteDeclaration('command', '/invite', payload: [
+                    'processor' => BAGArt\TelegramBotMenu\Chats\InviteCommandProcessor::class,
+                    'description' => 'Mint a workspace invite code (Owner only)',
+                ]),
+                new RouteDeclaration('command', '/join', payload: [
+                    'processor' => BAGArt\TelegramBotMenu\Chats\JoinCommandProcessor::class,
+                    'description' => 'Join a workspace with an invite code',
+                ]),
+                new RouteDeclaration('command', '/wsadmin', payload: [
+                    'processor' => BAGArt\TelegramBotMenu\Chats\WsadminCommandProcessor::class,
+                    'description' => 'Open the workspace admin panel',
+                ]),
             ],
         ),
         'nettools' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_nettools', true),
             provider: BAGArt\TelegramBotNettools\NettoolsModule::class,
             laravelProvider: BAGArt\TelegramBotNettools\TelegramBotNettoolsServiceProvider::class,
+            settingsScreens: [
+                new SettingsScreenContribution(
+                    screenId: 'nettools.settings',
+                    descriptor: new SettingsDescriptor(fields: [
+                        new SettingsField(
+                            fieldId: 'nettools.features.recon',
+                            type: SettingsFieldType::Bool,
+                            default: true,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.features.active',
+                            type: SettingsFieldType::Bool,
+                            default: true,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.features.audit',
+                            type: SettingsFieldType::Bool,
+                            default: true,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.features.portscan',
+                            type: SettingsFieldType::Bool,
+                            default: false,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.features.dnsbl',
+                            type: SettingsFieldType::Bool,
+                            default: false,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.quotas.daily_units',
+                            type: SettingsFieldType::Int,
+                            default: 40,
+                            min: 1,
+                            max: 500,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.quotas.chat_ceiling',
+                            type: SettingsFieldType::Int,
+                            default: 150,
+                            min: 10,
+                            max: 2000,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.ui.heavy_confirm',
+                            type: SettingsFieldType::Bool,
+                            default: true,
+                        ),
+                        new SettingsField(
+                            fieldId: 'nettools.memory.enabled',
+                            type: SettingsFieldType::Bool,
+                            default: true,
+                        ),
+                    ]),
+                    web: new WebScreenBinding(
+                        component: 'Settings/Nettools',
+                        accessLevel: WebAccessLevel::PlatformAdmin,
+                    ),
+                ),
+            ],
             routes: [
                 // Mirrors Commands\CommandMap::MAP (probe commands); /report
                 // deliberately omitted — antispam owns it in the route table.
@@ -244,7 +389,7 @@ return [
             ],
         ),
         'stt' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_stt', true),
             provider: BAGArt\TelegramBotStt\SttModule::class,
             laravelProvider: BAGArt\TelegramBotStt\TelegramBotSttServiceProvider::class,
             commands: [
@@ -262,7 +407,7 @@ return [
             ],
         ),
         'summarizer' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_summarizer', true),
             provider: BAGArt\TelegramBotSummarizer\SummarizerModule::class,
             laravelProvider: BAGArt\TelegramBotSummarizer\TelegramBotSummarizerServiceProvider::class,
             commands: [
@@ -281,9 +426,55 @@ return [
                     'description' => 'Cancel pending summarizer input',
                 ]),
             ],
+            settingsScreens: [
+                new SettingsScreenContribution(
+                    screenId: 'summarizer.settings',
+                    descriptor: new SettingsDescriptor(fields: [
+                        new SettingsField(
+                            fieldId: 'summarizer.retention_days',
+                            type: SettingsFieldType::Int,
+                            default: 14,
+                            min: 1,
+                            max: 90,
+                        ),
+                        new SettingsField(
+                            fieldId: 'summarizer.transcript_budget_chars',
+                            type: SettingsFieldType::Int,
+                            default: 120000,
+                            min: 1000,
+                            max: 500000,
+                        ),
+                        new SettingsField(
+                            fieldId: 'summarizer.max_transcript_messages',
+                            type: SettingsFieldType::Int,
+                            default: 2000,
+                            min: 100,
+                            max: 10000,
+                        ),
+                        new SettingsField(
+                            fieldId: 'summarizer.llm_timeout_seconds',
+                            type: SettingsFieldType::Int,
+                            default: 90,
+                            min: 5,
+                            max: 300,
+                        ),
+                        new SettingsField(
+                            fieldId: 'summarizer.pending_input_ttl_minutes',
+                            type: SettingsFieldType::Int,
+                            default: 15,
+                            min: 1,
+                            max: 120,
+                        ),
+                    ]),
+                    web: new WebScreenBinding(
+                        component: 'Settings/Summarizer',
+                        accessLevel: WebAccessLevel::PlatformAdmin,
+                    ),
+                ),
+            ],
         ),
         'tts' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_tts', true),
             provider: BAGArt\TelegramBotTts\TtsModule::class,
             laravelProvider: BAGArt\TelegramBotTts\TelegramBotTtsServiceProvider::class,
             commands: [
@@ -300,13 +491,52 @@ return [
                     'description' => 'Speak text with TTS',
                 ]),
             ],
+            settingsScreens: [
+                new SettingsScreenContribution(
+                    screenId: 'tts.settings',
+                    descriptor: new SettingsDescriptor(fields: [
+                        new SettingsField(
+                            fieldId: 'tts.budget_seconds',
+                            type: SettingsFieldType::Int,
+                            default: 30,
+                            min: 5,
+                            max: 120,
+                        ),
+                        new SettingsField(
+                            fieldId: 'tts.global_concurrency',
+                            type: SettingsFieldType::Int,
+                            default: 4,
+                            min: 1,
+                            max: 20,
+                        ),
+                        new SettingsField(
+                            fieldId: 'tts.timeout_seconds',
+                            type: SettingsFieldType::Int,
+                            default: 25,
+                            min: 5,
+                            max: 60,
+                        ),
+                        new SettingsField(
+                            fieldId: 'tts.retention_days',
+                            type: SettingsFieldType::Int,
+                            default: 30,
+                            min: 1,
+                            max: 90,
+                        ),
+                    ]),
+                    web: new WebScreenBinding(
+                        component: 'Settings/Tts',
+                        accessLevel: WebAccessLevel::PlatformAdmin,
+                    ),
+                ),
+            ],
         ),
 
         // Proxy Operations (menu_integration.md M-6): platform wrapper,
         // enabled for engine-managed registration. Bootstrap provider
         // exemption remains for config/migrations/bindings (always-on).
         'proxy' => new TgModuleConfig(
-            enabled: true,
+            enabled: env('TG_MODULE_ENABLED_proxy', true),
             provider: BAGArt\ProxyOperations\ProxyOperationsModule::class,
             laravelProvider: BAGArt\ProxyOperations\ProxyOperationsServiceProvider::class,
             commands: [
@@ -325,6 +555,7 @@ return [
             frontendPages: [
                 base_path('misc/BAGArt/tgbot-module-proxy/resources/js/pages'),
             ],
+            sourcePath: base_path('misc/BAGArt/tgbot-module-proxy'),
             settingsScreens: [
                 new SettingsScreenContribution(
                     screenId: 'proxy.settings',

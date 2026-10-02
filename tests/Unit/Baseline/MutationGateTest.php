@@ -29,5 +29,20 @@ it('reads the shipped baseline and prints the floor via CLI', function () {
     $path = dirname(__DIR__, 3).'/tools/baseline/mutation-baseline.json';
     $baseline = mutation_gate_load_json($path);
 
-    expect($baseline['libraries']['bagart/async-kernel']['msi_floor'])->toBeInt();
+    expect($baseline['libraries']['bagart/async-kernel']['msi_floor'])->toBeNumeric()
+        ->toEqual(97);
+});
+
+it('prints a numeric floor when the package control is invoked as CLI', function () {
+    $root = dirname(__DIR__, 3);
+    $control = $root.'/vendor/bagart/telegram-platform-devops-baseline/controls/mutation-gate.php';
+
+    exec(
+        sprintf('%s %s --library=bagart/async-kernel --baseline=%s', PHP_BINARY, escapeshellarg($control), escapeshellarg($root.'/tools/baseline/mutation-baseline.json')),
+        $output,
+        $exitCode
+    );
+
+    expect($exitCode)->toBe(0)
+        ->and(implode("\n", $output))->toMatch('/^\d+(\.\d+)?$/m');
 });

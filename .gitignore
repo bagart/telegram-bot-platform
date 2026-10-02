@@ -43,5 +43,21 @@ docker/omniroute/data/
 # Module UI pages are build artifacts materialized from module repos (cmd/dev/ui-sync)
 /resources/js/pages/antispam
 
-# Task files — ephemeral plans, never commit
-**/docs/tasks/
+# Ephemeral trackers — ignore contents, keep dirs via .gitkeep/README
+# (dir-level `docs/tasks/` style rules would make negations impossible)
+**/docs/tasks/*
+!**/docs/tasks/.gitkeep
+!**/docs/tasks/README.md
+**/docs/questions/*
+!**/docs/questions/.gitkeep
+!**/docs/questions/README.md
+**/docs/grillings/*
+!**/docs/grillings/.gitkeep
+!**/docs/grillings/README.md
+**/docs/researches/*
+!**/docs/researches/.gitkeep
+!**/docs/researches/README.md
+
+# SDD working temps
+**/docs/sdd/.compact-raw.md
+**/docs/sdd/**/.renew/

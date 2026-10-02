@@ -6,4 +6,4 @@ cd "$DIR"
 
 source cmd/includes/env_token.sh
 
-php misc/BAGArt/telegram-bot-lib/commands/debug/chats.php "$@"
+php misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php "$@"

@@ -58,6 +58,9 @@
         <testsuite name="ASKClientLib">
             <directory>misc/BAGArt/php-async-kernel-client/tests</directory>
         </testsuite>
+        <testsuite name="AskQueueLib">
+            <directory>misc/BAGArt/ask-queue/tests</directory>
+        </testsuite>
         <testsuite name="ASKClientRedisLib">
             <directory>misc/BAGArt/php-async-kernel-client-redis/tests</directory>
         </testsuite>

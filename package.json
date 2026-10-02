@@ -10,7 +10,8 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
-        "types:check": "tsc --noEmit"
+        "types:check": "tsc --noEmit",
+        "test:ts": "node --experimental-strip-types --experimental-transform-types --test misc/BAGArt/telegram-platform-menu/tests/logic/*.test.ts misc/BAGArt/telegram-platform-menu/tests/browser/*.test.ts"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
