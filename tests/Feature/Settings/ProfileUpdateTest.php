@@ -83,3 +83,25 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('profile page exposes the linked telegram id', function () {
+    $user = User::factory()->create(['telegram_id' => 777000]);
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('settings/profile')
+            ->where('telegramId', 777000));
+});
+
+test('profile page exposes a null telegram id for unlinked accounts', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('settings/profile')
+            ->where('telegramId', null));
+});

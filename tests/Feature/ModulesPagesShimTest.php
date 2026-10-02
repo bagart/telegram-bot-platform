@@ -16,21 +16,17 @@ test('modules:pages delegates to every registered generator command', function (
     app()->forgetInstance(ModuleRegistryBuilder::class);
     app()->forgetInstance(EngineModuleRegistry::class);
 
-    // Register two fake generator commands via the config that the builder reads.
+    // Config key MUST equal TestModule::descriptor()->id ('test').
     $config = Config::get('tg_modules.modules', []);
-    $config['fake-a'] = new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
+    $config['test'] = new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
         enabled: true,
         provider: \BAGArt\TelegramModuleEngine\Tests\Fixtures\TestModule::class,
-        pageGenerators: ['fake:gen-a'],
-    );
-    $config['fake-b'] = new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
-        enabled: true,
-        provider: \BAGArt\TelegramModuleEngine\Tests\Fixtures\TestModule::class,
-        pageGenerators: ['fake:gen-b'],
+        pageGenerators: ['fake:gen-a', 'fake:gen-b'],
     );
     Config::set('tg_modules.modules', $config);
 
     $registry = app(EngineModuleRegistry::class);
+    expect($registry->pageGenerators())->toContain('fake:gen-a', 'fake:gen-b');
 
     Artisan::command('fake:gen-a {--output= : path}', function (): int {
         config(['test.gen-a-called' => true]);

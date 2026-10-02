@@ -26,8 +26,29 @@ function activationReader(): ModuleActivationReader
     return app(ModuleActivationReader::class);
 }
 
+function setProxyPlatformEnabled(bool $enabled): void
+{
+    $proxy = config('tg_modules.modules.proxy');
+    Config::set('tg_modules.modules.proxy', new \BAGArt\TelegramModuleEngine\Config\TgModuleConfig(
+        enabled: $enabled,
+        provider: $proxy->provider,
+        seeders: $proxy->seeders,
+        laravelProvider: $proxy->laravelProvider,
+        routes: $proxy->routes,
+        commands: $proxy->commands,
+        schedule: $proxy->schedule,
+        httpRoutes: $proxy->httpRoutes,
+        routeMiddleware: $proxy->routeMiddleware,
+        exceptionRenderables: $proxy->exceptionRenderables,
+        frontendPages: $proxy->frontendPages,
+        pageGenerators: $proxy->pageGenerators,
+        settingsScreens: $proxy->settingsScreens,
+        sourcePath: $proxy->sourcePath,
+    ));
+}
+
 it('returns false for a platform-disabled module', function () {
-    Config::set('tg_modules.modules.proxy.enabled', false);
+    setProxyPlatformEnabled(false);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(
@@ -40,7 +61,7 @@ it('returns false for a platform-disabled module', function () {
 });
 
 it('falls back to defaultEnabled when no activation row exists', function () {
-    Config::set('tg_modules.modules.proxy.enabled', true);
+    setProxyPlatformEnabled(true);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(
@@ -54,7 +75,7 @@ it('falls back to defaultEnabled when no activation row exists', function () {
 });
 
 it('falls back to defaultEnabled=true for modules with that descriptor', function () {
-    Config::set('tg_modules.modules.proxy.enabled', true);
+    setProxyPlatformEnabled(true);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(
@@ -72,7 +93,7 @@ it('falls back to defaultEnabled=true for modules with that descriptor', functio
 });
 
 it('honours explicit enabled row over defaultEnabled', function () {
-    Config::set('tg_modules.modules.proxy.enabled', true);
+    setProxyPlatformEnabled(true);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(
@@ -95,7 +116,7 @@ it('honours explicit enabled row over defaultEnabled', function () {
 });
 
 it('honours explicit disabled row over defaultEnabled=true', function () {
-    Config::set('tg_modules.modules.antispam.enabled', true);
+    setProxyPlatformEnabled(true);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(
@@ -116,7 +137,7 @@ it('honours explicit disabled row over defaultEnabled=true', function () {
 });
 
 it('activeModuleIds returns only enabled modules for a bot', function () {
-    Config::set('tg_modules.modules.proxy.enabled', true);
+    setProxyPlatformEnabled(true);
     $registry = rebuildRegistry();
 
     $reader = new ModuleActivationReader(

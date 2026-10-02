@@ -3,6 +3,7 @@
 use App\Http\Controllers\HealthController;
 use BAGArt\TelegramBot\Http\Laravel;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 // Health endpoints (06-runtime-operations.md §39): /health/live, /health/ready, /health.
@@ -14,6 +15,13 @@ Route::get('/health/metrics', [HealthController::class, 'metrics'])->name('healt
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
+
+// Break-glass email/password form (D15): out of the default login UI,
+// kept for superadmin recovery — the default /login is the device-code flow.
+Route::get('/login/email', fn () => Inertia::render('auth/email-login', [
+    'canResetPassword' => Features::enabled(Features::resetPasswords()),
+    'canRegister' => Features::enabled(Features::registration()),
+]))->name('login.email');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

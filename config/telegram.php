@@ -76,7 +76,7 @@ $configTelegram = [
     | Automatic long-polling schedule via Laravel's task scheduler.
     | Set SCHEDULE_TG_POLL_ENABLED=false to disable.
     |
-    | The tg_daemons runs as a daemon via `php commands/tg_daemons-daemon.php`.
+    | The tg_daemons runs as a daemon via `php cmd/poller-daemon.php`.
     | Expression follows Laravel's cron format (default: every minute).
     |
     */

@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use BAGArt\TelegramBotMenu\Auth\LoginBotLocator;
+use BAGArt\TelegramBotMenu\Auth\LoginChallengePurpose;
+use BAGArt\TelegramBotMenu\Auth\LoginChallengeService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -47,11 +50,25 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'canRegister' => Features::enabled(Features::registration()),
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(function (Request $request) {
+            // Device-code login (ADR-001/D15): every visit to /login mints a
+            // one-time challenge the user confirms with `/login <code>` in
+            // the bot; email/password stays reachable on /login/email.
+            [$challenge, $code] = app(LoginChallengeService::class)
+                ->create(LoginChallengePurpose::Login, null);
+
+            return Inertia::render('auth/login', [
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'canRegister' => Features::enabled(Features::registration()),
+                'status' => $request->session()->get('status'),
+                'challenge' => [
+                    'id' => $challenge->id,
+                    'code' => $code,
+                    'botUsername' => app(LoginBotLocator::class)->username(),
+                    'expiresAt' => $challenge->expires_at->toIso8601String(),
+                ],
+            ]);
+        });
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
             'email' => $request->email,

@@ -22,6 +22,8 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            // Telegram-first identity (D9): the profile drives link/unlink.
+            'telegramId' => $request->user()?->telegram_id,
         ]);
     }
 

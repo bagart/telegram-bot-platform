@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, ShieldAlert } from 'lucide-react';
+import { BookOpen, Bot, Building2, FolderGit2, LayoutGrid, ShieldAlert } from 'lucide-react';
 import type { NavItem } from '@/types';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as antispamDashboard } from '@/routes/antispam';
+import { index as superadminBots } from '@/routes/superadmin/bots';
+import { index as superadminWorkspaces } from '@/routes/superadmin/workspaces';
 
 const mainNavItems: NavItem[] = [
     {
@@ -27,6 +29,19 @@ const mainNavItems: NavItem[] = [
         title: 'Anti-Spam',
         href: antispamDashboard(),
         icon: ShieldAlert,
+    },
+    // Both entries are superadmin-only at runtime: the routes answer 403 for
+    // every other session, and the sidebar has no shared superadmin flag to
+    // filter on (HandleInertiaRequests is host-owned).
+    {
+        title: 'Workspaces',
+        href: superadminWorkspaces(),
+        icon: Building2,
+    },
+    {
+        title: 'Bot catalog',
+        href: superadminBots(),
+        icon: Bot,
     },
 ];
 

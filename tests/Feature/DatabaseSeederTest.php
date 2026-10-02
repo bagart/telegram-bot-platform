@@ -26,8 +26,19 @@ final class DatabaseSeederProbeSeeder extends Illuminate\Database\Seeder
     }
 }
 
+final class DatabaseSeederProbeSeederAlt extends Illuminate\Database\Seeder
+{
+    public static int $runs = 0;
+
+    public function run(): void
+    {
+        self::$runs++;
+    }
+}
+
 beforeEach(function () {
     DatabaseSeederProbeSeeder::$runs = 0;
+    DatabaseSeederProbeSeederAlt::$runs = 0;
     app()->forgetInstance(ModuleRegistryBuilder::class);
     app()->forgetInstance(EngineModuleRegistry::class);
 });
@@ -44,13 +55,16 @@ test('database seeder runs registry-declared module seeders exactly once', funct
 
 test('database seeder runs multiple registry seeders', function () {
     Config::set('tg_modules.modules', [
-        'test-a' => new TgModuleConfig(true, TestModule::class, seeders: [DatabaseSeederProbeSeeder::class]),
-        'test-b' => new TgModuleConfig(true, TestModule::class, seeders: [DatabaseSeederProbeSeeder::class]),
+        'test' => new TgModuleConfig(true, TestModule::class, seeders: [
+            DatabaseSeederProbeSeeder::class,
+            DatabaseSeederProbeSeederAlt::class,
+        ]),
     ]);
 
     $this->artisan('db:seed', ['--class' => DatabaseSeeder::class, '--force' => true]);
 
-    expect(DatabaseSeederProbeSeeder::$runs)->toBe(2);
+    expect(DatabaseSeederProbeSeeder::$runs)->toBe(1)
+        ->and(DatabaseSeederProbeSeederAlt::$runs)->toBe(1);
 });
 
 test('database seeder succeeds with no seeders registered', function () {
