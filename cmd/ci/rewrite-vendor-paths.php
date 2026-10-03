@@ -97,6 +97,23 @@ foreach ($contents as $file => $content) {
     $contents[$file] = $content;
 }
 
+// The bare <directory>misc</directory> in phpunit.xml <source> has no
+// misc/BAGArt prefix for the generic map above. In vendor-mode checkouts it
+// must point at the installed bagart packages: <source> drives both the
+// coverage report include filter and pest-mutate's file set (via
+// pathsFromPhpunitConfiguration), so leaving it on the empty misc/ makes
+// mutation see zero library files.
+$contents['phpunit.xml'] = preg_replace(
+    '#<directory>misc</directory>#',
+    '<directory>vendor/bagart</directory>',
+    $contents['phpunit.xml'],
+    1,
+    $sourceRewrites,
+);
+if ($sourceRewrites !== 1) {
+    fail("phpunit.xml: expected exactly one bare <directory>misc</directory> in <source>, found {$sourceRewrites}");
+}
+
 foreach ($contents as $file => $content) {
     preg_match_all('#misc/BAGArt/([A-Za-z0-9_-]+)#', $content, $matches);
     $leftovers = array_unique(array_diff($matches[1], array_keys($map), $residualAllowlist));

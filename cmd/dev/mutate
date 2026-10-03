@@ -51,6 +51,14 @@ MIN="$(php "$MUTATION_GATE" --library=bagart/async-kernel --baseline="$REPO_ROOT
 }
 
 ARGS=(--testsuite AsyncKernelLib --mutate --everything --covered-only --class='BAGArt\AsyncKernel' --no-cache --parallel)
+
+# pest-mutate defaults its file set to phpunit.xml <source> (app + misc).
+# CI prod checkouts rewrite misc/BAGArt/* to vendor/bagart/* but keep the bare
+# misc entry, which is empty there — mutation then sees 0 files. Point the
+# source at the installed package explicitly; dev keeps its calibrated paths.
+if [[ ! -d misc/BAGArt/php-async-kernel-lib/src && -d vendor/bagart/async-kernel/src ]]; then
+  ARGS+=(--path=vendor/bagart/async-kernel/src)
+fi
 # Unbounded parallel defaults to one worker per core (24 locally): with
 # coverage each worker holds ~1GB, which OOM-killed the run on a 23GB box and
 # would exceed GitHub runners (7GB). Override with MUTATE_PROCESSES.
