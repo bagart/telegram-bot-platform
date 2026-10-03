@@ -10341,12 +10341,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-platform-devops-baseline.git",
-                "reference": "f23b3efec6504be85ca2936a5cf83d246244ac4c"
+                "reference": "babb5533ae9145bd3daeb38e6d6bbf3918b88eb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-devops-baseline/zipball/f23b3efec6504be85ca2936a5cf83d246244ac4c",
-                "reference": "f23b3efec6504be85ca2936a5cf83d246244ac4c",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-devops-baseline/zipball/babb5533ae9145bd3daeb38e6d6bbf3918b88eb5",
+                "reference": "babb5533ae9145bd3daeb38e6d6bbf3918b88eb5",
                 "shasum": ""
             },
             "require": {
@@ -10375,7 +10375,7 @@
                 "MIT"
             ],
             "description": "Reusable DevOps/security baseline engine: controls, hooks and CLI for BAGArt repositories. Ships executors and defaults; every consumer keeps its own policy JSONs.",
-            "time": "2026-10-03T04:59:37+00:00"
+            "time": "2026-10-03T06:28:37+00:00"
         },
         {
             "name": "barryvdh/laravel-ide-helper",

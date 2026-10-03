@@ -38,6 +38,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Module Settings', href: '/modules/settings' },
 ];
 
+export interface ModuleSettingsShowProps {
+    botId: string;
+    moduleId: string;
+    screenId: string;
+    label: string;
+    fields: Field[];
+    values: Record<string, unknown>;
+    mtime: number;
+}
+
 export default function ModuleSettingsShow({
     botId,
     moduleId,
@@ -46,15 +56,7 @@ export default function ModuleSettingsShow({
     fields,
     values,
     mtime,
-}: {
-    botId: string;
-    moduleId: string;
-    screenId: string;
-    label: string;
-    fields: Field[];
-    values: Record<string, unknown>;
-    mtime: number;
-}) {
+}: ModuleSettingsShowProps) {
     const [formValues, setFormValues] = useState<Record<string, unknown>>(
         () => {
             const initial: Record<string, unknown> = {};
@@ -121,7 +123,8 @@ export default function ModuleSettingsShow({
 
             for (const field of fields) {
                 if (field.fieldId in conflict.serverValues) {
-                    rebased[field.fieldId] = conflict.serverValues[field.fieldId];
+                    rebased[field.fieldId] =
+                        conflict.serverValues[field.fieldId];
                 }
             }
 
@@ -247,7 +250,9 @@ function FieldRenderer({
                     <Checkbox
                         id={field.fieldId}
                         checked={Boolean(value)}
-                        onCheckedChange={(checked) => onChange(Boolean(checked))}
+                        onCheckedChange={(checked) =>
+                            onChange(Boolean(checked))
+                        }
                     />
                     <Label
                         htmlFor={field.fieldId}
@@ -266,7 +271,9 @@ function FieldRenderer({
                     min={field.min ?? undefined}
                     max={field.max ?? undefined}
                     value={String(value ?? '')}
-                    onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
+                    onChange={(e) =>
+                        onChange(parseInt(e.target.value, 10) || 0)
+                    }
                     required={field.required}
                 />
             )}
@@ -279,9 +286,7 @@ function FieldRenderer({
                     min={field.min ?? undefined}
                     max={field.max ?? undefined}
                     value={String(value ?? '')}
-                    onChange={(e) =>
-                        onChange(parseFloat(e.target.value) || 0)
-                    }
+                    onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
                     required={field.required}
                 />
             )}
@@ -299,7 +304,7 @@ function FieldRenderer({
             {field.type === 'text' && (
                 <textarea
                     id={field.fieldId}
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     value={String(value ?? '')}
                     onChange={(e) => onChange(e.target.value)}
                     required={field.required}

@@ -1,5 +1,12 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Bot, Building2, FolderGit2, LayoutGrid, ShieldAlert } from 'lucide-react';
+import {
+    BookOpen,
+    Bot,
+    Building2,
+    FolderGit2,
+    LayoutGrid,
+    ShieldAlert,
+} from 'lucide-react';
 import type { NavItem } from '@/types';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';

@@ -37,9 +37,7 @@ export default function ModuleSettingsIndex({
     selectedBotId: string | null;
     screens: Screen[];
 }) {
-    const [selectedBot, setSelectedBot] = useState<string>(
-        selectedBotId ?? '',
-    );
+    const [selectedBot, setSelectedBot] = useState<string>(selectedBotId ?? '');
 
     const handleBotChange = (value: string) => {
         setSelectedBot(value);
@@ -94,9 +92,9 @@ export default function ModuleSettingsIndex({
 
                     {selectedBot && screens.length === 0 && (
                         <p className="text-sm text-muted-foreground">
-                            No settings screens available for this bot.
-                            Modules may not have any settings configured, or
-                            no modules are enabled.
+                            No settings screens available for this bot. Modules
+                            may not have any settings configured, or no modules
+                            are enabled.
                         </p>
                     )}
 

@@ -1,0 +1,15 @@
+# Gitleaks config: keep the default rule set and allowlist documented
+# false positives found in git history.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Content hashes and documentation placeholders, not credentials"
+paths = [
+    # Manifest entries are sha256 file hashes next to a path containing "secret".
+    '''tools/baseline/MANIFEST\.json''',
+    # Documentation example headers (e.g. X-API-Key: sk_live_abc123).
+    '''misc/agency-agents/''',
+    # Skill docs with placeholder env values (STRIPE_SECRET=<your-stripe-secret>).
+    '''skills/laravel-best-practices/rules/config\.md''',
+]
