@@ -1,6 +1,6 @@
 {
     "baseline_version": "0.3.0",
-    "generated_at": "2026-10-03T08:02:24+00:00",
+    "generated_at": "2026-10-03T08:14:40+00:00",
     "file_count": 119,
     "files": {
         ".github/workflows/baseline-drift.yml": "202e3590e0cc077922dd18cc4fd7d467b7837d6fcba0d09d073c2b1767b8d97b",
@@ -10,7 +10,7 @@
         ".github/workflows/lint.yml": "1a040c269ec12ac64f23ebd90ed760bacda319073b4b073ca3160dd984894665",
         ".github/workflows/maintenance.yml": "415069e6fc5f67de98a6d9f0000c06a66ffdae383890b4616dc2fa40776c1ee1",
         ".github/workflows/module-validation.yml": "c37e666db7dba9b229a9cd471758de796de8d19b64c11133eb1cf594a45943d7",
-        ".github/workflows/nightly.yml": "13f205d230c55b4b70fef0593c017e06584aaf193e505f0be260c7bdadf3ebdb",
+        ".github/workflows/nightly.yml": "62a4ed764e1e5fad93de0a75c1e76e3b58512ab8fa0d1db944326b73dc51de72",
         ".github/workflows/pr-triage.yml": "a638017077498926f21451e924f8c33d8695019985d0d7d30800667948a6b629",
         ".github/workflows/prod-install.yml": "c4cc8976541d6c8bc3b2c429ad7369299698b92bd70120f7722c9b74f2bc0113",
         ".github/workflows/security.yml": "e4a0a01199be486e0014991564e453ad91da77c6de774869357862f7312f7314",
