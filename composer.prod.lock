@@ -63,19 +63,20 @@
         },
         {
             "name": "bagart/ask-client",
-            "version": "v0.1.1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/php-async-kernel-client.git",
-                "reference": "0f43e1ffe077e551278e0e7136151bf038e4ce16"
+                "reference": "ad0dc3fbb704feaff478bf37002e11de2bf8f3e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/php-async-kernel-client/zipball/0f43e1ffe077e551278e0e7136151bf038e4ce16",
-                "reference": "0f43e1ffe077e551278e0e7136151bf038e4ce16",
+                "url": "https://api.github.com/repos/bagart/php-async-kernel-client/zipball/ad0dc3fbb704feaff478bf37002e11de2bf8f3e2",
+                "reference": "ad0dc3fbb704feaff478bf37002e11de2bf8f3e2",
                 "shasum": ""
             },
             "require": {
+                "bagart/ask-queue": "*",
                 "bagart/async-kernel": "*",
                 "php": ">=8.2",
                 "psr/http-message": "^1.0|^2.0"
@@ -83,11 +84,13 @@
             "require-dev": {
                 "amphp/dns": "^2.4",
                 "amphp/http-client": "^5.0",
+                "bagart/telegram-platform-devops-baseline": "@dev",
                 "guzzlehttp/guzzle": "^7.0",
                 "guzzlehttp/psr7": "^2.0",
                 "pestphp/pest": "^4.0",
                 "react/dns": "^1.13"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -128,7 +131,7 @@
                 "queue",
                 "transport"
             ],
-            "time": "2026-08-25T11:30:57+00:00"
+            "time": "2026-10-02T18:07:19+00:00"
         },
         {
             "name": "bagart/ask-client-redis",
@@ -319,16 +322,16 @@
         },
         {
             "name": "bagart/telegram-bot-lib",
-            "version": "v0.1.1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-lib.git",
-                "reference": "5ea773bae78656a66b7828b9b31de43f4da5045a"
+                "reference": "c476ef2b536aa5052853faf024d862595fb88a4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/5ea773bae78656a66b7828b9b31de43f4da5045a",
-                "reference": "5ea773bae78656a66b7828b9b31de43f4da5045a",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/c476ef2b536aa5052853faf024d862595fb88a4c",
+                "reference": "c476ef2b536aa5052853faf024d862595fb88a4c",
                 "shasum": ""
             },
             "require": {
@@ -338,14 +341,16 @@
                 "psr/container": "^2.0"
             },
             "require-dev": {
+                "bagart/telegram-platform-devops-baseline": "@dev",
                 "pestphp/pest": "^4.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "bot-api": {
                     "version": "9.5",
                     "spec": "@grom.js/bot-api-spec 0.8.0",
-                    "note": "Bot API version the generated DTOs (src/TgApi) implement; refresh via commands/actualize.sh and keep tools/baseline/compat-matrix.json in sync"
+                    "note": "Bot API version the generated DTOs (src/TgApi) implement; refresh via cmd/actualize.sh and keep tools/baseline/compat-matrix.json in sync"
                 }
             },
             "autoload": {
@@ -405,7 +410,7 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-08-25T11:45:10+00:00"
+            "time": "2026-10-02T18:08:21+00:00"
         },
         {
             "name": "bagart/telegram-bot-lib-basic",
@@ -835,12 +840,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/tgbot-module-antispam.git",
-                "reference": "e4fe944d214764d8272bd51debb25e4a0433c563"
+                "reference": "475a8a9834a6f53aef9d666bff08f813b5adc98a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-antispam/zipball/e4fe944d214764d8272bd51debb25e4a0433c563",
-                "reference": "e4fe944d214764d8272bd51debb25e4a0433c563",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-antispam/zipball/475a8a9834a6f53aef9d666bff08f813b5adc98a",
+                "reference": "475a8a9834a6f53aef9d666bff08f813b5adc98a",
                 "shasum": ""
             },
             "require": {
@@ -891,7 +896,7 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-09-17T17:44:27+00:00"
+            "time": "2026-10-02T17:52:08+00:00"
         },
         {
             "name": "bagart/tgbot-module-nettools",
@@ -10287,21 +10292,22 @@
         },
         {
             "name": "bagart/telegram-platform-devops-baseline",
-            "version": "v0.1.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-platform-devops-baseline.git",
-                "reference": "b9b6f054d845dab446185693d1412dd26fd48714"
+                "reference": "5d18ac6ef570807ab3f9734ef0974d1634fa87ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-devops-baseline/zipball/b9b6f054d845dab446185693d1412dd26fd48714",
-                "reference": "b9b6f054d845dab446185693d1412dd26fd48714",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-devops-baseline/zipball/5d18ac6ef570807ab3f9734ef0974d1634fa87ac",
+                "reference": "5d18ac6ef570807ab3f9734ef0974d1634fa87ac",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.4"
             },
+            "default-branch": true,
             "bin": [
                 "bin/baseline-check",
                 "bin/baseline-fix",
@@ -10324,7 +10330,7 @@
                 "MIT"
             ],
             "description": "Reusable DevOps/security baseline engine: controls, hooks and CLI for BAGArt repositories. Ships executors and defaults; every consumer keeps its own policy JSONs.",
-            "time": "2026-08-25T20:19:22+00:00"
+            "time": "2026-10-02T17:48:40+00:00"
         },
         {
             "name": "barryvdh/laravel-ide-helper",
