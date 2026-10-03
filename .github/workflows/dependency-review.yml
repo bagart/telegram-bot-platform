@@ -17,4 +17,4 @@ concurrency:
 
 jobs:
   dependency-review:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/dependency-review.yml@5be3a8de34658b5d09d8d04986c0576eb872c0f9 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/dependency-review.yml@c13903f617e858d6fe4f724cd9650d49e37e5226 # pin!
