@@ -98,7 +98,14 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- The workflow pins TG_MODULE_ENABLED_example=false for non-test
              boots; the registry is built at boot, so tests must force the
-             example module enabled regardless of the ambient env. -->
+             example module enabled regardless of the ambient env. Laravel's
+             env() resolves $_SERVER before $_ENV/putenv, and PHPUnit's
+             <env> element does not touch $_SERVER — so a matching <server>
+             element is required to win over the workflow/job env.
+             verbatim keeps the literal "true" (otherwise PHPUnit casts it
+             to bool and putenv/$_SERVER receive "1", which env() does not
+             cast back to bool). -->
         <env name="TG_MODULE_ENABLED_example" value="true" force="true" verbatim="true"/>
+        <server name="TG_MODULE_ENABLED_example" value="true" verbatim="true"/>
     </php>
 </phpunit>

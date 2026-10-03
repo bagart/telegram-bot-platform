@@ -326,12 +326,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bagart/telegram-bot-lib.git",
-                "reference": "6c33116ff6764993663289c41bb9fc4360460106"
+                "reference": "8c632350c0ba5f6898458d11672ef248dc1b801b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/6c33116ff6764993663289c41bb9fc4360460106",
-                "reference": "6c33116ff6764993663289c41bb9fc4360460106",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/8c632350c0ba5f6898458d11672ef248dc1b801b",
+                "reference": "8c632350c0ba5f6898458d11672ef248dc1b801b",
                 "shasum": ""
             },
             "require": {
@@ -410,7 +410,7 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-10-03T04:59:37+00:00"
+            "time": "2026-10-03T05:46:03+00:00"
         },
         {
             "name": "bagart/telegram-bot-lib-basic",
