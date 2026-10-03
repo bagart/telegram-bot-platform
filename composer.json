@@ -265,6 +265,10 @@
         {
             "type": "path",
             "url": "misc/BAGArt/ask-queue"
+        },
+        {
+            "type": "path",
+            "url": "misc/BAGArt/tgbot-module-example"
         }
     ]
 }

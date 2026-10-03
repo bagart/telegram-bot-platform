@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9817d351ad3236b1c8aff106484d82c4",
+    "content-hash": "830a321345de768c4d37d4caa3fbb8c0",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -9063,7 +9063,7 @@
             "dist": {
                 "type": "path",
                 "url": "misc/BAGArt/telegram-platform-devops-baseline",
-                "reference": "5d18ac6ef570807ab3f9734ef0974d1634fa87ac"
+                "reference": "f23b3efec6504be85ca2936a5cf83d246244ac4c"
             },
             "require": {
                 "php": "^8.4"

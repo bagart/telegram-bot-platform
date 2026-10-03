@@ -48,6 +48,7 @@ $map = [
     'telegram-platform-module' => 'bagart/telegram-platform-module',
     'tgbot-game-mafia' => 'bagart/tgbot-game-mafia',
     'tgbot-module-antispam' => 'bagart/tgbot-module-antispam',
+    'tgbot-module-example' => 'bagart/tgbot-module-example',
     'tgbot-module-nettools' => 'bagart/tgbot-module-nettools',
     'tgbot-module-proxy' => 'bagart/tgbot-module-proxy',
     'tgbot-module-stt' => 'bagart/tgbot-module-stt',
@@ -55,8 +56,9 @@ $map = [
     'tgbot-module-tts' => 'bagart/tgbot-module-tts',
 ];
 
-/** Local-only dirs allowed to keep a misc/ reference (doc comments only). */
-$residualAllowlist = ['tgbot-module-example'];
+/** Local-only dirs allowed to keep a misc/ reference (doc comments only).
+ * Empty: the example module was published as bagart/tgbot-module-example. */
+$residualAllowlist = [];
 
 $targets = [
     'phpunit.xml',

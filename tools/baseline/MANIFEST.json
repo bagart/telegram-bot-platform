@@ -1,6 +1,6 @@
 {
     "baseline_version": "0.3.0",
-    "generated_at": "2026-10-02T19:09:29+00:00",
+    "generated_at": "2026-10-03T04:59:18+00:00",
     "file_count": 119,
     "files": {
         ".github/workflows/baseline-drift.yml": "202e3590e0cc077922dd18cc4fd7d467b7837d6fcba0d09d073c2b1767b8d97b",
@@ -22,7 +22,7 @@
         "cmd/baseline/health": "5fd0780e948cc9a3f17e481c425bc980655da4b8e17ac4f9f9051a5e55b0f7d6",
         "cmd/baseline/pack": "0d4f4c78ac4bf2a206230eec4c3581fceb5122e7aaa3f83a4e2bb6e5ba09b7d0",
         "cmd/ci/check": "36dccf64ee59e3abea86d28dc3821721f1905ecea903c9ac0ec442577d182864",
-        "cmd/ci/rewrite-vendor-paths.php": "cb5aa2b204c75d28f73f996fb083bfff02cabd49d61af40f7a0e410c49d4de86",
+        "cmd/ci/rewrite-vendor-paths.php": "cf417323563b74d944c28309ac4d802174b3a925fb248af47515f9811e691a16",
         "cmd/ci/validate": "10ae46c8b64215415299c592d1aa3a58790143d71494a1c903d130ea3a79b218",
         "cmd/deps/audit": "75e95b3ea7cc0276e86f5b697390275c1dd5aed8e60529352b397861397c4d36",
         "cmd/deps/check": "0d8eafac10c53c519834029e2a384268831a328ee0189c72eea798ccb10beb2c",

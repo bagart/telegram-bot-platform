@@ -3,9 +3,12 @@
 // Module Inertia page sources live inside their packages (declared as
 // frontendPages in config/tg_modules.php) — resolve them alongside the host
 // pages so component existence checks pass for module routes in tests.
-$modulePagePaths = array_values(array_filter(
+// Dev maps modules under misc/ (path checkouts); the vendor glob covers the
+// prod/CI layout where packages are composer-installed and misc/ is absent.
+$modulePagePaths = array_values(array_unique(array_merge(
     glob(base_path('misc/BAGArt/*/resources/js/pages')) ?: [],
-));
+    glob(base_path('vendor/bagart/*/resources/js/pages')) ?: [],
+)));
 
 return [
 

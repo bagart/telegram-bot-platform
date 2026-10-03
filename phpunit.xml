@@ -96,5 +96,9 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- The workflow pins TG_MODULE_ENABLED_example=false for non-test
+             boots; the registry is built at boot, so tests must force the
+             example module enabled regardless of the ambient env. -->
+        <env name="TG_MODULE_ENABLED_example" value="true" force="true" verbatim="true"/>
     </php>
 </phpunit>

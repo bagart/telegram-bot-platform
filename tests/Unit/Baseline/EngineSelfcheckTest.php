@@ -16,6 +16,13 @@ function baselineEngineRoot(): string
     return dirname(__DIR__, 3);
 }
 
+/** Root of the installed baseline package — the harness writes its report
+ * relative to BASELINE_DIR (the package root), not the consumer root. */
+function baselineEnginePackageRoot(): string
+{
+    return dirname(__DIR__, 3).'/vendor/bagart/telegram-platform-devops-baseline';
+}
+
 function baselineEngineRun(string $command): Process
 {
     $process = Process::fromShellCommandline($command, baselineEngineRoot());
@@ -28,7 +35,7 @@ function baselineEngineRun(string $command): Process
 it('passes the control engine self-check harness', function () {
     $result = baselineEngineRun('bash tools/baseline/selfcheck-engine.sh');
 
-    $report = file_get_contents(baselineEngineRoot().'/.cache/baseline/selfcheck.txt');
+    $report = file_get_contents(baselineEnginePackageRoot().'/.cache/baseline/selfcheck.txt');
 
     expect($result->isSuccessful())->toBeTrue("selfcheck harness failed:\n{$report}")
         ->and($report)->toContain('cycle-detect: OK')

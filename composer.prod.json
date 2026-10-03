@@ -17,6 +17,7 @@
         "bagart/telegram-bot-lib-basic": "@dev",
         "bagart/telegram-platform-management": "@dev",
         "bagart/tgbot-module-antispam": "@dev",
+        "bagart/tgbot-module-example": "@dev",
         "bagart/tgbot-module-summarizer": "@dev",
         "bagart/tgbot-module-nettools": "@dev",
         "bagart/tgbot-module-tts": "@dev",
@@ -111,6 +112,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/bagart/ask-queue.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/bagart/tgbot-module-example.git"
         }
     ],
     "autoload": {
