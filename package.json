@@ -26,7 +26,7 @@
         "eslint-plugin-react": "^7.37.3",
         "eslint-plugin-react-hooks": "^7.0.0",
         "prettier": "^3.4.2",
-        "prettier-plugin-tailwindcss": "^0.6.11",
+        "prettier-plugin-tailwindcss": "^0.8.1",
         "typescript-eslint": "^8.23.0"
     },
     "dependencies": {
@@ -66,8 +66,8 @@
         "@grom.js/bot-api-spec": "*"
     },
     "optionalDependencies": {
-        "@rollup/rollup-linux-x64-gnu": "4.9.5",
-        "@rollup/rollup-win32-x64-msvc": "4.9.5",
+        "@rollup/rollup-linux-x64-gnu": "4.64.2",
+        "@rollup/rollup-win32-x64-msvc": "4.64.2",
         "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
         "@tailwindcss/oxide-win32-x64-msvc": "^4.0.1",
         "lightningcss-linux-x64-gnu": "^1.29.1",
