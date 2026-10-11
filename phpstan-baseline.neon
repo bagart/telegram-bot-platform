@@ -13117,12 +13117,6 @@ parameters:
 			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBMPollerCommand.php
 
 		-
-			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:create\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: misc/BAGArt/telegram-platform-management/src/Commands/TgBotManagerInit.php
-
-		-
 			message: '#^Call to an undefined static method BAGArt\\TelegramBotManagement\\Models\\TgBot\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1

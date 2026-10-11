@@ -75,7 +75,7 @@
       "desc":"Register a new Telegram bot token in the database",
       "steps":[
         { "from":"user", "to":"basic-lib", "label":"php artisan tgbm:init {token}", "detail":"Developer runs the CLI command with a bot token from @BotFather." },
-        { "from":"basic-lib", "to":"mgmt-lib", "label":"TelegramBotManager::addBot()", "detail":"The command calls the management_lib's bot manager service." },
+        { "from":"basic-lib", "to":"mgmt-lib", "label":"TelegramBotManager::addBot()", "detail":"The command calls TelegramBotManager::addBot(), which persists the bot and dispatches BotCreated for the audit seam." },
         { "from":"mgmt-lib", "to":"database", "label":"INSERT tg_bots", "detail":"New bot record created with bot_id (UUID), token, and optional secret_token." },
         { "from":"mgmt-lib", "to":"core-lib", "label":"getMe() verification", "detail":"Management lib uses core-lib's TelegramBotAPI to verify the token with Telegram." },
         { "from":"core-lib", "to":"telegram-api", "label":"GET getMe", "detail":"Sends getMe request to Telegram Bot API to validate the token." },

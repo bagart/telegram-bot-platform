@@ -28,3 +28,9 @@ Dependabot (`.github/dependabot.yml`) + Dependency Review gate on PRs.
 4. Audit debt is not allowed to accumulate: `composer audit --no-dev` must be
    clean on develop; deviations need an allowlist entry with reason+expiry
    (same discipline as secret exceptions).
+5. After any `cmd/release/lib` tag is pushed, refresh `composer.prod.lock`
+   immediately (`bash cmd/deps/update --mode=both` + `bash cmd/deps/check`):
+   `minimum-stability: dev` + `prefer-stable: true` (`composer.prod.json:147-148`)
+   makes the next resolution pin the new stable tag instead of the branch tip —
+   the trap `prod-lock-tag-hijack.md` recorded; `cmd/deps/check --mode=prod`
+   now detects both the lag and the tag pin.

@@ -48,7 +48,8 @@
             "cd misc/BAGArt/tgbot-module-proxy && composer test",
             "cd misc/BAGArt/telegram-platform-module && composer test",
             "cd misc/BAGArt/telegram-platform-access && composer test",
-            "cd misc/BAGArt/telegram-platform-audit && composer test"
+            "cd misc/BAGArt/telegram-platform-audit && composer test",
+            "cd misc/BAGArt/tgbot-module-example && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -70,5 +71,5 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ]
     },
-    "generated": "2026-09-28"
+    "generated": "2026-10-08"
 }

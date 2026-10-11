@@ -1,0 +1,24 @@
+{
+    "_readme": "Fixture lock: bagart/tgbot-module-proxy pinned to a stable tag (the prefer-stable re-arm).",
+    "packages": [
+        {
+            "name": "bagart/tgbot-module-proxy",
+            "version": "v0.1.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/tgbot-module-proxy.git",
+                "reference": "9f1a2e449ae5d19c473be743cc65627e3edb99ef"
+            }
+        },
+        {
+            "name": "bagart/ask-client",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/php-async-kernel-client.git",
+                "reference": "ad0dc3fbb704feaff478bf37002e11de2bf8f3e2"
+            }
+        }
+    ],
+    "packages-dev": []
+}

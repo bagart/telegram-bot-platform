@@ -1,0 +1,15 @@
+{
+    "_readme": "Fixture lock whose source.url is unreachable — the probe must skip, never fail.",
+    "packages": [
+        {
+            "name": "bagart/unreachable-lib",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://bagart-lock-tip-unreachable.invalid/unreachable.git",
+                "reference": "2222222222222222222222222222222222222222"
+            }
+        }
+    ],
+    "packages-dev": []
+}

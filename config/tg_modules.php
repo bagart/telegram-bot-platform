@@ -48,19 +48,14 @@ declare(strict_types=1);
 use BAGArt\TelegramModuleEngine\Config\TgModuleConfig;
 use BAGArt\TelegramModuleEngine\Config\TgModuleSchedule;
 use BAGArt\TelegramModuleEngine\Routing\RouteDeclaration;
-use BAGArt\TelegramModuleEngine\Settings\SettingsDescriptor;
-use BAGArt\TelegramModuleEngine\Settings\SettingsField;
-use BAGArt\TelegramModuleEngine\Settings\SettingsFieldType;
-use BAGArt\TelegramModuleEngine\Settings\SettingsScreenContribution;
-use BAGArt\TelegramModuleEngine\Settings\WebAccessLevel;
-use BAGArt\TelegramModuleEngine\Settings\WebScreenBinding;
 
 return [
     'strict' => false,
 
     // Dispatch driver for the lib ModuleEnablementContract (doc 05):
-    // 'legacy' = management service over tg_module_enablements (default),
-    // 'engine' = engine adapter over bot_module_activations.
+    // 'engine' = engine adapter over bot_module_activations (shipped
+    // default); 'legacy' = management service over tg_module_enablements —
+    // test-fixture support for unmigrated dev DBs only.
     'enablement_driver' => 'engine',
 
     'modules' => [
@@ -93,8 +88,10 @@ return [
                     'processor' => BAGArt\TelegramBotAntispam\Processors\AntispamStatusCommand::class,
                     'description' => 'Anti-spam status and settings',
                 ]),
-                // /report is owned by antispam; nettools' report probe stays
-                // flat-registry-only until the collision is a product decision.
+                // Q5 (2026-10-07): antispam owns plain /report — the moderation
+                // surface. Nettools' network probe claims /netreport instead,
+                // declared in its own block below, so the route table and the
+                // flat-registry fallback agree on every bot.
                 new RouteDeclaration('command', '/report', payload: [
                     'processor' => BAGArt\TelegramBotAntispam\Processors\AntispamReportCommand::class,
                     'description' => 'Report a user for moderation',
@@ -103,50 +100,6 @@ return [
                     'processor' => BAGArt\TelegramBotAntispam\Processors\AppealCommand::class,
                     'description' => 'Appeal a punishment',
                 ]),
-            ],
-            settingsScreens: [
-                new SettingsScreenContribution(
-                    screenId: 'antispam.settings',
-                    descriptor: new SettingsDescriptor(fields: [
-                        new SettingsField(
-                            fieldId: 'antispam.counter_driver',
-                            type: SettingsFieldType::Enum,
-                            default: 'redis',
-                            options: [
-                                ['value' => 'redis', 'labelKey' => 'antispam::settings.counter_driver_redis'],
-                                ['value' => 'memory', 'labelKey' => 'antispam::settings.counter_driver_memory'],
-                            ],
-                        ),
-                        new SettingsField(
-                            fieldId: 'antispam.ai.enabled',
-                            type: SettingsFieldType::Bool,
-                            default: false,
-                        ),
-                        new SettingsField(
-                            fieldId: 'antispam.blocklist.retention_days',
-                            type: SettingsFieldType::Int,
-                            default: 30,
-                            min: 1,
-                            max: 365,
-                        ),
-                        new SettingsField(
-                            fieldId: 'antispam.cache_ttl_seconds',
-                            type: SettingsFieldType::Int,
-                            default: 300,
-                            min: 30,
-                            max: 600,
-                        ),
-                        new SettingsField(
-                            fieldId: 'antispam.instrumentation',
-                            type: SettingsFieldType::Bool,
-                            default: false,
-                        ),
-                    ]),
-                    web: new WebScreenBinding(
-                        component: 'Settings/Antispam',
-                        accessLevel: WebAccessLevel::PlatformAdmin,
-                    ),
-                ),
             ],
         ),
         'mafia' => new TgModuleConfig(
@@ -239,69 +192,10 @@ return [
             enabled: env('TG_MODULE_ENABLED_nettools', true),
             provider: BAGArt\TelegramBotNettools\NettoolsModule::class,
             laravelProvider: BAGArt\TelegramBotNettools\TelegramBotNettoolsServiceProvider::class,
-            settingsScreens: [
-                new SettingsScreenContribution(
-                    screenId: 'nettools.settings',
-                    descriptor: new SettingsDescriptor(fields: [
-                        new SettingsField(
-                            fieldId: 'nettools.features.recon',
-                            type: SettingsFieldType::Bool,
-                            default: true,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.features.active',
-                            type: SettingsFieldType::Bool,
-                            default: true,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.features.audit',
-                            type: SettingsFieldType::Bool,
-                            default: true,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.features.portscan',
-                            type: SettingsFieldType::Bool,
-                            default: false,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.features.dnsbl',
-                            type: SettingsFieldType::Bool,
-                            default: false,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.quotas.daily_units',
-                            type: SettingsFieldType::Int,
-                            default: 40,
-                            min: 1,
-                            max: 500,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.quotas.chat_ceiling',
-                            type: SettingsFieldType::Int,
-                            default: 150,
-                            min: 10,
-                            max: 2000,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.ui.heavy_confirm',
-                            type: SettingsFieldType::Bool,
-                            default: true,
-                        ),
-                        new SettingsField(
-                            fieldId: 'nettools.memory.enabled',
-                            type: SettingsFieldType::Bool,
-                            default: true,
-                        ),
-                    ]),
-                    web: new WebScreenBinding(
-                        component: 'Settings/Nettools',
-                        accessLevel: WebAccessLevel::PlatformAdmin,
-                    ),
-                ),
-            ],
             routes: [
-                // Mirrors Commands\CommandMap::MAP (probe commands); /report
-                // deliberately omitted — antispam owns it in the route table.
+                // Mirrors Commands\CommandMap::MAP (probe commands); /netreport
+                // is nettools' flat claim renamed from /report (Q5, 2026-10-07)
+                // so it no longer collides with antispam's /report.
                 new RouteDeclaration('command', '/ip', payload: [
                     'processor' => BAGArt\TelegramBotNettools\Commands\IpCommand::class,
                     'description' => 'IP address information',
@@ -361,6 +255,10 @@ return [
                 new RouteDeclaration('command', '/reco', payload: [
                     'processor' => BAGArt\TelegramBotNettools\Commands\RecoCommand::class,
                     'description' => 'Reconnaissance summary',
+                ]),
+                new RouteDeclaration('command', '/netreport', payload: [
+                    'processor' => BAGArt\TelegramBotNettools\Commands\ReportCommand::class,
+                    'description' => 'Aggregated mega-report',
                 ]),
                 new RouteDeclaration('command', '/portscan', payload: [
                     'processor' => BAGArt\TelegramBotNettools\Commands\PortscanCommand::class,
@@ -426,52 +324,6 @@ return [
                     'description' => 'Cancel pending summarizer input',
                 ]),
             ],
-            settingsScreens: [
-                new SettingsScreenContribution(
-                    screenId: 'summarizer.settings',
-                    descriptor: new SettingsDescriptor(fields: [
-                        new SettingsField(
-                            fieldId: 'summarizer.retention_days',
-                            type: SettingsFieldType::Int,
-                            default: 14,
-                            min: 1,
-                            max: 90,
-                        ),
-                        new SettingsField(
-                            fieldId: 'summarizer.transcript_budget_chars',
-                            type: SettingsFieldType::Int,
-                            default: 120000,
-                            min: 1000,
-                            max: 500000,
-                        ),
-                        new SettingsField(
-                            fieldId: 'summarizer.max_transcript_messages',
-                            type: SettingsFieldType::Int,
-                            default: 2000,
-                            min: 100,
-                            max: 10000,
-                        ),
-                        new SettingsField(
-                            fieldId: 'summarizer.llm_timeout_seconds',
-                            type: SettingsFieldType::Int,
-                            default: 90,
-                            min: 5,
-                            max: 300,
-                        ),
-                        new SettingsField(
-                            fieldId: 'summarizer.pending_input_ttl_minutes',
-                            type: SettingsFieldType::Int,
-                            default: 15,
-                            min: 1,
-                            max: 120,
-                        ),
-                    ]),
-                    web: new WebScreenBinding(
-                        component: 'Settings/Summarizer',
-                        accessLevel: WebAccessLevel::PlatformAdmin,
-                    ),
-                ),
-            ],
         ),
         'tts' => new TgModuleConfig(
             enabled: env('TG_MODULE_ENABLED_tts', true),
@@ -490,45 +342,6 @@ return [
                     'processor' => BAGArt\TelegramBotTts\Processing\VoiceCommandProcessor::class,
                     'description' => 'Speak text with TTS',
                 ]),
-            ],
-            settingsScreens: [
-                new SettingsScreenContribution(
-                    screenId: 'tts.settings',
-                    descriptor: new SettingsDescriptor(fields: [
-                        new SettingsField(
-                            fieldId: 'tts.budget_seconds',
-                            type: SettingsFieldType::Int,
-                            default: 30,
-                            min: 5,
-                            max: 120,
-                        ),
-                        new SettingsField(
-                            fieldId: 'tts.global_concurrency',
-                            type: SettingsFieldType::Int,
-                            default: 4,
-                            min: 1,
-                            max: 20,
-                        ),
-                        new SettingsField(
-                            fieldId: 'tts.timeout_seconds',
-                            type: SettingsFieldType::Int,
-                            default: 25,
-                            min: 5,
-                            max: 60,
-                        ),
-                        new SettingsField(
-                            fieldId: 'tts.retention_days',
-                            type: SettingsFieldType::Int,
-                            default: 30,
-                            min: 1,
-                            max: 90,
-                        ),
-                    ]),
-                    web: new WebScreenBinding(
-                        component: 'Settings/Tts',
-                        accessLevel: WebAccessLevel::PlatformAdmin,
-                    ),
-                ),
             ],
         ),
 
@@ -556,84 +369,6 @@ return [
                 base_path('misc/BAGArt/tgbot-module-proxy/resources/js/pages'),
             ],
             sourcePath: base_path('misc/BAGArt/tgbot-module-proxy'),
-            settingsScreens: [
-                new SettingsScreenContribution(
-                    screenId: 'proxy.settings',
-                    descriptor: new SettingsDescriptor(fields: [
-                        new SettingsField(
-                            fieldId: 'proxy.selection_strategy',
-                            type: SettingsFieldType::Enum,
-                            default: 'round_robin',
-                            labelKey: 'proxy::settings.selection_strategy',
-                            descriptionKey: 'proxy::settings.selection_strategy_desc',
-                            options: [
-                                ['value' => 'round_robin', 'labelKey' => 'proxy::settings.strategy_round_robin'],
-                                ['value' => 'random', 'labelKey' => 'proxy::settings.strategy_random'],
-                                ['value' => 'least_used', 'labelKey' => 'proxy::settings.strategy_least_used'],
-                                ['value' => 'weighted', 'labelKey' => 'proxy::settings.strategy_weighted'],
-                            ],
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.lease_ttl_seconds',
-                            type: SettingsFieldType::Int,
-                            default: 300,
-                            labelKey: 'proxy::settings.lease_ttl',
-                            descriptionKey: 'proxy::settings.lease_ttl_desc',
-                            min: 60,
-                            max: 3600,
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.reaper_batch_size',
-                            type: SettingsFieldType::Int,
-                            default: 200,
-                            labelKey: 'proxy::settings.reaper_batch_size',
-                            descriptionKey: 'proxy::settings.reaper_batch_size_desc',
-                            min: 10,
-                            max: 1000,
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.max_concurrent_probes',
-                            type: SettingsFieldType::Int,
-                            default: 50,
-                            labelKey: 'proxy::settings.max_concurrent_probes',
-                            descriptionKey: 'proxy::settings.max_concurrent_probes_desc',
-                            min: 1,
-                            max: 500,
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.hysteresis_degrade',
-                            type: SettingsFieldType::Int,
-                            default: 2,
-                            labelKey: 'proxy::settings.hysteresis_degrade',
-                            descriptionKey: 'proxy::settings.hysteresis_degrade_desc',
-                            min: 1,
-                            max: 10,
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.hysteresis_failing',
-                            type: SettingsFieldType::Int,
-                            default: 5,
-                            labelKey: 'proxy::settings.hysteresis_failing',
-                            descriptionKey: 'proxy::settings.hysteresis_failing_desc',
-                            min: 1,
-                            max: 20,
-                        ),
-                        new SettingsField(
-                            fieldId: 'proxy.hysteresis_dead',
-                            type: SettingsFieldType::Int,
-                            default: 10,
-                            labelKey: 'proxy::settings.hysteresis_dead',
-                            descriptionKey: 'proxy::settings.hysteresis_dead_desc',
-                            min: 1,
-                            max: 50,
-                        ),
-                    ]),
-                    web: new WebScreenBinding(
-                        component: 'Settings/Proxy',
-                        accessLevel: WebAccessLevel::PlatformAdmin,
-                    ),
-                ),
-            ],
         ),
     ],
 ];

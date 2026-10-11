@@ -43,7 +43,8 @@ Status: partially migrated. The `enablement_driver = 'engine'` config is active;
 
 ## Docker Repository Enumeration
 
-- [ ] Keep the Dockerfile `REPOS` list synchronized when adding modules, or replace manual enumeration with a verified declarative source.
+- [x] Keep the Dockerfile `REPOS` list synchronized when adding modules (last sync 2026-10-08: 18 → 20 entries — `ask-queue` and `tgbot-module-example` appended to match the `composer.json` path-repo set).
+- [ ] Replace manual `REPOS` enumeration with a verified declarative source.
 
 ## Acceptance and Rollback
 

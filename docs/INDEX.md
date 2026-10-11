@@ -92,7 +92,7 @@ misc/BAGArt/
 ├── telegram-platform-module/   → module engine: declarative registry, config policy, activation, routing, capabilities, diagnostics (BAGArt\TelegramModuleEngine)
 ├── telegram-platform-access/   → access control: AccessControlContract, ChatRole, Grant, AccessDecision (BAGArt\TelegramBotAccess)
 ├── telegram-platform-audit/    → audit: AuditSinkContract, AuditEntry DTO (BAGArt\TelegramBotAudit)
-├── telegram-platform-menu/      → Web Menu hub module (Plugin UI Host) (BAGArt\TelegramBotMenu) — tasks/menu/menu.md + tasks/menu/01–23 prompt-tasks; cross-module integration plan: tasks/menu_integration.md (M-1…M-6 implemented, M-7 deferred)
+├── telegram-platform-menu/      → Web Menu hub module (Plugin UI Host) (BAGArt\TelegramBotMenu) — plan RFC docs/tasks/menu.md + 25 prompt-tasks (deleted by menu-repo c384673, 2026-09-09), now misc/BAGArt/telegram-platform-menu/docs/sdd/menu.md + misc/BAGArt/telegram-platform-menu/docs/tasks/README.md; cross-module integration plan: docs/researches/module-extensibility-git-archaeology.md (M-1…M-5 implemented; M-6 partially regressed 2026-10-02; M-7 deferred; M-8 void — see docs/researches/module-extensibility-git-archaeology.md)
 ├── telegram-platform-devops-baseline/               → reusable DevOps/security baseline ENGINE (bagart/telegram-platform-devops-baseline, v0.1.0): controls/, hooks/, bin/baseline-*, defaults/ — host consumes via shims; policy JSONs stay per-repo
 ```
 

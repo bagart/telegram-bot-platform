@@ -1,16 +1,29 @@
 name: Module Validation
 
+# Trigger paths (module code reaches a clean CI checkout only through manifest
+# / lock changes — misc/BAGArt/* is gitignored, so source globs never match):
+#   config/tg_modules.php   — the policy file the validator reads
+#   .github/workflows/…     — self-test when this workflow is edited
+#   composer.*.json/.lock   — module code changes reach CI via manifest/lock
 on:
   push:
+    branches:
+      - main
     paths:
-      - 'misc/BAGArt/*/src/**'
-      - 'misc/BAGArt/*/config/**'
       - 'config/tg_modules.php'
+      - '.github/workflows/module-validation.yml'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'composer.prod.json'
+      - 'composer.prod.lock'
   pull_request:
     paths:
-      - 'misc/BAGArt/*/src/**'
-      - 'misc/BAGArt/*/config/**'
       - 'config/tg_modules.php'
+      - '.github/workflows/module-validation.yml'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'composer.prod.json'
+      - 'composer.prod.lock'
 
 permissions:
   contents: read
@@ -24,6 +37,17 @@ jobs:
     name: Validate Module Structure
     runs-on: ubuntu-latest
 
+    env:
+      APP_KEY: base64:I7MrkZI5VQJnYLNLLclhvhFh5ggMajlW4cg8XSyB8R8=
+      TG_MODULE_ENABLED_example: 'false'
+      # .env.example defaults are pgsql/redis; validate boots artisan only,
+      # so pin the same service-free values phpunit.xml forces.
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -32,39 +56,39 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.5'
+          tools: composer:v2
           extensions: mbstring, xml, curl, pdo, pdo_pgsql, redis
           coverage: none
 
+      - name: Install dependencies (prod manifest with dev tooling)
+        run: bash cmd/deps/install --mode=prod --dev --ignore-platform-req=ext-xhprof
+
+      - name: Map test/config paths to vendor (CI-only)
+        # Mandatory: without it config/tg_modules.php still points at
+        # misc/BAGArt/* and the validator reports CLASS_STRING_INVALID.
+        run: php cmd/ci/rewrite-vendor-paths.php
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      - name: Verify install and path rewrite
+        run: |
+          test -f vendor/bagart/telegram-platform-module/src/Registry/ModuleRegistryBuilder.php \
+            || { echo "::error::module engine package missing from vendor/ (install failed)"; exit 1; }
+          grep -q 'vendor/bagart' config/tg_modules.php \
+            || { echo "::error::config/tg_modules.php was not rewritten to vendor/ paths"; exit 1; }
+          php artisan --version
+
       - name: Validate module configs
         run: |
-          php -r "
-          \$config = require 'config/tg_modules.php';
-          \$errors = [];
-          foreach (\$config as \$id => \$module) {
-              if (!property_exists(\$module, 'provider') || !class_exists(\$module->provider)) {
-                  \$errors[] = \"Module {\$id}: provider class not found\";
-              }
-              if (isset(\$module->laravelProvider) && \$module->laravelProvider !== null && !class_exists(\$module->laravelProvider)) {
-                  \$errors[] = \"Module {\$id}: laravelProvider class not found\";
-              }
-          }
-          if (\$errors) {
-              echo \"Module validation errors:\\n\";
-              foreach (\$errors as \$e) echo \"  - {\$e}\\n\";
-              exit(1);
-          }
-          echo count(\$config) . \" modules validated successfully\\n\";
-          "
-
-      - name: Run module tests
-        run: XDEBUG_MODE=off vendor/bin/pest --testsuite=MafiaModule --testsuite=AuditModule --testsuite=AccessModule --compact
-        continue-on-error: true
-
-      - name: Check module PSR-4 autoloading
-        run: |
-          for dir in misc/BAGArt/*/; do
-            if [ -f "$dir/composer.json" ]; then
-              echo "Checking autoloading for $(basename $dir)..."
-              (cd "$dir" && composer validate --no-check-all --no-check-publish 2>/dev/null || true)
-            fi
-          done
+          set +e
+          output="$(php artisan tg:modules:validate 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ]; then
+            printf '%s\n' "$output" | while IFS= read -r line; do
+              printf '::error::%s\n' "$line"
+            done
+            exit "$status"
+          fi

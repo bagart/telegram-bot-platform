@@ -34,7 +34,7 @@ DELTA → PLAN → IMPLEMENT → VERIFY → SDD → DOCS → CLEANUP
 
 - Feature modules implement TgModuleContract: static descriptor() (pure metadata) + register(TgModuleRegistrar) (idempotent component declarations).
 - Engine (telegram-platform-module) is the single bootstrap authority: config/tg_modules.php declares TgModuleConfig per module id (enabled, provider, laravelProvider, seeders, commands, schedule, routes, httpRoutes, routeMiddleware, frontendPages, pageGenerators, settingsScreens). strict=false collects errors; enablement_driver=engine routes activation through bot_module_activations.
-- bootstrap/providers.php holds ONLY non-module providers: Bot lib, Engine, Basic, Management, ProxyOperations, Audit, Access + app/fortify. A module's Laravel provider is never listed there; declaring it in tg_modules.php is the wiring.
+- bootstrap/providers.php holds the non-module providers (Bot lib, Engine, Basic, Management, Audit, Access + app/fortify) plus one documented module exemption: ProxyOperations — tgbot-module-proxy implements TgModuleContract, so ProxyOperationsServiceProvider is listed there AND declared as laravelProvider in tg_modules.php. Everywhere else a module's Laravel provider is never listed there; declaring it in tg_modules.php is the wiring.
 - Bot-scoped activation: platform enabled=true ≠ per-bot enabled; chat→bot→platform inheritance chain resolves enablement and settings (fail policy per descriptor).
 
 ## 4. Runtime surfaces (fixed entrypoints)
@@ -87,10 +87,10 @@ No verification scripts/tinker where tests exist.
 ## 10. Module playbook (adding a module, condensed)
 
 1. Scaffold in misc/BAGArt/<name>-module/ (composer.json + phpunit.xml + composer test script; TgModuleContract).
-2. Host wiring: PSR-4 autoload, path repo, config/tg_modules.php TgModuleConfig (key = descriptor id).
+2. Run `php artisan modules:adopt <id>` — GENERATE writes the config/tg_modules.php entry and the host Inertia settings page, VALIDATE runs the 22 adoption controls, DOCUMENT prints the user-owned checklist (locks, prod manifest, baselines, docs rows, CI pins). Re-run any time with `modules:adopt <id> --check`.
 3. Declare routes/commands/schedule/httpRoutes/frontendPages in the config entry — not in providers.
-4. Tests: module suite + host phpunit.xml testsuite entry + root composer test chain.
-5. Prod path: bump version, add to composer.prod.json require, regen lock, cmd/deps/check, baseline regen.
+4. Tests: module suite + host phpunit.xml testsuite entry + root composer test chain (printed by step 2; `bash cmd/deps/check` enforces `module-layout:<dir>`).
+5. Prod path (user-owned): bump version, add to composer.prod.json require, regen locks via cmd/deps/update, cmd/deps/check, baseline regen.
 
 ## 11. Vocabulary anchors (short forms used everywhere)
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Dual-mode dependency layout control (dev mode: misc/ PSR-4; prod mode: composer.prod.json).
 #
-# Validates, without network access:
+# Validates. Items (a)-(c) and (e) need no network access; (d) also probes
+# origin branch tips with `git ls-remote` (control lock-tip-fresh:prod,
+# reported skipped under --offline):
 #   (a) composer.prod.json exists; non-bagart require deps are identical
 #       across dev/prod manifests;
 #   (b) every misc/BAGArt/* repo that ships tests follows the module layout
@@ -9,12 +11,17 @@
 #       src/ + tests/;
 #   (c) every module is wired into the root `composer test` chain and has a
 #       host phpunit.xml testsuite;
-#   (d) locks are present and fresh vs their manifests;
+#   (d) locks are present, fresh vs their manifests, and pinned refs match
+#       origin tips;
 #   (e) packages that are PSR-4-mapped from misc/ are not also composer
 #       required in the dev manifest (mode purity).
 #
+# Exit codes: 0 ok; 1 check failure (drift or stale lock tip); 2 usage;
+#   3 dependency; 4 environment; 5 policy failure (stable-tag pin in the
+#   prod lock). Check failures dominate policy failures in the composition.
+#
 # Usage:
-#   cmd/deps/check [--format=text|json|github] [--verbose] [--quiet]
+#   cmd/deps/check [--mode=dev|prod|both] [--format=text|json|github] [--verbose] [--quiet]
 
 set -euo pipefail
 
@@ -26,17 +33,20 @@ source "$REPO_ROOT/cmd/lib/contract.sh"
 source "$SCRIPT_DIR/lib.sh"
 
 usage() {
-  echo "Usage: cmd/deps/check [--format=text|json|github] [--verbose] [--quiet]"
+  echo "Usage: cmd/deps/check [--mode=dev|prod|both] [--format=text|json|github] [--verbose] [--quiet]"
+  echo "Exit: 0 ok; 1 check failure (drift or stale lock tip); 5 policy failure (stable-tag pin); 2 usage; 3 dependency; 4 environment."
   contract_usage
 }
 
-contract_parse_args "$@"
+deps_parse_mode both "$@"
+contract_parse_args "${POSITIONAL[@]+"${POSITIONAL[@]}"}"
 if [[ "$HELP" -eq 1 ]]; then usage; exit "$EX_OK"; fi
 
 require_root_dir
 cd "$REPO_ROOT"
 
 FAILS=0
+POLICY_FAILS=0
 
 pass_or_fail() {
   local control="$1" ok_flag="$2" message="${3:-}"
@@ -202,30 +212,104 @@ else
 fi
 
 # --- (d) lock freshness ------------------------------------------------------
-DEV_LOCK_FRESH=1 DEV_LOCK_MSG=""
-if ! command -v composer >/dev/null 2>&1; then
-  DEV_LOCK_FRESH=0
-  DEV_LOCK_MSG="composer not found"
-elif ! composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
-  DEV_LOCK_FRESH=0
-  DEV_LOCK_MSG="composer.lock stale vs composer.json (run cmd/deps/update)"
-fi
-pass_or_fail "lock-fresh:dev" "$DEV_LOCK_FRESH" "$DEV_LOCK_MSG"
-
-if [[ -f "$PROD_MANIFEST" ]]; then
-  if [[ -f "$PROD_LOCK" ]]; then
-    PROD_OK=1 PROD_MSG=""
-    if ! COMPOSER="$PROD_MANIFEST" composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
-      PROD_OK=0
-      PROD_MSG="prod lock stale or invalid vs $PROD_MANIFEST"
-    fi
-    prod_lock_is_pure "$PROD_LOCK" || { PROD_OK=0; PROD_MSG+=" ; purity violation"; }
-    pass_or_fail "lock-fresh:prod" "$PROD_OK" "$PROD_MSG"
-  else
-    report_result "lock-fresh:prod" skipped "$PROD_LOCK not generated yet (needs published VCS sources)"
-  fi
+if [[ "$MODE" == "prod" ]]; then
+  report_result "lock-fresh:dev" skipped "prod mode: dev lock not checked"
 else
-  report_result "lock-fresh:prod" skipped "$PROD_MANIFEST missing"
+  DEV_LOCK_FRESH=1 DEV_LOCK_MSG=""
+  if ! command -v composer >/dev/null 2>&1; then
+    DEV_LOCK_FRESH=0
+    DEV_LOCK_MSG="composer not found"
+  elif ! composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
+    DEV_LOCK_FRESH=0
+    DEV_LOCK_MSG="composer.lock stale vs composer.json (run cmd/deps/update)"
+  fi
+  pass_or_fail "lock-fresh:dev" "$DEV_LOCK_FRESH" "$DEV_LOCK_MSG"
 fi
 
-report_finish "$(( FAILS > 0 ? EX_CHECK : EX_OK ))"
+if [[ "$MODE" == "dev" ]]; then
+  report_result "lock-fresh:prod" skipped "dev mode: prod lock not checked"
+  report_result "lock-tip-fresh:prod" skipped "dev mode: prod lock not checked"
+elif [[ ! -f "$PROD_MANIFEST" ]]; then
+  report_result "lock-fresh:prod" skipped "$PROD_MANIFEST missing"
+  report_result "lock-tip-fresh:prod" skipped "$PROD_MANIFEST missing"
+elif [[ ! -f "$PROD_LOCK" ]]; then
+  report_result "lock-fresh:prod" skipped "$PROD_LOCK not generated yet (needs published VCS sources)"
+  report_result "lock-tip-fresh:prod" skipped "$PROD_LOCK not generated yet (needs published VCS sources)"
+else
+  PROD_OK=1 PROD_MSG=""
+  if ! COMPOSER="$PROD_MANIFEST" composer validate --check-lock --no-check-publish --quiet 2>/dev/null; then
+    PROD_OK=0
+    PROD_MSG="prod lock stale or invalid vs $PROD_MANIFEST"
+  fi
+  prod_lock_is_pure "$PROD_LOCK" || { PROD_OK=0; PROD_MSG+=" ; purity violation"; }
+  pass_or_fail "lock-fresh:prod" "$PROD_OK" "$PROD_MSG"
+
+  # lock-tip-fresh:prod — every bagart/* pinned ref vs the current tip of the
+  # branch its dev-<branch> version names; a non-dev pin is a policy finding.
+  if [[ "$OFFLINE" -eq 1 ]]; then
+    report_result "lock-tip-fresh:prod" skipped "--offline: origin tips not queried"
+  else
+    require_cmd git
+    TIP_ARGS=(--lock "$PROD_LOCK")
+    if [[ "$VERBOSE" -eq 1 ]]; then
+      TIP_ARGS+=(--verbose)
+    fi
+    TIP_OUT="" TIP_RC=0
+    TIP_OUT="$(php "$SCRIPT_DIR/lock-tip.php" "${TIP_ARGS[@]}")" || TIP_RC=$?
+    if [[ "$VERBOSE" -eq 1 ]]; then
+      printf '%s\n' "$TIP_OUT" >&2
+    fi
+
+    TIP_FRESH=0 TIP_STALE=0 TIP_HIJACK=0 TIP_SKIPPED=0
+    TIP_SUMMARY="$(grep -E '^summary: fresh=' <<<"$TIP_OUT" | tail -n 1 || true)"
+    if [[ "$TIP_SUMMARY" =~ fresh=([0-9]+)\ stale=([0-9]+)\ hijack=([0-9]+)\ skipped=([0-9]+) ]]; then
+      TIP_FRESH="${BASH_REMATCH[1]}"
+      TIP_STALE="${BASH_REMATCH[2]}"
+      TIP_HIJACK="${BASH_REMATCH[3]}"
+      TIP_SKIPPED="${BASH_REMATCH[4]}"
+    fi
+    TIP_FINDINGS="$(grep -E '^(stale-lock-tip:|stable-tag-pin:)' <<<"$TIP_OUT" | paste -sd ';' - || true)"
+    TIP_SKIPS="$(grep -E '^skipped:' <<<"$TIP_OUT" | paste -sd ';' - || true)"
+
+    case "$TIP_RC" in
+      0)
+        if (( TIP_FRESH == 0 && TIP_STALE == 0 && TIP_HIJACK == 0 )); then
+          report_result "lock-tip-fresh:prod" skipped "skipped=$TIP_SKIPPED${TIP_SKIPS:+ — $TIP_SKIPS}"
+        else
+          TIP_MSG="fresh=$TIP_FRESH"
+          if (( TIP_SKIPPED > 0 )); then
+            TIP_MSG+=" ; skipped=$TIP_SKIPPED"
+          fi
+          report_result "lock-tip-fresh:prod" passed "$TIP_MSG"
+        fi
+        ;;
+      1)
+        TIP_MSG="$TIP_FINDINGS"
+        if [[ -z "$TIP_MSG" ]]; then
+          TIP_MSG="lock tip comparison failed (exit $TIP_RC): ${TIP_OUT:0:200}"
+        elif (( TIP_SKIPPED > 0 )); then
+          TIP_MSG+=" ; skipped=$TIP_SKIPPED"
+        fi
+        pass_or_fail "lock-tip-fresh:prod" 0 "$TIP_MSG"
+        ;;
+      5)
+        TIP_MSG="$TIP_FINDINGS"
+        if [[ -z "$TIP_MSG" ]]; then
+          TIP_MSG="stable-tag pin reported but no finding parsed (exit $TIP_RC)"
+        elif (( TIP_SKIPPED > 0 )); then
+          TIP_MSG+=" ; skipped=$TIP_SKIPPED"
+        fi
+        report_result "lock-tip-fresh:prod" failed "$TIP_MSG"
+        POLICY_FAILS=$((POLICY_FAILS + 1))
+        ;;
+      3)
+        exit "$EX_DEP"
+        ;;
+      *)
+        pass_or_fail "lock-tip-fresh:prod" 0 "lock tip comparison failed (exit $TIP_RC): ${TIP_OUT:0:200}"
+        ;;
+    esac
+  fi
+fi
+
+report_finish "$(( FAILS > 0 ? EX_CHECK : (POLICY_FAILS > 0 ? EX_POLICY : EX_OK) ))"

@@ -42,7 +42,6 @@ function setProxyPlatformEnabled(bool $enabled): void
         exceptionRenderables: $proxy->exceptionRenderables,
         frontendPages: $proxy->frontendPages,
         pageGenerators: $proxy->pageGenerators,
-        settingsScreens: $proxy->settingsScreens,
         sourcePath: $proxy->sourcePath,
     ));
 }

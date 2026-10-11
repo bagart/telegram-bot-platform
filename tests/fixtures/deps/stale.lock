@@ -1,0 +1,34 @@
+{
+    "_readme": "Fixture lock for cmd/deps/lock-tip.php — pairs with tips-fresh.json / tips-stale.json.",
+    "packages": [
+        {
+            "name": "bagart/ask-client",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/php-async-kernel-client.git",
+                "reference": "ad0dc3fbb704feaff478bf37002e11de2bf8f3e2"
+            }
+        },
+        {
+            "name": "bagart/telegram-bot-lib",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/telegram-bot-lib.git",
+                "reference": "8c632350c0ba5f6898458d11672ef248dc1b801b"
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "bagart/telegram-platform-devops-baseline",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:bagart/telegram-platform-devops-baseline.git",
+                "reference": "babb5533ae9145bd3daeb38e6d6bbf3918b88eb5"
+            }
+        }
+    ]
+}

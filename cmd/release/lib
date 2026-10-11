@@ -74,9 +74,13 @@ if [[ "$PUSH" -eq 1 ]]; then
   BRANCH="$(git rev-parse --abbrev-ref HEAD)"
   git push origin "$BRANCH" --follow-tags
   ok "Pushed $TAG — Packagist will pick it up from the VCS source"
+  warn "Refresh the prod lock from the repository root now — prefer-stable will pin $TAG instead of the branch tip otherwise:"
+  echo "    bash cmd/deps/update --mode=both && bash cmd/deps/check"
 else
   say "Dry run: tag created locally. Publish with:"
   echo "    cd $LIB_DIR && git push origin $(git rev-parse --abbrev-ref HEAD) --follow-tags"
+  warn "Once you push, refresh the prod lock from the repository root — prefer-stable will pin $TAG instead of the branch tip otherwise:"
+  echo "    bash cmd/deps/update --mode=both && bash cmd/deps/check"
 fi
 
 ok "Release $LIB_NAME $TAG complete"

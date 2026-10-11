@@ -5,6 +5,7 @@ import {
     Building2,
     FolderGit2,
     LayoutGrid,
+    Puzzle,
     ShieldAlert,
 } from 'lucide-react';
 import type { NavItem } from '@/types';
@@ -23,6 +24,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { dashboard as antispamDashboard } from '@/routes/antispam';
+import { index as modulesActivation } from '@/routes/management/modules';
 import { index as superadminBots } from '@/routes/superadmin/bots';
 import { index as superadminWorkspaces } from '@/routes/superadmin/workspaces';
 
@@ -36,6 +38,14 @@ const mainNavItems: NavItem[] = [
         title: 'Anti-Spam',
         href: antispamDashboard(),
         icon: ShieldAlert,
+    },
+    // Owner-scoped surface: the page lists only bots the session user owns
+    // (workspace-owner resolution server-side) and shows an empty state
+    // otherwise — no shared flag exists to filter on in the sidebar.
+    {
+        title: 'Modules',
+        href: modulesActivation(),
+        icon: Puzzle,
     },
     // Both entries are superadmin-only at runtime: the routes answer 403 for
     // every other session, and the sidebar has no shared superadmin flag to

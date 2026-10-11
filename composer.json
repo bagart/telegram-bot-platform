@@ -150,7 +150,8 @@
             "cd misc/BAGArt/tgbot-module-proxy && composer test",
             "cd misc/BAGArt/telegram-platform-module && composer test",
             "cd misc/BAGArt/telegram-platform-access && composer test",
-            "cd misc/BAGArt/telegram-platform-audit && composer test"
+            "cd misc/BAGArt/telegram-platform-audit && composer test",
+            "cd misc/BAGArt/tgbot-module-example && composer test"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
