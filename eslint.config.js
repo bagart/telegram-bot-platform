@@ -53,6 +53,12 @@ export default [
             import: importPlugin,
         },
         settings: {
+            // Wayfinder outputs are gitignored/generated: in CI they do not
+            // exist, so the typescript resolver cannot classify them and
+            // import/order flips depending on local generation state. Map the
+            // whole `@/` alias to "internal" so classification never depends
+            // on file existence.
+            'import/internal-regex': '^@/',
             'import/resolver': {
                 typescript: {
                     alwaysTryTypes: true,

@@ -23,6 +23,6 @@ concurrency:
 
 jobs:
   tests:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/tests.yml@5be3a8de34658b5d09d8d04986c0576eb872c0f9 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/tests.yml@a22dacbbb356048cc05a1428848084acc1d7d2f0 # pin!
     with:
       php-version: '8.5'

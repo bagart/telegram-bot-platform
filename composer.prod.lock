@@ -66,7 +66,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-client.git",
+                "url": "https://github.com/bagart/php-async-kernel-client.git",
                 "reference": "ad0dc3fbb704feaff478bf37002e11de2bf8f3e2"
             },
             "dist": {
@@ -131,6 +131,10 @@
                 "queue",
                 "transport"
             ],
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-client/tree/main",
+                "issues": "https://github.com/bagart/php-async-kernel-client/issues"
+            },
             "time": "2026-10-02T18:07:19+00:00"
         },
         {
@@ -138,7 +142,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-client-redis.git",
+                "url": "https://github.com/bagart/php-async-kernel-client-redis.git",
                 "reference": "35f805667adbc32b4eeecc3a4706bd9e1804bbaf"
             },
             "dist": {
@@ -199,6 +203,10 @@
                 "redis",
                 "transport"
             ],
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-client-redis/tree/main",
+                "issues": "https://github.com/bagart/php-async-kernel-client-redis/issues"
+            },
             "time": "2026-10-03T04:59:37+00:00"
         },
         {
@@ -206,7 +214,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/ask-queue.git",
+                "url": "https://github.com/bagart/ask-queue.git",
                 "reference": "e632b26290ba2f0d837894e7959586b2def6c402"
             },
             "dist": {
@@ -257,6 +265,10 @@
                 "queue",
                 "registry"
             ],
+            "support": {
+                "source": "https://github.com/bagart/ask-queue/tree/main",
+                "issues": "https://github.com/bagart/ask-queue/issues"
+            },
             "time": "2026-10-02T17:39:04+00:00"
         },
         {
@@ -264,13 +276,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/php-async-kernel-lib.git",
-                "reference": "eef3af7198cdf94b11f9b4825184ff1ae8c23daa"
+                "url": "https://github.com/bagart/php-async-kernel-lib.git",
+                "reference": "8f8d5b4d89bd3231b35239baedd534e2863c4107"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/eef3af7198cdf94b11f9b4825184ff1ae8c23daa",
-                "reference": "eef3af7198cdf94b11f9b4825184ff1ae8c23daa",
+                "url": "https://api.github.com/repos/bagart/php-async-kernel-lib/zipball/8f8d5b4d89bd3231b35239baedd534e2863c4107",
+                "reference": "8f8d5b4d89bd3231b35239baedd534e2863c4107",
                 "shasum": ""
             },
             "require": {
@@ -318,20 +330,24 @@
                 "fiber",
                 "pipeline"
             ],
-            "time": "2026-10-02T17:46:10+00:00"
+            "support": {
+                "source": "https://github.com/bagart/php-async-kernel-lib/tree/main",
+                "issues": "https://github.com/bagart/php-async-kernel-lib/issues"
+            },
+            "time": "2026-10-11T17:03:54+00:00"
         },
         {
             "name": "bagart/telegram-bot-lib",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-lib.git",
-                "reference": "8c632350c0ba5f6898458d11672ef248dc1b801b"
+                "url": "https://github.com/bagart/telegram-bot-lib.git",
+                "reference": "d990b40c057a97fd30aeb57293bd26a0e7652346"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/8c632350c0ba5f6898458d11672ef248dc1b801b",
-                "reference": "8c632350c0ba5f6898458d11672ef248dc1b801b",
+                "url": "https://api.github.com/repos/bagart/telegram-bot-lib/zipball/d990b40c057a97fd30aeb57293bd26a0e7652346",
+                "reference": "d990b40c057a97fd30aeb57293bd26a0e7652346",
                 "shasum": ""
             },
             "require": {
@@ -410,14 +426,18 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-10-03T05:46:03+00:00"
+            "support": {
+                "source": "https://github.com/bagart/telegram-bot-lib/tree/main",
+                "issues": "https://github.com/bagart/telegram-bot-lib/issues"
+            },
+            "time": "2026-10-11T04:24:50+00:00"
         },
         {
             "name": "bagart/telegram-bot-lib-basic",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-bot-lib-basic.git",
+                "url": "https://github.com/bagart/telegram-bot-lib-basic.git",
                 "reference": "a02da1fd6d6372a628f4ccf659c4abc1a52e2cff"
             },
             "dist": {
@@ -471,6 +491,10 @@
                 "runtime",
                 "transport"
             ],
+            "support": {
+                "source": "https://github.com/bagart/telegram-bot-lib-basic/tree/main",
+                "issues": "https://github.com/bagart/telegram-bot-lib-basic/issues"
+            },
             "time": "2026-10-02T17:50:38+00:00"
         },
         {
@@ -478,7 +502,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-access.git",
+                "url": "https://github.com/bagart/telegram-platform-access.git",
                 "reference": "281bc84ff37f3dd95dc3d97e88b944d6d419ba66"
             },
             "dist": {
@@ -527,6 +551,10 @@
                 "telegram",
                 "tg-bot"
             ],
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-access/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-access/issues"
+            },
             "time": "2026-10-02T17:53:20+00:00"
         },
         {
@@ -534,13 +562,13 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-audit.git",
-                "reference": "8e166fdec0ba18845b1672c26a4577e2d403cd26"
+                "url": "https://github.com/bagart/telegram-platform-audit.git",
+                "reference": "5132f3d6bb222d8d2cc0957e45a3dc9a04df0f66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-audit/zipball/8e166fdec0ba18845b1672c26a4577e2d403cd26",
-                "reference": "8e166fdec0ba18845b1672c26a4577e2d403cd26",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-audit/zipball/5132f3d6bb222d8d2cc0957e45a3dc9a04df0f66",
+                "reference": "5132f3d6bb222d8d2cc0957e45a3dc9a04df0f66",
                 "shasum": ""
             },
             "require": {
@@ -583,20 +611,24 @@
                 "telegram",
                 "tg-bot"
             ],
-            "time": "2026-10-02T17:54:44+00:00"
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-audit/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-audit/issues"
+            },
+            "time": "2026-10-11T04:25:22+00:00"
         },
         {
             "name": "bagart/telegram-platform-management",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-management.git",
-                "reference": "0a4000a115620ca83e58318a4f47317243bd1543"
+                "url": "https://github.com/bagart/telegram-platform-management.git",
+                "reference": "8d6031fb5c5b1ebb5a2432328f9194b1cdb398ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-management/zipball/0a4000a115620ca83e58318a4f47317243bd1543",
-                "reference": "0a4000a115620ca83e58318a4f47317243bd1543",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-management/zipball/8d6031fb5c5b1ebb5a2432328f9194b1cdb398ae",
+                "reference": "8d6031fb5c5b1ebb5a2432328f9194b1cdb398ae",
                 "shasum": ""
             },
             "require": {
@@ -652,20 +684,24 @@
                 "tg-bot",
                 "transport"
             ],
-            "time": "2026-10-03T04:59:37+00:00"
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-management/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-management/issues"
+            },
+            "time": "2026-10-11T04:25:46+00:00"
         },
         {
             "name": "bagart/telegram-platform-menu",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-menu.git",
-                "reference": "85857b92e425259ca9b9c66169dbd4e7590f4dd4"
+                "url": "https://github.com/bagart/telegram-platform-menu.git",
+                "reference": "8c47e7748b9bef057321bf118470f4989fba56bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-menu/zipball/85857b92e425259ca9b9c66169dbd4e7590f4dd4",
-                "reference": "85857b92e425259ca9b9c66169dbd4e7590f4dd4",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-menu/zipball/8c47e7748b9bef057321bf118470f4989fba56bf",
+                "reference": "8c47e7748b9bef057321bf118470f4989fba56bf",
                 "shasum": ""
             },
             "require": {
@@ -712,20 +748,24 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-10-03T04:59:37+00:00"
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-menu/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-menu/issues"
+            },
+            "time": "2026-10-11T04:25:24+00:00"
         },
         {
             "name": "bagart/telegram-platform-module",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-module.git",
-                "reference": "81e052433e54339fdbab38a053fa2e4efcbf25fa"
+                "url": "https://github.com/bagart/telegram-platform-module.git",
+                "reference": "75cfe122729b23595131af2e820787732e337c92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/telegram-platform-module/zipball/81e052433e54339fdbab38a053fa2e4efcbf25fa",
-                "reference": "81e052433e54339fdbab38a053fa2e4efcbf25fa",
+                "url": "https://api.github.com/repos/bagart/telegram-platform-module/zipball/75cfe122729b23595131af2e820787732e337c92",
+                "reference": "75cfe122729b23595131af2e820787732e337c92",
                 "shasum": ""
             },
             "require": {
@@ -766,20 +806,24 @@
                 "telegram",
                 "tg-bot"
             ],
-            "time": "2026-10-02T17:55:11+00:00"
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-module/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-module/issues"
+            },
+            "time": "2026-10-11T17:03:53+00:00"
         },
         {
             "name": "bagart/tgbot-game-mafia",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-game-mafia.git",
-                "reference": "6c8fe06c33e2b1ae86736fd244ef59cdebf2c72c"
+                "url": "https://github.com/bagart/tgbot-game-mafia.git",
+                "reference": "de332f3672f13a11528f5ef5557f18ff7ea4c203"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-game-mafia/zipball/6c8fe06c33e2b1ae86736fd244ef59cdebf2c72c",
-                "reference": "6c8fe06c33e2b1ae86736fd244ef59cdebf2c72c",
+                "url": "https://api.github.com/repos/bagart/tgbot-game-mafia/zipball/de332f3672f13a11528f5ef5557f18ff7ea4c203",
+                "reference": "de332f3672f13a11528f5ef5557f18ff7ea4c203",
                 "shasum": ""
             },
             "require": {
@@ -832,20 +876,24 @@
                 "tg-module",
                 "werewolf"
             ],
-            "time": "2026-10-02T17:51:25+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-game-mafia/tree/main",
+                "issues": "https://github.com/bagart/tgbot-game-mafia/issues"
+            },
+            "time": "2026-10-11T04:26:18+00:00"
         },
         {
             "name": "bagart/tgbot-module-antispam",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-antispam.git",
-                "reference": "475a8a9834a6f53aef9d666bff08f813b5adc98a"
+                "url": "https://github.com/bagart/tgbot-module-antispam.git",
+                "reference": "bf3b01e0f1f211cf9ba2401e4f70af7b39b8305a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-antispam/zipball/475a8a9834a6f53aef9d666bff08f813b5adc98a",
-                "reference": "475a8a9834a6f53aef9d666bff08f813b5adc98a",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-antispam/zipball/bf3b01e0f1f211cf9ba2401e4f70af7b39b8305a",
+                "reference": "bf3b01e0f1f211cf9ba2401e4f70af7b39b8305a",
                 "shasum": ""
             },
             "require": {
@@ -896,20 +944,24 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-10-02T17:52:08+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-antispam/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-antispam/issues"
+            },
+            "time": "2026-10-11T04:26:22+00:00"
         },
         {
             "name": "bagart/tgbot-module-example",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-example.git",
-                "reference": "9fb4e8e2425da5411b20b13d0595e8b8560ea8f6"
+                "url": "https://github.com/bagart/tgbot-module-example.git",
+                "reference": "e511a59c6aa42b465c7fbbf8cbc4b26901ca8767"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-example/zipball/9fb4e8e2425da5411b20b13d0595e8b8560ea8f6",
-                "reference": "9fb4e8e2425da5411b20b13d0595e8b8560ea8f6",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-example/zipball/e511a59c6aa42b465c7fbbf8cbc4b26901ca8767",
+                "reference": "e511a59c6aa42b465c7fbbf8cbc4b26901ca8767",
                 "shasum": ""
             },
             "require": {
@@ -922,6 +974,11 @@
                 "psr-4": {
                     "BAGArt\\TelegramBotExample\\": "src/"
                 }
+            },
+            "scripts": {
+                "test": [
+                    "@php ../../../vendor/bin/pest"
+                ]
             },
             "license": [
                 "MIT"
@@ -941,20 +998,24 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-10-03T04:59:37+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-example/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-example/issues"
+            },
+            "time": "2026-10-11T04:26:37+00:00"
         },
         {
             "name": "bagart/tgbot-module-nettools",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-nettools.git",
-                "reference": "418efb47e6c472af573d6bfd30e0726de24b3e9b"
+                "url": "https://github.com/bagart/tgbot-module-nettools.git",
+                "reference": "dcae4e4f105a8ad1c701527e7575ab9d282ab282"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-nettools/zipball/418efb47e6c472af573d6bfd30e0726de24b3e9b",
-                "reference": "418efb47e6c472af573d6bfd30e0726de24b3e9b",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-nettools/zipball/dcae4e4f105a8ad1c701527e7575ab9d282ab282",
+                "reference": "dcae4e4f105a8ad1c701527e7575ab9d282ab282",
                 "shasum": ""
             },
             "require": {
@@ -1005,20 +1066,24 @@
                 "tg-bot",
                 "whois"
             ],
-            "time": "2026-10-02T17:49:09+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-nettools/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-nettools/issues"
+            },
+            "time": "2026-10-11T04:26:40+00:00"
         },
         {
             "name": "bagart/tgbot-module-proxy",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-proxy.git",
-                "reference": "9f1a2e449ae5d19c473be743cc65627e3edb99ef"
+                "url": "https://github.com/bagart/tgbot-module-proxy.git",
+                "reference": "55f719a271286606d9f264fb6f3611f49353d9d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-proxy/zipball/9f1a2e449ae5d19c473be743cc65627e3edb99ef",
-                "reference": "9f1a2e449ae5d19c473be743cc65627e3edb99ef",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-proxy/zipball/55f719a271286606d9f264fb6f3611f49353d9d5",
+                "reference": "55f719a271286606d9f264fb6f3611f49353d9d5",
                 "shasum": ""
             },
             "require": {
@@ -1071,20 +1136,24 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-10-02T18:08:22+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-proxy/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-proxy/issues"
+            },
+            "time": "2026-10-11T04:26:55+00:00"
         },
         {
             "name": "bagart/tgbot-module-stt",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-stt.git",
-                "reference": "0c8183e81db7294c6e0608175668f6f7ac846f47"
+                "url": "https://github.com/bagart/tgbot-module-stt.git",
+                "reference": "2147e744d685b93a9bc96de9aaadb1029c2943bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-stt/zipball/0c8183e81db7294c6e0608175668f6f7ac846f47",
-                "reference": "0c8183e81db7294c6e0608175668f6f7ac846f47",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-stt/zipball/2147e744d685b93a9bc96de9aaadb1029c2943bb",
+                "reference": "2147e744d685b93a9bc96de9aaadb1029c2943bb",
                 "shasum": ""
             },
             "require": {
@@ -1133,20 +1202,24 @@
                 "transcription",
                 "whisper"
             ],
-            "time": "2026-10-02T18:01:44+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-stt/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-stt/issues"
+            },
+            "time": "2026-10-11T04:26:58+00:00"
         },
         {
             "name": "bagart/tgbot-module-summarizer",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-summarizer.git",
-                "reference": "fc19e3e18c41ef1d3ae9b85946245dd966f3e9de"
+                "url": "https://github.com/bagart/tgbot-module-summarizer.git",
+                "reference": "96c7703b8e6b587edbc21c67624c94bbfb8cdca4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-summarizer/zipball/fc19e3e18c41ef1d3ae9b85946245dd966f3e9de",
-                "reference": "fc19e3e18c41ef1d3ae9b85946245dd966f3e9de",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-summarizer/zipball/96c7703b8e6b587edbc21c67624c94bbfb8cdca4",
+                "reference": "96c7703b8e6b587edbc21c67624c94bbfb8cdca4",
                 "shasum": ""
             },
             "require": {
@@ -1195,20 +1268,24 @@
                 "telegram-bot",
                 "tg-bot"
             ],
-            "time": "2026-10-03T04:59:37+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-summarizer/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-summarizer/issues"
+            },
+            "time": "2026-10-11T04:27:29+00:00"
         },
         {
             "name": "bagart/tgbot-module-tts",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/tgbot-module-tts.git",
-                "reference": "9e01089665888c6a0b6f4c60e6a90a7101621840"
+                "url": "https://github.com/bagart/tgbot-module-tts.git",
+                "reference": "09b381929dff59e5e13308528200e37ad1e7b84b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bagart/tgbot-module-tts/zipball/9e01089665888c6a0b6f4c60e6a90a7101621840",
-                "reference": "9e01089665888c6a0b6f4c60e6a90a7101621840",
+                "url": "https://api.github.com/repos/bagart/tgbot-module-tts/zipball/09b381929dff59e5e13308528200e37ad1e7b84b",
+                "reference": "09b381929dff59e5e13308528200e37ad1e7b84b",
                 "shasum": ""
             },
             "require": {
@@ -1263,7 +1340,11 @@
                 "tts",
                 "voice"
             ],
-            "time": "2026-10-02T18:02:12+00:00"
+            "support": {
+                "source": "https://github.com/bagart/tgbot-module-tts/tree/main",
+                "issues": "https://github.com/bagart/tgbot-module-tts/issues"
+            },
+            "time": "2026-10-11T04:27:32+00:00"
         },
         {
             "name": "brick/math",
@@ -2646,16 +2727,16 @@
         },
         {
             "name": "laravel/fortify",
-            "version": "v1.40.0",
+            "version": "v1.41.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/fortify.git",
-                "reference": "fe0fce8814660317df0684f2c7be3b573def67d3"
+                "reference": "c456642584c102f6a6aafee9932299542da637b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/fortify/zipball/fe0fce8814660317df0684f2c7be3b573def67d3",
-                "reference": "fe0fce8814660317df0684f2c7be3b573def67d3",
+                "url": "https://api.github.com/repos/laravel/fortify/zipball/c456642584c102f6a6aafee9932299542da637b5",
+                "reference": "c456642584c102f6a6aafee9932299542da637b5",
                 "shasum": ""
             },
             "require": {
@@ -2668,6 +2749,7 @@
                 "pragmarx/google2fa": "^9.0"
             },
             "require-dev": {
+                "jasonmccreary/double": "^1.0",
                 "orchestra/testbench": "^9.15|^10.8|^11.0",
                 "phpstan/phpstan": "^2.2.6"
             },
@@ -2706,20 +2788,20 @@
                 "issues": "https://github.com/laravel/fortify/issues",
                 "source": "https://github.com/laravel/fortify"
             },
-            "time": "2026-09-10T11:52:08+00:00"
+            "time": "2026-09-28T14:56:25+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v13.34.0",
+            "version": "v13.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "c829b4982d29344cbcf1d7ad78eb5d2bb8ae66c4"
+                "reference": "a413a9da94884e5e9d58f4e6612884f712827804"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/c829b4982d29344cbcf1d7ad78eb5d2bb8ae66c4",
-                "reference": "c829b4982d29344cbcf1d7ad78eb5d2bb8ae66c4",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/a413a9da94884e5e9d58f4e6612884f712827804",
+                "reference": "a413a9da94884e5e9d58f4e6612884f712827804",
                 "shasum": ""
             },
             "require": {
@@ -2937,7 +3019,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-09-29T12:46:21+00:00"
+            "time": "2026-10-06T13:52:37+00:00"
         },
         {
             "name": "laravel/mcp",
@@ -3083,16 +3165,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.24",
+            "version": "v0.3.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b"
+                "reference": "21b7b49d60fcb700016dd27b582ae739c75de816"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/5d3cdef29e93ca3b62b1871359db3078cd99908b",
-                "reference": "5d3cdef29e93ca3b62b1871359db3078cd99908b",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/21b7b49d60fcb700016dd27b582ae739c75de816",
+                "reference": "21b7b49d60fcb700016dd27b582ae739c75de816",
                 "shasum": ""
             },
             "require": {
@@ -3135,10 +3217,9 @@
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.24"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.25"
             },
-            "time": "2026-08-20T12:55:36+00:00"
+            "time": "2026-10-06T02:25:49+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -8904,12 +8985,12 @@
             "version": "v5.7.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/vlucas/phpdotenv.git",
+                "url": "https://github.com/phpdotenv/phpdotenv.git",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/301c07936b16d88628b126b01d082ba153cf4c40",
                 "reference": "301c07936b16d88628b126b01d082ba153cf4c40",
                 "shasum": ""
             },
@@ -9220,16 +9301,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "2.4.1",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70"
+                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/2ccb7c2e821038c03a3e6e1700c570c158c55f70",
-                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/8a163706bbcac613733dba03f51e13b5eb1bb819",
+                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819",
                 "shasum": ""
             },
             "require": {
@@ -9280,9 +9361,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/2.4.1"
+                "source": "https://github.com/webmozarts/assert/tree/2.5.0"
             },
-            "time": "2026-06-15T15:31:57+00:00"
+            "time": "2026-10-05T23:14:19+00:00"
         },
         {
             "name": "zircote/swagger-php",
@@ -10340,7 +10421,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bagart/telegram-platform-devops-baseline.git",
+                "url": "https://github.com/bagart/telegram-platform-devops-baseline.git",
                 "reference": "babb5533ae9145bd3daeb38e6d6bbf3918b88eb5"
             },
             "dist": {
@@ -10375,6 +10456,10 @@
                 "MIT"
             ],
             "description": "Reusable DevOps/security baseline engine: controls, hooks and CLI for BAGArt repositories. Ships executors and defaults; every consumer keeps its own policy JSONs.",
+            "support": {
+                "source": "https://github.com/bagart/telegram-platform-devops-baseline/tree/main",
+                "issues": "https://github.com/bagart/telegram-platform-devops-baseline/issues"
+            },
             "time": "2026-10-03T06:28:37+00:00"
         },
         {
@@ -10764,16 +10849,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.5.0",
+            "version": "3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5"
+                "reference": "528948210cc46f967a4b98e83b19e76f2b504993"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
-                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
+                "url": "https://api.github.com/repos/composer/semver/zipball/528948210cc46f967a4b98e83b19e76f2b504993",
+                "reference": "528948210cc46f967a4b98e83b19e76f2b504993",
                 "shasum": ""
             },
             "require": {
@@ -10825,7 +10910,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.5.0"
+                "source": "https://github.com/composer/semver/tree/3.5.1"
             },
             "funding": [
                 {
@@ -10837,7 +10922,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-24T14:38:51+00:00"
+            "time": "2026-10-05T13:12:12+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -11076,16 +11161,16 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.18.5",
+            "version": "2.18.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "baec851ad6ae00db8bd0fdd30d208afc1b71c56e"
+                "reference": "7d0a2cde892089bb09372f4366e9b960eb3001a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/baec851ad6ae00db8bd0fdd30d208afc1b71c56e",
-                "reference": "baec851ad6ae00db8bd0fdd30d208afc1b71c56e",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/7d0a2cde892089bb09372f4366e9b960eb3001a9",
+                "reference": "7d0a2cde892089bb09372f4366e9b960eb3001a9",
                 "shasum": ""
             },
             "require": {
@@ -11135,7 +11220,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.18.5"
+                "source": "https://github.com/filp/whoops/tree/2.18.6"
             },
             "funding": [
                 {
@@ -11143,7 +11228,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-18T12:00:00+00:00"
+            "time": "2026-10-03T17:03:57+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -11361,16 +11446,16 @@
         },
         {
             "name": "larastan/larastan",
-            "version": "v3.12.2",
+            "version": "v3.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/larastan/larastan.git",
-                "reference": "c328727e6103c1147d1c64cc96b3aedfda26bc20"
+                "reference": "24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/larastan/larastan/zipball/c328727e6103c1147d1c64cc96b3aedfda26bc20",
-                "reference": "c328727e6103c1147d1c64cc96b3aedfda26bc20",
+                "url": "https://api.github.com/repos/larastan/larastan/zipball/24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3",
+                "reference": "24ee69a7705ffc7c2cd8a3c96a5f498a4c2de5e3",
                 "shasum": ""
             },
             "require": {
@@ -11383,7 +11468,7 @@
                 "illuminate/pipeline": "^11.44.2 || ^12.4.1 || ^13",
                 "illuminate/support": "^11.44.2 || ^12.4.1 || ^13",
                 "php": "^8.2",
-                "phpstan/phpstan": "^2.2.14"
+                "phpstan/phpstan": "^2.3.0"
             },
             "require-dev": {
                 "doctrine/coding-standard": "^14",
@@ -11438,7 +11523,7 @@
             ],
             "support": {
                 "issues": "https://github.com/larastan/larastan/issues",
-                "source": "https://github.com/larastan/larastan/tree/v3.12.2"
+                "source": "https://github.com/larastan/larastan/tree/v3.13.0"
             },
             "funding": [
                 {
@@ -11446,20 +11531,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-19T10:46:58+00:00"
+            "time": "2026-10-07T14:14:28+00:00"
         },
         {
             "name": "laravel/boost",
-            "version": "v2.10.1",
+            "version": "v2.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/boost.git",
-                "reference": "3e7bab5c7c80b6d2764ef3db1e3eb801204da84e"
+                "reference": "75c269a8a53e931c7252e7cd562e1a209356a7c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/boost/zipball/3e7bab5c7c80b6d2764ef3db1e3eb801204da84e",
-                "reference": "3e7bab5c7c80b6d2764ef3db1e3eb801204da84e",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/75c269a8a53e931c7252e7cd562e1a209356a7c6",
+                "reference": "75c269a8a53e931c7252e7cd562e1a209356a7c6",
                 "shasum": ""
             },
             "require": {
@@ -11474,6 +11559,7 @@
                 "php": "^8.2"
             },
             "require-dev": {
+                "jasonmccreary/double": "^1.0",
                 "laravel/pint": "^1.27.0",
                 "mockery/mockery": "^1.6.12",
                 "orchestra/testbench": "^9.15.0|^10.6|^11.0",
@@ -11512,7 +11598,7 @@
                 "issues": "https://github.com/laravel/boost/issues",
                 "source": "https://github.com/laravel/boost"
             },
-            "time": "2026-10-01T02:02:28+00:00"
+            "time": "2026-10-07T19:07:19+00:00"
         },
         {
             "name": "laravel/pail",
@@ -12695,11 +12781,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.16",
+            "version": "2.3.1",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
-                "reference": "46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
                 "shasum": ""
             },
             "require": {
@@ -12755,29 +12841,29 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-25T09:31:51+00:00"
+            "time": "2026-10-08T21:09:11+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.5.7",
+            "version": "12.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "186dab580576598076de6818596d12b61801880e"
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/186dab580576598076de6818596d12b61801880e",
-                "reference": "186dab580576598076de6818596d12b61801880e",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/7440368d94738d54f2c1de24dbd3871793bbb0dd",
+                "reference": "7440368d94738d54f2c1de24dbd3871793bbb0dd",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^5.7.0",
+                "nikic/php-parser": "^5.9.0",
                 "php": ">=8.3",
-                "phpunit/php-text-template": "^5.0",
+                "phpunit/php-text-template": "^5.0.1",
                 "sebastian/complexity": "^5.0",
                 "sebastian/environment": "^8.1.2",
                 "sebastian/lines-of-code": "^4.0.1",
@@ -12785,7 +12871,7 @@
                 "theseer/tokenizer": "^2.0.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.5.28"
+                "phpunit/phpunit": "^12.5.37"
             },
             "suggest": {
                 "ext-pcov": "PHP extension that provides line coverage",
@@ -12823,7 +12909,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.7"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.8"
             },
             "funding": [
                 {
@@ -12843,7 +12929,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-01T13:24:19+00:00"
+            "time": "2026-10-03T14:03:50+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -14438,16 +14524,16 @@
         },
         {
             "name": "sebastian/version",
-            "version": "6.0.0",
+            "version": "6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/version.git",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c"
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/3e6ccf7657d4f0a59200564b08cead899313b53c",
-                "reference": "3e6ccf7657d4f0a59200564b08cead899313b53c",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/9e935a16187e14f39b0e79910dabd614972cdb26",
+                "reference": "9e935a16187e14f39b0e79910dabd614972cdb26",
                 "shasum": ""
             },
             "require": {
@@ -14480,15 +14566,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/version/issues",
                 "security": "https://github.com/sebastianbergmann/version/security/policy",
-                "source": "https://github.com/sebastianbergmann/version/tree/6.0.0"
+                "source": "https://github.com/sebastianbergmann/version/tree/6.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/version",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T05:00:38+00:00"
+            "time": "2026-10-04T05:50:08+00:00"
         },
         {
             "name": "staabm/side-effects-detector",

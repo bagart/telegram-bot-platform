@@ -18,6 +18,17 @@ use Throwable;
  */
 final class AdoptRepository
 {
+    /**
+     * Literal repository-relative paths this class is allowlisted to require
+     * (03 §27: dynamic include/require of a variable path is forbidden; the
+     * allowlist map is the only sanctioned entry point).
+     *
+     * @var list<string>
+     */
+    private const REQUIRE_ALLOWLIST = [
+        'config/tg_modules.php',
+    ];
+
     public function __construct(private readonly ?string $root = null)
     {
     }
@@ -87,15 +98,22 @@ final class AdoptRepository
      */
     public function loadModuleConfig(): array
     {
-        $path = $this->path('config/tg_modules.php');
-
-        if (! is_file($path)) {
+        if (! is_file($this->moduleConfigPath())) {
             return [];
         }
 
-        $raw = require $path;
+        $raw = require self::moduleConfigPath();
 
         return is_array($raw) ? $raw : [];
+    }
+
+    /**
+     * Resolve the sole allowlisted require target against the repository root.
+     * Only literals from REQUIRE_ALLOWLIST are ever returned.
+     */
+    private function moduleConfigPath(): string
+    {
+        return $this->path(self::REQUIRE_ALLOWLIST[0]);
     }
 
     /**
