@@ -4,7 +4,12 @@ use Tests\TestCase;
 
 // Proxy test helpers (toolId()/toolManifest()...) live in its package Pest.php,
 // which Pest only auto-loads when running the package suite on its own.
-require_once dirname(__DIR__).'/misc/BAGArt/tgbot-module-proxy/tests/Pest.php';
+// Ephemeral no-misc CI checkouts have no package sources to load from;
+// their package Feature dirs are absent too, so nothing downstream needs them.
+$proxyPest = dirname(__DIR__).'/misc/BAGArt/tgbot-module-proxy/tests/Pest.php';
+if (is_file($proxyPest)) {
+    require_once $proxyPest;
+}
 
 pest()->extend(TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)

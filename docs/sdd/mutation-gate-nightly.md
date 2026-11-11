@@ -1,8 +1,8 @@
 # SDD: Mutation Gate Enforcement + Nightly CI Repair
 
-> Status: DONE for gate enforcement; nightly vendor redesign in progress (steps tracked in task file)
-> Date: 2026-09-29 (gate) / 2026-10-01 (CI strategy decisions)
-> Task: docs/tasks/wave-c-mutation-gate.md
+> Status: DONE (gate enforcement + nightly vendor redesign + CI red sweep)
+> Date: 2026-09-29 (gate) / 2026-10-01 (CI strategy decisions) / 2026-10-12 (CI red sweep)
+> Task: docs/tasks/wave-c-mutation-gate.md (deleted 2026-10-03); docs/tasks/ci-red-sweep.md (deletes itself)
 
 ## What Was Built
 
@@ -76,3 +76,21 @@ The mutation gate is alive again: `cmd/dev/mutate` invokes the package control d
 **Tag rule documented** at the two places that can act on it: `docs/deps-policy.md` Rules entry 5 ("after any `cmd/release/lib` tag, refresh `composer.prod.lock` immediately") and a post-tag reminder (real + dry-run branches) printed by `cmd/release/lib` after the annotated-tag push — the only remaining re-arm path.
 
 **Tests:** `tests/Unit/Deps/LockTipFreshnessTest.php` (7 cases via `Symfony\Component\Process`): fresh/stale/hijack fixtures (0/1/5), `--tips` map with missing package → skipped, unreachable host → skipped, `--mode=prod` parsing regression (prerequisite A pin), `--offline` skip. Fixtures under `tests/fixtures/deps/`. Q13 residual and the tag-hijack follow-up are closed by this control; the checklist refresh stays the primary guard (the control is its detector, not a replacement).
+
+## CI red sweep — vendor-install gate family (2026-10-12)
+
+Task: `docs/tasks/ci-red-sweep.md` (deletes itself on CLEANUP). Closes the last structural CI reds recorded in `docs/STATUS.md`: Tests never green in 60 runs, prod-install `provider-wiring` in no-misc checkouts, nightly tsc on generated wayfinder actions, baseline-drift engine fatal.
+
+**No-misc provider wave (finished, was half-uncommitted).** `cmd/deps/check` provider-wiring now falls back to `vendor/bagart/*` package roots when `misc/BAGArt/*/composer.json` is absent (a no-misc CI checkout has only two gitlink placeholders); the `find misc/BAGArt` enumeration is guarded so a missing `misc/` cannot abort the script under `set -euo pipefail` before controls report. Verified by a `/tmp/opencode` no-misc simulation (tracked files + fake `vendor/bagart` roots from the 19 `bagart/*` prod-manifest packages): `bash cmd/deps/check --mode=prod --offline` exits 0 with misc present-but-empty and with misc fully absent; the pre-guard `find` line aborts both. Kept from the dirty tree: `.github/workflows/prod-install.yml` step order, `tests/Pest.php` proxy-suite `is_file` guard (prod-mode checkouts have no `tests/Pest.php` inside the package root pattern it required), `phpstan-baseline.neon` stale `commands/`→`cmd/` paths (67 errors).
+
+**Wayfinder `QUERY` verb bridge.** Laravel 13 `Router::$verbs` includes `QUERY`, so `Route::any` actions generate `methods: [..., "query"]` while wayfinder v0.1.21's TS runtime (`resources/js/wayfinder/index.ts`, copied from vendor, regenerated on every vite build) declares `Method` without `"query"` → 6 × TS2561/TS2344, nightly Frontend checks red. Upstream main has the same gap (verified 2026-10-12), so `cmd/ci/patch-wayfinder-query.php` idempotently appends `| "query"` to the generated union (no-ops when absent/upstream-fixed) and is wired into package.json `build`, `build:ssr` (after vite regenerates the file) and `types:check` (before `tsc --noEmit`). PHP, not Node — matches the `cmd/ci/` sibling (`rewrite-vendor-paths.php`) and stays inside the eslint config's scope. Verified: `npm run types:check` 0, `npx prettier --check resources/` 0, double-run no-op.
+
+**Tests workflow redesign (Q-T1/Q-T2).** The stub-strategy job (checkout → `--no-scaffold` prod install with empty path stubs → stub Feature suite) could never boot the real suite — 60 runs without green, failing at `tests/Pest.php:7`. Reusable `tests.yml` now mirrors nightly's proven install posture: job env `APP_KEY` + `TG_MODULE_ENABLED_example=false` → `cmd/deps/install --mode=prod --dev --ignore-platform-req=ext-xhprof` + `npm i` → `cmd/ci/rewrite-vendor-paths.php` → `cp .env.example .env` → `npm run build` (Inertia page tests resolve the Vite manifest; also runs the wayfinder patch) → `./vendor/bin/pest --testsuite Feature --compact` → `cmd/sync-skills --check`. phpstan dropped (Q-T1: `phpstan.neon.dist` `paths: app, misc` + a baseline include into `misc/` cannot resolve in a no-misc checkout — stays a local `cmd/dev/check` gate); full `composer test` remains nightly's job (Q-T2). No Redis service (Feature suite = host `tests/Feature`, sqlite `:memory:`).
+
+**Baseline drift engine fetch.** `tools/baseline/manifest.php` requires the engine at `vendor/bagart/telegram-platform-devops-baseline`, but the drift job runs no composer install → fatal missing-require on every scheduled run (38245452146). Fix: clone the baseline repo into that vendor path when `controls/manifest.php` is missing — matches `manifest.php`'s default resolution, no `BASELINE_DIR` env needed.
+
+**Pins:** host `.github/workflows/{tests,baseline-drift}.yml` bumped to workflows-repo commit `3f17b16` (local until the user pushes the nested repo — Q10 user-executed push inventory).
+
+**Verified:** no-misc sim exit 0 (both scenarios), `cmd/deps/check` dev+prod offline exit 0 (11 module-layout controls intact), `npm run types:check` 0, `prettier --check resources/` 0, pint passed, yaml-lint OK on all touched workflows, shell-lint OK, `pest tests/Feature` 174 passed (907 assertions). phpstan result recorded in STATUS.
+
+**User-owned remainder (not agent-fixable):** Docker GHCR org-package creation (run 38158366301), Dependency graph repo setting (run 38158594798), branch protection, B1 post-merge verify.

@@ -718,271 +718,265 @@ parameters:
 			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
 			identifier: greater.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Function collectGeoData invoked with 0 parameters, 2 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Part \$geoData\[''country''\] \(array\{ip\?\: string, country\?\: string, isp\?\: string, error\?\: string\}\) of encapsed string cannot be cast to string\.$#'
 			identifier: encapsedStringPart.nonString
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Part \$geoData\[''ip''\] \(array\{ip\?\: string, country\?\: string, isp\?\: string, error\?\: string\}\) of encapsed string cannot be cast to string\.$#'
 			identifier: encapsedStringPart.nonString
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Part \$geoData\[''isp''\] \(array\{ip\?\: string, country\?\: string, isp\?\: string, error\?\: string\}\) of encapsed string cannot be cast to string\.$#'
 			identifier: encapsedStringPart.nonString
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between array\{command\: string, pid\: int, running\: bool, signaled\: bool, stopped\: bool, exitcode\: int, termsig\: int, stopsig\: int\} and false will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between null and null will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Ternary operator condition is always true\.$#'
 			identifier: ternary.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_dns.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_dns.php
 
 		-
 			message: '#^Function render_benchmark_results invoked with 8 parameters, 4 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Function transportFactories invoked with 1 parameter, 0 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Function transportFactories invoked with 2 parameters, 0 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Match arm comparison between array\{''no''\} and array\{''no''\} is always true\.$#'
 			identifier: match.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Missing parameter \$durationSec \(int\) in call to function runBenchmark\.$#'
 			identifier: argument.missing
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Missing parameter \$name \(string\) in call to function runBenchmark\.$#'
 			identifier: argument.missing
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Missing parameter \$rate \(int\) in call to function runBenchmark\.$#'
 			identifier: argument.missing
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Missing parameter \$urls \(array\) in call to function runBenchmarkPhase\.$#'
 			identifier: argument.missing
 			count: 2
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Missing parameter \$warmupSec \(int\) in call to function runBenchmark\.$#'
 			identifier: argument.missing
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Parameter \#1 \$tickable of method BAGArt\\AsyncKernel\\AsyncKernel\:\:addTickable\(\) expects BAGArt\\AsyncKernel\\Contracts\\Daemons\\ASKTickableContract\|BAGArt\\AsyncKernel\\Contracts\\Daemons\\WithASKTickableContract\|null, BAGArt\\ASKClient\\Contracts\\Transport\\HttpTransportContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Parameter \#3 \$risks of function render_benchmark_results expects array, int\<1, max\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and false will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between list\<mixed\>\|string\|false and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$conc in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$keepAlive in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$mode in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$sleep in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$targetUrl in call to function runBenchmarkPhase\.$#'
 			identifier: argument.unknown
 			count: 2
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$totalRequests in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$transport in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Unknown parameter \$warmupReqs in call to function runBenchmark\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_localhost_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_localhost_transport.php
 
 		-
 			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
 			identifier: greater.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_stress.php
 
 		-
 			message: '#^Parameter \#1 \$tickable of method BAGArt\\AsyncKernel\\AsyncKernel\:\:addTickable\(\) expects BAGArt\\AsyncKernel\\Contracts\\Daemons\\ASKTickableContract\|BAGArt\\AsyncKernel\\Contracts\\Daemons\\WithASKTickableContract\|null, BAGArt\\ASKClient\\Contracts\\Transport\\HttpTransportContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_stress.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between non\-empty\-list and array\{\} will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 2
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_stress.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between list\<mixed\>\|string\|false and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_stress.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_stress.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between array\{command\: string, pid\: int, running\: bool, signaled\: bool, stopped\: bool, exitcode\: int, termsig\: int, stopsig\: int\} and false will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_transport.php
 
 		-
 			message: '#^Ternary operator condition is always true\.$#'
 			identifier: ternary.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_transport.php
 
 		-
 			message: '#^Variable \$resultPath might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_transport.php
 
 		-
 			message: '#^Variable \$xhprofBaseDir might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/benchmark_transport.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/benchmark_transport.php
 
 		-
 			message: '#^Anonymous function has an unused use \$context\.$#'
 			identifier: closure.unusedUse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/example-daemon.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/example-daemon.php
 
 		-
 			message: '#^Comparison operation "\>" between int\<5, max\> and 0 is always true\.$#'
 			identifier: greater.alwaysTrue
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/example_http2_features.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/example_http2_features.php
 
 		-
 			message: '#^Function render_benchmark_results invoked with 8 parameters, 4 required\.$#'
 			identifier: arguments.count
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_localhost_transport/result.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_localhost_transport/result.php
 
 		-
 			message: '#^Offset ''keepAlive'' on array\{transport\: string, mode\: string, conc\: int, keepAlive\: bool, sent\: int, errors\: int, elapsed\: float, throughput\: float, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 10
-			path: misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_localhost_transport/result.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_localhost_transport/result.php
 
 		-
 			message: '#^Parameter \#3 \$risks of function render_benchmark_results expects array, int given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/includes/benchmark_localhost_transport/result.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/includes/benchmark_localhost_transport/result.php
 
 		-
 			message: '#^Anonymous function with return type void returns null but should not return anything\.$#'
 			identifier: return.void
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/includes/promise-wrapper/AskClientWithPromiseWrapper.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/includes/promise-wrapper/AskClientWithPromiseWrapper.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\ASKClient\\Contracts\\Transport\\HttpTransportContract\:\:tick\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/php-async-kernel-client/commands/includes/select_transport.php
-
-		-
-			message: '#^Default value of the parameter \#3 \$history \(array\{\}\) of method BAGArt\\ASKClient\\Contracts\\Queue\\DeadLetterQueueContract\:\:push\(\) is incompatible with type array\{attempts\: list\<int\>, partitions\: list\<string\>, retryChain\: list\<int\>, workerIds\: list\<string\>\}\.$#'
-			identifier: parameter.defaultValue
-			count: 1
-			path: misc/BAGArt/php-async-kernel-client/src/Contracts/Queue/DeadLetterQueueContract.php
+			path: misc/BAGArt/php-async-kernel-client/cmd/includes/select_transport.php
 
 		-
 			message: '#^Function Amp\\Dns\\createDefaultResolver invoked with 1 parameter, 0 required\.$#'
@@ -1360,13 +1354,13 @@ parameters:
 			message: '#^Comparison operation "\>" between 0 and 100 is always false\.$#'
 			identifier: greater.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-lib/commands/example-daemon.php
+			path: misc/BAGArt/php-async-kernel-lib/cmd/example-daemon.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between 0 and 1 will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: misc/BAGArt/php-async-kernel-lib/commands/example-daemon.php
+			path: misc/BAGArt/php-async-kernel-lib/cmd/example-daemon.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\AsyncKernel\\Contracts\\ASKProducerContract\:\:onError\(\)\.$#'
@@ -2152,121 +2146,121 @@ parameters:
 			message: '#^Access to property \$message on an unknown class UpdateTypeDTO\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/chats.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php
 
 		-
 			message: '#^Access to property \$updateId on an unknown class UpdateTypeDTO\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/chats.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php
 
 		-
 			message: '#^Class UpdateTypeDTO not found\.$#'
 			identifier: class.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/chats.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php
 
 		-
 			message: '#^Parameter \#1 \$update of method BAGArt\\TelegramBot\\CLI\\Chatting\\TuiChatSession\:\:matchesFilter\(\) expects BAGArt\\TelegramBot\\TgApi\\Types\\DTO\\UpdateTypeDTO, BAGArt\\TelegramBot\\Contracts\\TgApi\\TgApiTypeDTOContract&UpdateTypeDTO given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/chats.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between BAGArt\\TelegramBot\\Http\\Pure\\TgApiResponse and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/chats.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/chats.php
 
 		-
 			message: '#^Negated boolean expression is always true\.$#'
 			identifier: booleanNot.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/debug/message.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/debug/message.php
 
 		-
 			message: '#^Argument of an invalid type BAGArt\\TelegramBot\\Contracts\\Processing\\Processors\\TgTypeDTOProcessorContract supplied for foreach, only iterables are supported\.$#'
 			identifier: foreach.nonIterable
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/offline/long-polling-processing.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/offline/long-polling-processing.php
 
 		-
 			message: '#^Missing parameter \$context \(BAGArt\\TelegramBot\\Processing\\BotProcessorContext\) in call to static method BAGArt\\TelegramBot\\Processing\\Processors\\UpdateDTOInitProcessor\:\:build\(\)\.$#'
 			identifier: argument.missing
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/offline/webhook-processing.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/offline/webhook-processing.php
 
 		-
 			message: '#^Unknown parameter \$botSetup in call to static method BAGArt\\TelegramBot\\Processing\\Processors\\UpdateDTOInitProcessor\:\:build\(\)\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/offline/webhook-processing.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/offline/webhook-processing.php
 
 		-
 			message: '#^Unknown parameter \$serviceConfig in call to static method BAGArt\\TelegramBot\\Processing\\Processors\\UpdateDTOInitProcessor\:\:build\(\)\.$#'
 			identifier: argument.unknown
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/offline/webhook-processing.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/offline/webhook-processing.php
 
 		-
 			message: '#^Parameter \#1 \$tickable of method BAGArt\\AsyncKernel\\AsyncKernel\:\:addTickable\(\) expects BAGArt\\AsyncKernel\\Contracts\\Daemons\\ASKTickableContract\|BAGArt\\AsyncKernel\\Contracts\\Daemons\\WithASKTickableContract\|null, BAGArt\\ASKClient\\Contracts\\Transport\\HttpTransportContract given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-benchmark.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-benchmark.php
 
 		-
 			message: '#^Parameter \$headers of class BAGArt\\ASKClient\\Dto\\ASKHttpRequest constructor expects array\<string, string\>, array\<int, string\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-benchmark.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-benchmark.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between non\-falsy\-string and false will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-benchmark.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-benchmark.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\TelegramBot\\Contracts\\Outbound\\OutboundOrderingQueueContract\:\:getDlqChannels\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-metrics-daemon.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-metrics-daemon.php
 
 		-
 			message: '#^Variable \$redisDsn might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-metrics-daemon.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-metrics-daemon.php
 
 		-
 			message: '#^Call to an undefined method BAGArt\\ASKClientRedis\\Redis\\RedisDsn\:\:connect\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-tool.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-tool.php
 
 		-
 			message: '#^Variable \$queue might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-tool.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-tool.php
 
 		-
 			message: '#^Variable \$redis might not be defined\.$#'
 			identifier: variable.undefined
 			count: 24
-			path: misc/BAGArt/telegram-bot-lib/commands/outbound-tool.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/outbound-tool.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/poller-raw.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/poller-raw.php
 
 		-
 			message: '#^While loop condition is always true\.$#'
 			identifier: while.alwaysTrue
 			count: 1
-			path: misc/BAGArt/telegram-bot-lib/commands/poller-raw.php
+			path: misc/BAGArt/telegram-bot-lib/cmd/poller-raw.php
 
 		-
 			message: '#^Argument of an invalid type BAGArt\\TelegramBot\\Contracts\\Processing\\Processors\\TgTypeDTOProcessorContract supplied for foreach, only iterables are supported\.$#'

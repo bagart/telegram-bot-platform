@@ -83,14 +83,20 @@ fi
 # --- (b)+(c) module layout + wiring -----------------------------------------
 # A "module" = misc/BAGArt dir shipping tests whose src implements the
 # TgModuleContract plugin interface (matches *-module dirs and nettools).
-MODULE_DIRS="$(find misc/BAGArt -mindepth 1 -maxdepth 1 -type d |
-  while read -r d; do
-    [[ -f "$d/composer.json" && -d "$d/tests" ]] || continue
-    if [[ "$d" == *-module ]] ||
-       grep -rqE 'implements[[:space:]]+\\?[A-Za-z\\]*TgModuleContract' "$d/src" 2>/dev/null; then
-      echo "$d"
-    fi
-  done | sort)"
+# No-misc checkouts (prod-install CI, servers) have no module sources to
+# inspect — the loop below is a no-op, not a script abort (find on a missing
+# dir exits 1 and would kill the run under pipefail).
+MODULE_DIRS=""
+if [[ -d misc/BAGArt ]]; then
+  MODULE_DIRS="$(find misc/BAGArt -mindepth 1 -maxdepth 1 -type d |
+    while read -r d; do
+      [[ -f "$d/composer.json" && -d "$d/tests" ]] || continue
+      if [[ "$d" == *-module ]] ||
+         grep -rqE 'implements[[:space:]]+\\?[A-Za-z\\]*TgModuleContract' "$d/src" 2>/dev/null; then
+        echo "$d"
+      fi
+    done | sort)"
+fi
 
 ROOT_TEST_CHAIN="$(php -r '$t = json_decode(file_get_contents("composer.json"), true)["scripts"]["test"] ?? []; echo implode(PHP_EOL, array_map("strval", $t));' 2>/dev/null)"
 HOST_SUITES="$(grep -oE '<directory>[^<]+</directory>' phpunit.xml || true)"
@@ -141,8 +147,16 @@ if (is_file($tgModulesFile)) {
     foreach (($mm[1] ?? []) as $cls) { $listed[] = $cls; }
 }
 
+// Dev checkouts map through misc/ (PSR-4 path repos). Ephemeral no-misc
+// checkouts (prod-install CI, servers) verify against the installed
+// packages instead — a provider missing from the shipped vendor tree is
+// exactly the wiring failure this control exists to catch.
+$packageRoots = glob("misc/BAGArt/*/composer.json") ?: [];
+if ($packageRoots === []) {
+    $packageRoots = glob("vendor/bagart/*/composer.json") ?: [];
+}
 $prefixes = [];
-foreach (glob("misc/BAGArt/*/composer.json") ?: [] as $cjPath) {
+foreach ($packageRoots as $cjPath) {
     $dir = dirname($cjPath);
     $c = json_decode(file_get_contents($cjPath), true);
     foreach (($c["autoload"]["psr-4"] ?? []) as $ns => $path) {

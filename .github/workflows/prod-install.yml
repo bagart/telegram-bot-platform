@@ -43,11 +43,14 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Lock freshness
-        run: bash cmd/deps/check --mode=prod --format=github
-
       - name: Install from VCS dists (prod manifest, no misc/)
         run: COMPOSER=composer.prod.json composer install --no-interaction --no-progress --no-scripts
+
+      # After install: provider-wiring maps bootstrap providers through the
+      # shipped vendor/bagart packages (no misc/ exists here), so the check
+      # verifies the layout servers actually consume.
+      - name: Lock freshness
+        run: bash cmd/deps/check --mode=prod --format=github
 
       - name: Boot smoke
         run: |

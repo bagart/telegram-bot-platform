@@ -10,4 +10,4 @@ permissions:
 
 jobs:
   drift:
-    uses: BAGArt/telegram-platform-workflows/.github/workflows/baseline-drift.yml@5be3a8de34658b5d09d8d04986c0576eb872c0f9 # pin!
+    uses: BAGArt/telegram-platform-workflows/.github/workflows/baseline-drift.yml@3f17b169903abfd64ea0ad9cffd896c65df07b60 # pin!
